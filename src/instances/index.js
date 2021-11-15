@@ -49,27 +49,28 @@ export const useInstances = (url, stream, namespace, apikey) => {
         return () => CloseEventSource(eventSource)
     },[eventSource])
 
+
+    // getInstances returns a list of instances
+    async function getInstances() {
+        try {
+            // fetch instance list by default
+            let resp = await fetch(`${url}namespaces/${namespace}/instances`, {
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+            })
+            if (resp.ok){
+                let json = await resp.json()
+                setData(json.instances.edges)
+            } else {
+                setErr(await HandleError('list instances', resp, "listInstances"))
+            }
+        } catch(e) {
+            setErr(e.message)
+        }
+    }
+    
     return {
         data,
         err,
         getInstances
-    }
-}
-
-// getInstances returns a list of instances
-async function getInstances(url, namespace, apikey, setData, setErr) {
-    try {
-        // fetch instance list by default
-        let resp = await fetch(`${url}namespaces/${namespace}/instances`, {
-            headers: apikey === undefined ? {}:{"apikey": apikey}
-        })
-        if (resp.ok){
-            let json = await resp.json()
-            setData(json.instances.edges)
-        } else {
-            setErr(await HandleError('list instances', resp, "listInstances"))
-        }
-    } catch(e) {
-        setErr(e.message)
     }
 }

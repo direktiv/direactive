@@ -74,6 +74,7 @@ export const useNamespaces = (url, stream, apikey) => {
         try {
             let resp = await fetch(`${url}namespaces/${namespace}`, {
                 method: "PUT",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(resp.ok) {
                 return namespace
@@ -89,7 +90,8 @@ export const useNamespaces = (url, stream, apikey) => {
     async function deleteNamespace(namespace) {
         try {
             let resp = await fetch(`${url}namespaces/${namespace}?recursive=true`,{
-                method:"DELETE"
+                method:"DELETE",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(resp.ok) {
                 return
