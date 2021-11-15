@@ -4,6 +4,13 @@ export const  Config = {
     url: "http://172.16.67.147/api/"
 }
 
+// CloseEventSource closes the event source when the component unmounts
+export async function CloseEventSource(eventSource) {
+    if (eventSource !== null) {
+        eventSource.close()
+    }
+}
+
 // HandleError returns a helpful message back based on the response
 export async function HandleError(summary, resp) {
     const contentType = resp.headers.get('content-type')

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
-import { HandleError } from './util'
+import { CloseEventSource, HandleError } from './util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 
 /*
@@ -46,11 +46,7 @@ export const useInstances = (url, stream, namespace, apikey) => {
     },[data])
 
     React.useEffect(()=>{
-        return () => {
-            if (eventSource !== null) {
-                eventSource.close()
-            }
-        }
+        return () => CloseEventSource(eventSource)
     },[eventSource])
 
     // getInstances returns a list of instances
