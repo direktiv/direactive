@@ -1,6 +1,6 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
-import { HandleError } from './util'
+import { CloseEventSource, HandleError } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 
 /*
@@ -47,9 +47,7 @@ export const useNamespaces = (url, stream, apikey) => {
 
     React.useEffect(()=>{
         return () => {
-            if (eventSource !== null) {
-                eventSource.close()
-            }
+            CloseEventSource(eventSource)
         }
     },[eventSource])
 
