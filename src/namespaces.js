@@ -1,6 +1,6 @@
 import * as React from 'react'
-import {EventSourcePolyfill} from 'event-source-polyfill'
 import fetch from "cross-fetch"
+const {EventSourcePolyfill} = require('event-source-polyfill')
 
 /*
     useNamespaces is a react hook which returns createNamespace, deleteNamespace and data
