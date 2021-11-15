@@ -1,5 +1,6 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
+import { HandleError } from './util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 
 /*
@@ -59,8 +60,12 @@ export const useNamespaces = (url, stream, apikey) => {
             let resp = await fetch(`${url}namespaces`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
-            let json = await resp.json()
-            setData(json.edges)
+            if (resp.ok) {
+                let json = await resp.json()
+                setData(json.edges)
+            } else {
+                setErr(await HandleError('list namespaces', resp, 'listNamespaces'))
+            }
         } catch(e) {
             setErr(e.message)
         }
@@ -75,7 +80,7 @@ export const useNamespaces = (url, stream, apikey) => {
             if(resp.ok) {
                 return namespace
             } else {
-                // do something
+                setErr(await HandleError('create a namespace', resp, 'addNamespace'))
             }
         } catch(e) {
             setErr(e.message)
@@ -91,8 +96,7 @@ export const useNamespaces = (url, stream, apikey) => {
             if(resp.ok) {
                 return
             } else {
-                // do something
-                // await handleError('delete namespace', resp, "deleteNamespace")
+                setErr(await HandleError('delete a namespace', resp, 'deleteNamespace'))
             }
         } catch(e) {
             setErr(e.message)
