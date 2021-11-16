@@ -4,14 +4,15 @@ import { CloseEventSource, HandleError } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 
 /*
-    useNamespaces is a react hook which returns createNamespace, deleteNamespace and data
+    useNamespaceLogs is a react hook which returns data, err or getNamespaceLogs()
     takes:
       - url to direktiv api http://x/api/
       - stream to use sse or a normal fetch
+      - namespace to call the api on
       - apikey to provide authentication of an apikey
 */
-export const useNamespaces = (url, stream, apikey) => {
-    
+export const useNamespaceLogs = (url, stream, namespace, apikey) => {
+
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
@@ -20,7 +21,7 @@ export const useNamespaces = (url, stream, apikey) => {
         if(stream) {
             if (eventSource === null){
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/logs`, {
                     headers: apikey === undefined ? {}:{"apikey": apikey}
                 })
 
@@ -40,7 +41,7 @@ export const useNamespaces = (url, stream, apikey) => {
             }
         } else {
             if(data === null) {
-                getNamespaces()
+                getNamespaceLogs()
             }
         }
     },[data])
@@ -52,58 +53,27 @@ export const useNamespaces = (url, stream, apikey) => {
     },[eventSource])
 
     // getNamespaces returns a list of namespaces
-    async function getNamespaces() {
+    async function getNamespaceLogs() {
         try {
             // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/logs`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json.edges)
             } else {
-                setErr(await HandleError('list namespaces', resp, 'listNamespaces'))
+                setErr(await HandleError('list namespace logs', resp, 'namespaceLogs'))
             }
         } catch(e) {
             setErr(e.message)
         }
     }
 
-    // createNamespace creates a namespace from direktiv
-    async function createNamespace(namespace) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}`, {
-                method: "PUT",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(!resp.ok){
-                setErr(await HandleError('create a namespace', resp, 'addNamespace'))
-            }
-        } catch(e) {
-            setErr(e.message)
-        }
-    }
-
-    // deleteNamespace deletes a namespace from direktiv
-    async function deleteNamespace(namespace) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}?recursive=true`,{
-                method:"DELETE",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(!resp.ok) {
-                setErr(await HandleError('delete a namespace', resp, 'deleteNamespace'))
-            }
-        } catch(e) {
-            setErr(e.message)
-        }
-    }
 
     return {
         data,
         err,
-        createNamespace,
-        deleteNamespace,
-        getNamespaces
+        getNamespaceLogs
     }
 }

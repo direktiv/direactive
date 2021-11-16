@@ -1,7 +1,11 @@
 // Config default config to test with 
 export const  Config = {
-    namespace: "test",
-    url: "http://172.16.67.147/api/"
+    namespace: process.env.NAMESPACE,
+    url: process.env.API_URL,
+    registry: "https://docker.io",
+    apikey: "testapikey",
+    secret: "test-secret",
+    secretdata: "test-secret-data"
 }
 
 // CloseEventSource closes the event source when the component unmounts
@@ -12,7 +16,7 @@ export async function CloseEventSource(eventSource) {
 }
 
 // HandleError returns a helpful message back based on the response
-export async function HandleError(summary, resp) {
+export async function HandleError(summary, resp, perm) {
     const contentType = resp.headers.get('content-type')
 
     if (resp.status === 405) {
