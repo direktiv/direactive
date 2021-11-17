@@ -10,8 +10,13 @@ import {useDirektivNodes} from './nodes'
 import { useDirektivWorkflow } from './workflow'
 import {useDirektivWorkflowVariables} from './workflow/variables'
 import {useDirektivBroadcastConfiguration} from './event-configuration'
+import { useDirektivWorkflowLogs } from './workflow/logs'
+import {useDirektivInstanceLogs, useDirektivInstance} from './instance'
 
 
+export const useInstanceLogs = useDirektivInstanceLogs
+export const useInstance = useDirektivInstance
+export const useWorkflowLogs = useDirektivWorkflowLogs
 export const useBroadcastConfiguration = useDirektivBroadcastConfiguration
 export const useWorkflowVariables = useDirektivWorkflowVariables
 export const useWorkflow = useDirektivWorkflow

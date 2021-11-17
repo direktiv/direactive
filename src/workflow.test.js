@@ -1,6 +1,6 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 import * as matchers from 'jest-extended';
-import {useNodes, useWorkflow} from './index'
+import {useNodes, useWorkflow, useWorkflowLogs} from './index'
 import { Config } from "./util";
 expect.extend(matchers);
 
@@ -106,7 +106,18 @@ describe('useWorkflow', () => {
         await waitForNextUpdate()
         expect(await result.current.getStateMillisecondMetrics()).toBeInstanceOf(Array)
     })
+    it('fetch workflow logs', async()=>{
+        const { result, waitForNextUpdate } = renderHook(() => useWorkflowLogs(Config.url, false, Config.namespace, "test-workflow-hook"));
+        await waitForNextUpdate()
+        expect(result.current.data).toBeInstanceOf(Array)
+    })
+    it('stream workflow logs', async()=>{
+        const { result, waitForNextUpdate } = renderHook(() => useWorkflowLogs(Config.url, true, Config.namespace, "test-workflow-hook"));
+        await waitForNextUpdate()
+        expect(result.current.data).toBeInstanceOf(Array)
+    })
 })
+
 
 afterAll(async ()=>{
     console.log('deleting workflow')
