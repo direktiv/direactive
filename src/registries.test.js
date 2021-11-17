@@ -1,9 +1,7 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 import * as matchers from 'jest-extended';
 import { Config } from './util';
-import { useRegistries } from './registries';
-import { useGlobalPrivateRegistries } from "./registries/global-private";
-import { useGlobalRegistries } from "./registries/global";
+import { useRegistries, useGlobalPrivateRegistries, useGlobalRegistries } from './index' 
 expect.extend(matchers);
 
 // mock timer using jest

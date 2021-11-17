@@ -11,7 +11,7 @@ const {EventSourcePolyfill} = require('event-source-polyfill')
       - namespace the namespace to send the requests to
       - apikey to provide authentication of an apikey
 */
-export const useInstances = (url, stream, namespace, apikey) => {
+export const useDirektivInstances = (url, stream, namespace, apikey) => {
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
@@ -31,6 +31,9 @@ export const useInstances = (url, stream, namespace, apikey) => {
                 }
 
                 async function readData(e) {
+                    if(e.data === "") {
+                        return
+                    }
                     let json = JSON.parse(e.data)
                     setData(json.instances.edges)
                 }
@@ -40,7 +43,7 @@ export const useInstances = (url, stream, namespace, apikey) => {
             }
         } else {
             if(data === null) {
-                getInstances(url, namespace, apikey, setData, setErr)
+                getInstances()
             }
         }
     },[data])

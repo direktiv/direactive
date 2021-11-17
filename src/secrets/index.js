@@ -9,7 +9,7 @@ import {  HandleError } from '../util'
       - namespace the namespace to query on
       - apikey to provide authentication of an apikey
 */
-export const useSecrets = (url, namespace, apikey) => {
+export const useDirektivSecrets = (url, namespace, apikey) => {
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
 

@@ -8,7 +8,7 @@ import {  HandleError } from '../util'
       - url to direktiv api http://x/api/
       - apikey to provide authentication of an apikey
 */
-export const useGlobalPrivateRegistries = (url, apikey) => {
+export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
 
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)

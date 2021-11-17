@@ -10,7 +10,7 @@ const {EventSourcePolyfill} = require('event-source-polyfill')
       - stream to use sse or a normal fetch
       - apikey to provide authentication of an apikey
 */
-export const useNamespaces = (url, stream, apikey) => {
+export const useDirektivNamespaces = (url, stream, apikey) => {
     
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
@@ -31,6 +31,9 @@ export const useNamespaces = (url, stream, apikey) => {
                 }
 
                 async function readData(e) {
+                    if(e.data === "") {
+                        return
+                    }
                     let json = JSON.parse(e.data)
                     setData(json.edges)
                 }

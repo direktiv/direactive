@@ -7,7 +7,7 @@ import url from 'rollup-plugin-url'
 import pkg from './package.json'
 
 export default {
-  input: 'src/namespaces.js',
+  input: 'src/index.js',
   output: [
     {
       file: pkg.main,

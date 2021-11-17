@@ -12,7 +12,7 @@ import {  HandleError } from '../util'
 
 
 
-export const useRegistries = (url, namespace, apikey) => {
+export const useDirektivRegistries = (url, namespace, apikey) => {
 
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)

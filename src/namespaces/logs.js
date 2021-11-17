@@ -11,7 +11,7 @@ const {EventSourcePolyfill} = require('event-source-polyfill')
       - namespace to call the api on
       - apikey to provide authentication of an apikey
 */
-export const useNamespaceLogs = (url, stream, namespace, apikey) => {
+export const useDirektivNamespaceLogs = (url, stream, namespace, apikey) => {
 
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
@@ -32,6 +32,9 @@ export const useNamespaceLogs = (url, stream, namespace, apikey) => {
                 }
 
                 async function readData(e) {
+                    if(e.data === "") {
+                        return
+                    }
                     let json = JSON.parse(e.data)
                     setData(json.edges)
                 }
