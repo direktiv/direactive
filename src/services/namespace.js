@@ -3,6 +3,313 @@ import fetch from "cross-fetch"
 import { CloseEventSource, HandleError } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 
+/* 
+    useNamespaceServiceRevision takes
+    - url
+    - namespace
+    - service
+    - revision
+    - apikey
+*/
+export const useDirektivNamespaceServiceRevision = (url, namespace, service, revision, apikey) => {
+    const [revisionDetails, setRevisionDetails] = React.useState(null)
+    const [podSource, setPodSource] = React.useState(null)
+    const [pods, setPods] = React.useState([])
+    const [err, setErr] = React.useState(null)
+    const [revisionSource, setRevisionSource] = React.useState(null)
+    
+    const podsRef = React.useRef(pods)
+
+
+    React.useEffect(()=>{
+        if(podSource === null) {
+            let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}/revisions/${revision}/pods`, {
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+            })
+
+            listener.onerror = (e) => {
+                if(e.status === 403) {
+                    setErr("permission denied")
+                }
+            }
+
+            async function readData(e) {
+                let podz = podsRef.current
+
+                if (e.data === "") {
+                    return
+                }
+                let json = JSON.parse(e.data)
+
+                switch (json.event) {
+                    case "DELETED":
+                        for (var i = 0; i < pods.length; i++) {
+                            if (podz[i].name === json.pod.name) {
+                                podz.splice(i, 1)
+                                podsRef.current = pods
+                                break
+                            }
+                        }
+                        break
+                    case "MODIFIED":
+                        for (i = 0; i < podz.length; i++) {
+                            if (podz[i].name === json.pod.name) {
+                                podz[i] = json.pod
+                                podsRef.current = podz
+                                break
+                            }
+                        }
+                        break
+                    default:
+                        let found = false
+                        for (i = 0; i < podz.length; i++) {
+                            if (podz[i].name === json.pod.name) {
+                                found = true
+                                break
+                            }
+                        }
+                        if (!found) {
+                            podz.push(json.pod)
+                            podsRef.current = pods
+                        }
+                }
+                setPods(JSON.parse(JSON.stringify(podsRef.current)))
+                
+            }
+            listener.onmessage = e => readData(e)
+            setPodSource(listener)
+        }
+    })
+
+    React.useEffect(()=>{
+        if(revisionSource === null) {
+            // setup event listener 
+            let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}/revisions/${revision}`, {
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+            })
+
+            listener.onerror = (e) => {
+                if(e.status === 403) {
+                    setErr("permission denied")
+                }
+            }
+
+            async function readData(e) {
+                if (e.data === "") {
+                    return
+                }
+                let json = JSON.parse(e.data)
+                if (json.event === "ADDED" || json.event === "MODIFIED") {
+                    setRevisionDetails(json.revision)
+                }
+                // if (json.event === "DELETED") {
+                //     history.goBack()
+                // }
+            }
+
+            listener.onmessage = e => readData(e)
+            setRevisionSource(listener)
+        }
+    },[revisionSource])
+
+    React.useEffect(()=>{
+        return () => {
+            CloseEventSource(revisionSource)
+            CloseEventSource(podSource)
+        }
+    },[revisionSource, podSource])
+
+
+    return {
+        revisionDetails,
+        pods,
+        err
+    }
+}
+/* 
+    useNamespaceService takes
+    - url
+    - namespace
+    - service
+    - apikey
+*/
+export const useDirektivNamespaceService = (url, namespace, service, apikey) => {
+    const [revisions, setRevisions] = React.useState(null)
+    const [fn, setFn] = React.useState(null)
+    const [traffic, setTraffic] = React.useState(null)
+    
+    const revisionsRef = React.useRef(revisions ? revisions: [])
+    
+    
+    const [err, setErr] = React.useState(null)
+    
+    const [trafficSource, setTrafficSource] = React.useState(null)
+    const [eventSource, setEventSource] = React.useState(null)
+
+    React.useEffect(()=>{
+        if (trafficSource === null) {
+            // setup event listener 
+            let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}`, {
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+            })
+
+            listener.onerror = (e) => {
+                if(e.status === 403) {
+                    setErr("permission denied")
+                }
+            }
+
+            async function readData(e) {
+                if(e.data === "") {
+                    return
+                }
+                let json = JSON.parse(e.data)
+
+                if (json.event === "MODIFIED" || json.event === "ADDED") {
+                    setFn(JSON.parse(JSON.stringify(json.function)))
+                    setTraffic(JSON.parse(JSON.stringify(json.traffic)))
+                }
+            }
+
+            listener.onmessage = e => readData(e)
+            setTrafficSource(listener)
+        }
+    },[fn])
+
+    React.useEffect(()=>{
+        if (eventSource === null){
+            // setup event listener 
+            let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}/revisions`, {
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+            })
+
+            listener.onerror = (e) => {
+                if(e.status === 403) {
+                    setErr("permission denied")
+                }
+            }
+
+            async function readData(e) {
+                let revs = revisionsRef.current
+                if(e.data === "") {
+                    return
+                }
+                let json = JSON.parse(e.data)
+                switch (json.event) {
+                    case "DELETED":
+                        for (var i = 0; i < revs.length; i++) {
+                            if (revs[i].name === json.revision.name) {
+                                revs.splice(i, 1)
+                                revisionsRef.current = revs
+                                break
+                            }
+                        }
+                        if (revs.length === 0) {
+                            history.goBack()
+                        }
+                        break
+                    case "MODIFIED":
+                        for (i = 0; i < revs.length; i++) {
+                            if (revs[i].name === json.revision.name) {
+                                revs[i] = json.revision
+                                revisionsRef.current = revs
+                                break
+                            }
+                        }
+                        break
+                    default:
+                        let found = false
+                        for (i = 0; i < revs.length; i++) {
+                            if (revs[i].name === json.revision.name) {
+                                found = true
+                                break
+                            }
+                        }
+                        if (!found) {
+                            revs.push(json.revision)
+                            revisionsRef.current = revs
+                        }
+                }
+
+                setRevisions(JSON.parse(JSON.stringify(revisionsRef.current)))
+            }
+
+            listener.onmessage = e => readData(e)
+            setEventSource(listener)
+        }
+    },[revisions])
+
+    React.useEffect(()=>{
+        return () => {
+            CloseEventSource(eventSource)
+            CloseEventSource(trafficSource)
+        }
+    },[eventSource, trafficSource])
+
+    async function createNamespaceServiceRevision(image, minScale, size, cmd, traffic) {
+        try {
+            let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}`, {
+                headers: apikey === undefined ? {}:{"apikey": apikey},
+                method: "POST",
+                body: JSON.stringify({
+                    trafficPercent: traffic,
+                    cmd,
+                    image,
+                    minScale,
+                    size
+                })
+            })
+            if (!resp.ok) {
+                setErr(await HandleError('create namespace service revision', resp, 'createRevision'))
+            }
+        } catch(e){
+            setErr(e.message)
+        }
+    }
+
+    async function deleteNamespaceServiceRevision(rev){
+        try {
+            let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}/revisions/${rev}`, {
+                method: "DELETE"
+            })
+            if(!resp.ok){
+                setErr(await HandleError('delete namespace service revision', resp, 'deleteRevision'))
+            }
+        } catch(e){
+            setErr(e.message)
+        }
+    }
+
+    async function setNamespaceServiceRevisionTraffic(rev1, rev1value, rev2, rev2value) {
+        try {
+            let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}`, {
+                method: "PATCH",
+                body: JSON.stringify({values:[{
+                    revision: rev1,
+                    percent: rev1value
+                },{
+                    revision: rev2,
+                    percent: rev2value
+                }]})
+            })
+            if(!resp.ok){
+                setErr(await HandleError('update traffic namespace service', resp, 'updateTraffic'))
+            }
+        } catch(e){
+            setErr(e.message)
+        }
+    }
+
+    return {
+        revisions,
+        fn,
+        traffic,
+        err,
+        createNamespaceServiceRevision,
+        deleteNamespaceServiceRevision,
+        setNamespaceServiceRevisionTraffic
+    }
+} 
 /*
     useNamespaceServices is a react hook 
     takes:
@@ -119,7 +426,7 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
                 })
             })
             if (!resp.ok) {
-                setErr(await HandleError('create global service', resp, 'createService'))
+                setErr(await HandleError('create namespace service', resp, 'createService'))
             }
         } catch(e){
             setErr(e.message)
@@ -132,7 +439,7 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
                 method: "DELETE"
             })
             if(!resp.ok) {
-                setErr(await HandleError('delete global service', resp, 'deleteService'))
+                setErr(await HandleError('delete namespace service', resp, 'deleteService'))
             }
         } catch(e) {
             setErr(e.message)

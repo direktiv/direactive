@@ -15,34 +15,62 @@ import {useDirektivInstanceLogs, useDirektivInstance} from './instance'
 import {useDirektivEvents} from './events'
 import { useDirektivNamespaceMetrics } from './namespaces/metrics'
 import { useDirektivNamespaceVariables } from './namespaces/variables'
-import { useDirektivGlobalService, useDirektivGlobalServiceRevision, useDirektivGlobalServiceRevisionPodLogs, useDirektivGlobalServices} from './services/global'
-import { useDirektivNamespaceServices } from './services/namespace'
-import { useDirektivWorkflowServices } from './services/workflow'
+import { useDirektivGlobalService, useDirektivGlobalServiceRevision, useDirektivGlobalServices} from './services/global'
+import { useDirektivNamespaceService, useDirektivNamespaceServiceRevision, useDirektivNamespaceServices } from './services/namespace'
+import { useDirektivWorkflowService, useDirektivWorkflowServiceRevision, useDirektivWorkflowServices } from './services/workflow'
+import {useDirektivPodLogs} from './services/logs'
 
+// Services
+// Workflow
 export const useWorkflowServices = useDirektivWorkflowServices
-export const useNamespaceServices = useDirektivNamespaceServices
+export const useWorkflowService = useDirektivWorkflowService
+export const useWorkflowServiceRevision = useDirektivWorkflowServiceRevision
 
+// Namespace
+export const useNamespaceServices = useDirektivNamespaceServices
+export const useNamespaceService = useDirektivNamespaceService
+export const useNamespaceServiceRevision = useDirektivNamespaceServiceRevision
+
+// Global
 export const useGlobalServices = useDirektivGlobalServices
 export const useGlobalService = useDirektivGlobalService
 export const useGlobalServiceRevision = useDirektivGlobalServiceRevision
-export const useGlobalServiceRevisionPodLogs = useDirektivGlobalServiceRevisionPodLogs
 
-
-export const useNamespaceVariables = useDirektivNamespaceVariables
-export const useNamespaceMetrics = useDirektivNamespaceMetrics
-export const useEvents = useDirektivEvents
+// log hooks
+export const usePodLogs = useDirektivPodLogs
 export const useInstanceLogs = useDirektivInstanceLogs
-export const useInstance = useDirektivInstance
 export const useWorkflowLogs = useDirektivWorkflowLogs
-export const useBroadcastConfiguration = useDirektivBroadcastConfiguration
+export const useNamespaceLogs = useDirektivNamespaceLogs
+
+// Variables
 export const useWorkflowVariables = useDirektivWorkflowVariables
+export const useNamespaceVariables = useDirektivNamespaceVariables
+
+// Metrics
+export const useNamespaceMetrics = useDirektivNamespaceMetrics
+
+// Eventing
+export const useEvents = useDirektivEvents
+export const useBroadcastConfiguration = useDirektivBroadcastConfiguration
+
+// Instances
+export const useInstance = useDirektivInstance
+export const useInstances = useDirektivInstances
+
+// Explorer
 export const useWorkflow = useDirektivWorkflow
 export const useNodes = useDirektivNodes
-export const useInstances = useDirektivInstances
+
+// Misc
 export const useJQPlayground = useDirektivJQPlayground
+
+// Namespaces
 export const useNamespaces = useDirektivNamespaces
+
+// Registries
 export const useRegistries = useDirektivRegistries
 export const useGlobalRegistries = useDirektivGlobalRegistries
 export const useGlobalPrivateRegistries = useDirektivGlobalPrivateRegistries
-export const useNamespaceLogs = useDirektivNamespaceLogs
+
+// Secrets
 export const useSecrets = useDirektivSecrets
