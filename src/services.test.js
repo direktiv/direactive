@@ -161,11 +161,9 @@ describe('useGlobalServices', ()=>{
         })
         describe('useGlobalServiceRevisionPodLogs', ()=>{
             it('get pods logs', async()=>{
-                console.log(process.env.POD_ID)
                 const { result, waitForNextUpdate} = renderHook(()=> useGlobalServiceRevisionPodLogs(Config.url, process.env.POD_ID))
-                console.log(result.current)
                 await waitForNextUpdate()
-                console.log(result.current)
+                expect(result.current.data.data).toBe("Starting server.\n")
             })
         })
     })    
