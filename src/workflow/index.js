@@ -73,6 +73,20 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
+    async function getRevisions(){
+        try {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=refs`,{})
+            if(resp.ok) {
+                let js = await resp.json()
+                return js.edges
+            } else {
+                setErr(await HandleError('fetch workflow refs', resp, 'getWorkflow'))
+            }
+        } catch(e) {
+            setErr(e.message)
+        }
+    }
+
     async function updateWorkflow(newwf) {
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=update-workflow`, {
@@ -116,11 +130,28 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
             })
             if (resp.ok) {
                 let json = await resp.json()
-                return json.live
+                return json
             } else {
                 setErr(await HandleError('get workflow router', resp, 'getWorkflow'))
             }
         } catch (e) {
+            setErr(e.message)
+        }
+    }
+
+    async function editWorkflowRouter(routes, live) {
+        try {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=edit-router`, {
+                method: "POST",
+                body: JSON.stringify({
+                    route: routes,
+                    live: live,
+                })
+            })
+            if (!resp.ok) {
+                setErr(await HandleError('edit workflow router', resp, 'editRouter'))
+            }
+        } catch(e) {
             setErr(e.message)
         }
     }
@@ -219,6 +250,76 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
+    async function saveWorkflow(ref){
+        let rev = ref
+        if(rev === undefined){
+            rev = "latest"
+        }
+        try {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=save-workflow&ref=${rev}`, {
+                method: "POST"
+            })
+            if (!resp.ok) {
+                setErr(await HandleError('save workflow', resp, 'saveWorkflow'))
+            } else {
+                return await resp.json()
+            }
+        } catch(e) {
+            setErr(e.message)
+        }
+    }
+
+    async function deleteRevision(ref) {
+        let rev = ref
+        if(rev === undefined){
+            rev = "latest"
+        }
+        try {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-revision&ref=${ref}`, {
+                method:"POST"
+            })
+            if(!resp.ok) {
+                setErr(await HandleError(`delete revision`, resp, 'deleteRevision'))
+            }
+        } catch(e) {
+            setErr(e.message)
+        }
+    }
+
+    async function discardWorkflow(ref) {
+        let rev = ref
+        if(rev === undefined){
+            rev = "latest"
+        }
+        try {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=discard-workflow&ref=${rev}`, {
+                method: "POST"
+            })
+            if(!resp.ok) {
+                setErr(await HandleError('discard workflow', resp, 'discardWorkflow'))
+            }
+        } catch(e) {
+            setErr(e.message)
+        }
+    }
+
+    async function tagWorkflow(ref, tag) {
+        let rev = ref
+        if(rev === undefined){
+            rev = "latest"
+        }
+        try {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tag&ref=${ref}&tag=${tag}`,{
+                method: "POST"
+            })
+            if(!resp.ok) {
+                setErr(await HandleError(`tag workflow`, resp, 'tag'))
+            }
+        } catch(e) {
+            setErr(e.message)
+        }
+    }
+
     return {
         data,
         err,
@@ -226,8 +327,14 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         setWorkflowLogToEvent,
         toggleWorkflow,
         getWorkflowRouter,
+        editWorkflowRouter,
         executeWorkflow,
         updateWorkflow,
+        saveWorkflow,
+        discardWorkflow,
+        tagWorkflow,
+        getRevisions,
+        deleteRevision,
         addAttributes,
         deleteAttributes,
         getInstancesForWorkflow,

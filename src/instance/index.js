@@ -37,7 +37,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
                         return
                     }
                     let json = JSON.parse(e.data)
-                    setData(json.instance)
+                    setData(json.edges)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -63,7 +63,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
             })
             if (resp.ok){
                 let json = await resp.json()
-                setData(json.instance)
+                setData(json.edges)
             } else {
                 setErr(await HandleError('get instance logs', resp, "instanceLogs"))
             }
@@ -146,9 +146,57 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
         }
     }
 
+    async function getInput() {
+        try {
+            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/input`, {
+                method:"GET"
+            })
+            if(resp.ok) {
+                let json = await resp.json()
+                return atob(json.data)
+            } else {
+                setErr(await HandleError('get instance input', resp, 'getInstance'))
+            }
+        } catch(e) {
+            setErr(e.message)
+        }
+    }
+
+    async function getOutput(){
+        try {
+            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/output`, {
+                method:"GET"
+            })
+            if(resp.ok) {
+                let json = await resp.json()
+                return atob(json.data)
+            } else {
+                setErr(await HandleError('get instance output', resp, 'getInstance'))
+            }
+        } catch(e) {
+            setErr(e.message)
+        }
+    }
+
+    async function cancelInstance() {
+        try {
+            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/cancel`, {
+                method:"POST"
+            })
+            if(!resp.ok){
+                setErr(await HandleError('cancelling instance', resp, "cancelInstance"))
+            }
+        } catch(e) {
+            setErr(e.message)
+        }
+    }
+
     return {
         data,
         err,
-        getInstance
+        getInstance,
+        cancelInstance,
+        getInput,
+        getOutput
     }
 }

@@ -111,7 +111,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                 method: "DELETE"
             })
             if(!resp.ok) {
-                setErr(await HandleError('delete variable', resp, 'setWorkflowVariable'))
+                setErr(await HandleError('delete variable', resp, 'deleteWorkflowVariable'))
             }
         } catch(e) {
             setErr(e.message)

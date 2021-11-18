@@ -12,8 +12,25 @@ import {useDirektivWorkflowVariables} from './workflow/variables'
 import {useDirektivBroadcastConfiguration} from './event-configuration'
 import { useDirektivWorkflowLogs } from './workflow/logs'
 import {useDirektivInstanceLogs, useDirektivInstance} from './instance'
+import {useDirektivEvents} from './events'
+import { useDirektivNamespaceMetrics } from './namespaces/metrics'
+import { useDirektivNamespaceVariables } from './namespaces/variables'
+import { useDirektivGlobalService, useDirektivGlobalServiceRevision, useDirektivGlobalServiceRevisionPodLogs, useDirektivGlobalServices} from './services/global'
+import { useDirektivNamespaceServices } from './services/namespace'
+import { useDirektivWorkflowServices } from './services/workflow'
+
+export const useWorkflowServices = useDirektivWorkflowServices
+export const useNamespaceServices = useDirektivNamespaceServices
+
+export const useGlobalServices = useDirektivGlobalServices
+export const useGlobalService = useDirektivGlobalService
+export const useGlobalServiceRevision = useDirektivGlobalServiceRevision
+export const useGlobalServiceRevisionPodLogs = useDirektivGlobalServiceRevisionPodLogs
 
 
+export const useNamespaceVariables = useDirektivNamespaceVariables
+export const useNamespaceMetrics = useDirektivNamespaceMetrics
+export const useEvents = useDirektivEvents
 export const useInstanceLogs = useDirektivInstanceLogs
 export const useInstance = useDirektivInstance
 export const useWorkflowLogs = useDirektivWorkflowLogs

@@ -5,7 +5,7 @@ import {useSecrets} from './index'
 expect.extend(matchers);
 
 // mock timer using jest
-jest.useFakeTimers();
+// jest.useFakeTimers();
 
 describe('useSecrets', () => {
     it('list secrets',  async () => {

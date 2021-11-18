@@ -1,6 +1,6 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 import * as matchers from 'jest-extended';
-import {useNodes, useWorkflowVariables} from './index'
+import {useNamespaceVariables, useNodes, useWorkflowVariables} from './index'
 import { Config } from "./util";
 expect.extend(matchers);
 
@@ -22,6 +22,57 @@ beforeAll(async ()=>{
         result.current.createNode("/test-workflowvar-hook", "workflow",  wfyaml)
     })
     await waitForNextUpdate()
+})
+
+describe('useNamespaceVariables', ()=>{
+    it('fetch namespace variables', async ()=>{
+        const { result, waitForNextUpdate } = renderHook(() => useNamespaceVariables(Config.url, false, Config.namespace));
+        await waitForNextUpdate()
+        expect(result.current.data.length).toEqual(0)
+    })
+    it('stream namespace variables', async()=>{
+        const { result, waitForNextUpdate } = renderHook(() => useNamespaceVariables(Config.url, true, Config.namespace))
+        await waitForNextUpdate()
+        expect(result.current.data.length).toEqual(0)
+    })
+    it('set namespace variable, get namespace variable and then delete namespace variable', async()=>{
+        const { result, waitForNextUpdate } = renderHook(() => useNamespaceVariables(Config.url, true, Config.namespace))
+        await waitForNextUpdate()
+        expect(result.current.data.length).toEqual(0)
+        
+        act(()=>{
+            result.current.setNamespaceVariable("testnamespace", "testnamespace")
+        })
+
+        await waitForNextUpdate()
+        let found = false
+        for(var i=0; i < result.current.data.length; i++) {
+            if(result.current.data[i].node.name === "testnamespace"){
+                found = true
+            }
+        }
+        expect(found).toBeTrue()
+
+        // get workflow variable data
+        let testvar = await result.current.getNamespaceVariable("testnamespace")
+        expect(testvar.data).toEqual("testnamespace")
+        expect(testvar.contentType).toEqual("application/json")
+
+        // delete workflow variable
+        act(()=>{
+            result.current.deleteNamespaceVariable("testnamespace")
+        })
+
+        await waitForNextUpdate()
+        found = false
+        for(var i=0; i < result.current.data.length; i++) {
+            if(result.current.data[i].node.name === "testnamespace"){
+                found = true
+            }
+        }
+        expect(found).not.toBeTrue()
+
+    })
 })
 
 describe('useWorkflowVariables', ()=>{
