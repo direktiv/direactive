@@ -16,6 +16,8 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
 
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
+    const [createErr, setCreateErr] = React.useState(null)
+    const [deleteErr, setDeleteErr] = React.useState(null)
 
     React.useEffect(()=>{
         if(data === null) {
@@ -47,10 +49,10 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
                 body: JSON.stringify({data:val, reg: key})
             })
             if(!resp.ok){
-                setErr(await HandleError('create registry', resp, 'createRegistry'))
+                setCreateErr(await HandleError('create registry', resp, 'createRegistry'))
             }
         } catch(e) {
-            setErr(e.message)
+            setCreateErr(e.message)
         }
     }
 
@@ -63,16 +65,18 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
                 })
             })
             if (!resp.ok) {
-                setErr(await HandleError('delete registry', resp, 'deleteRegistry'))
+                setDeleteErr(await HandleError('delete registry', resp, 'deleteRegistry'))
             }
         } catch (e) {
-            setErr(e.message)
+            setDeleteErr(e.message)
         }
     }
 
     return {
         data,
         err,
+        createErr,
+        deleteErr,
         createRegistry,
         deleteRegistry,
         getRegistries

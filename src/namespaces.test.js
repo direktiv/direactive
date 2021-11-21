@@ -6,7 +6,7 @@ expect.extend(matchers);
 
 // mock timer using jest
 jest.useFakeTimers();
-
+jest.setTimeout(30000)
 
 describe('useNamespaceLogs', ()=> {
     it('fetch namespace logs', async() => {
@@ -62,13 +62,12 @@ describe('useNamespaces', () => {
     // wait for initial result    
     await waitForNextUpdate()
 
-    // create a namespace
-    await act(async()=>{
-        await result.current.createNamespace("test-test")
-    })
+    await result.current.createNamespace("test-test")
+
     await act(async()=>{
         result.current.getNamespaces()
     })
+
     await waitForNextUpdate()
     let found = false
     for(var i=0; i < result.current.data.length; i++) {
@@ -84,9 +83,8 @@ describe('useNamespaces', () => {
     await waitForNextUpdate()
     
     // delete a namespace
-    await act(async()=>{
-        await result.current.deleteNamespace("test-test")
-    })
+    await result.current.deleteNamespace("test-test")
+
     await act(async()=>{
         result.current.getNamespaces()
     })
@@ -106,11 +104,10 @@ describe('useNamespaces', () => {
     await waitForNextUpdate()
 
     // create a namespace
-    await act(async ()=>{
-        result.current.createNamespace("test-test")
+await        result.current.createNamespace("test-test")
 
-    })
-    await waitForNextUpdate()
+await waitForNextUpdate()
+
     let found = false
     for(var i=0; i < result.current.data.length; i++) {
         if(result.current.data[i].node.name === "test-test") {
@@ -125,9 +122,7 @@ describe('useNamespaces', () => {
     await waitForNextUpdate()
     
     // delete a namespace
-    await act(async ()=>{
         await result.current.deleteNamespace("test-test")
-    })
     await waitForNextUpdate()
     let found = false
     for(var i=0; i < result.current.data.length; i++) {
@@ -140,17 +135,13 @@ describe('useNamespaces', () => {
   it('delete a namespace that doesnt exist', async()=>{
     const { result, waitForNextUpdate } = renderHook(() => useNamespaces(Config.url, true));
     await waitForNextUpdate()
-    await act(async()=>{
-        await result.current.deleteNamespace("xxxxxx")
-    })
-    expect(result.current.err).not.toBeNull()
+    let err = await result.current.deleteNamespace("xxxxxx")
+    expect(err).toBe('delete a namespace: namespace not found')
   })
   it('create a namespace with a bad name', async()=>{
     const { result, waitForNextUpdate } = renderHook(() => useNamespaces(Config.url, true));
     await waitForNextUpdate()
-    await act(async()=>{
-        await result.current.deleteNamespace("Xxxxxx")
-    })
-    expect(result.current.err).not.toBeNull()
+    let err =  await result.current.createNamespace("Xxxxxx")
+    expect(err).toBe("create a namespace: one or more fields has an invalid value")
   })
 })

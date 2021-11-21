@@ -3960,6 +3960,15 @@ dir-glob@2.0.0:
     arrify "^1.0.1"
     path-type "^3.0.0"
 
+direktiv-react-hooks@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/direktiv-react-hooks/-/direktiv-react-hooks-0.0.7.tgz#d4f569a4822406a46b160aeda7cee8a307c64d7a"
+  integrity sha512-8Ieyr2u1kQDPry1wXnyBaEQ0FSG7svHHRcsYU+WO9LqWgR+pJGweSC7oFc3x4VFdoKFZa2hz1S7HYlC+Z2UlnQ==
+  dependencies:
+    "@types/event-source-polyfill" "^1.0.0"
+    cross-fetch "^3.1.4"
+    event-source-polyfill "^1.0.25"
+
 dns-equal@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/dns-equal/-/dns-equal-1.0.0.tgz#b39e7f1da6eb0a75ba9c17324b34753c47e0654d"

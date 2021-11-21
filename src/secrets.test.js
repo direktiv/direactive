@@ -11,6 +11,8 @@ describe('useSecrets', () => {
     it('list secrets',  async () => {
         const { result, waitForNextUpdate } = renderHook(() => useSecrets(Config.url, Config.namespace));
         await waitForNextUpdate()
+        
+        console.log(result.current)
         expect(result.current.data).toBeArray()
     })
     it('create and delete secret', async () => {
@@ -54,7 +56,7 @@ describe('useSecrets', () => {
         await act(async()=>{
             await result.current.createSecret("not a url", "us e r:tes t")
         })
-        expect(result.current.err).not.toBeNull()
+        expect(result.current.createErr).not.toBeNull()
     })
     it('delete secret that doesnt exist', async()=>{
         const { result, waitForNextUpdate } = renderHook(() => useSecrets(Config.url, Config.namespace));
@@ -62,6 +64,6 @@ describe('useSecrets', () => {
         await act(async()=>{
             await result.current.deleteSecret('test')
         })
-        expect(result.current.err).not.toBeNull()
+        expect(result.current.deleteErr).not.toBeNull()
     })
 })

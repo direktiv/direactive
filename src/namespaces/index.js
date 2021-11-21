@@ -80,10 +80,10 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(!resp.ok){
-                setErr(await HandleError('create a namespace', resp, 'addNamespace'))
-            }
+                return await HandleError('create a namespace', resp, 'addNamespace')
+            } 
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -95,10 +95,10 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(!resp.ok) {
-                setErr(await HandleError('delete a namespace', resp, 'deleteNamespace'))
+                return await HandleError('delete a namespace', resp, 'deleteNamespace')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 

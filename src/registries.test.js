@@ -56,7 +56,7 @@ describe('useRegistries', () => {
         await act(async()=>{
             await result.current.createRegistry("not a url", "us e r:tes t")
         })
-        expect(result.current.err).not.toBeNull()
+        expect(result.current.createErr).not.toBeNull()
     })
     it('delete registry that doesnt exist', async()=>{
         const { result, waitForNextUpdate } = renderHook(() => useRegistries(Config.url, Config.namespace));
@@ -64,7 +64,7 @@ describe('useRegistries', () => {
         await act(async()=>{
             await result.current.deleteRegistry('test')
         })
-        expect(result.current.err).not.toBeNull()
+        expect(result.current.deleteErr).not.toBeNull()
     })
 })
 

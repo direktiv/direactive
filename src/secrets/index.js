@@ -12,6 +12,8 @@ import {  HandleError } from '../util'
 export const useDirektivSecrets = (url, namespace, apikey) => {
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
+    const [createErr, setCreateErr] = React.useState(null)
+    const [deleteErr, setDeleteErr] = React.useState(null)
 
     React.useEffect(()=>{
         if(data === null) {
@@ -43,10 +45,12 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
                 body: value
             })
             if(!resp.ok){
-                setErr(await HandleError('create secret', resp, 'createSecret'))
+                setCreateErr(await HandleError('create secret', resp, 'createSecret'))
+            } else {
+                setCreateErr(null)
             }
         } catch(e) {
-            setErr(e.message)
+            setCreateErr(e.message)
         }
     }
 
@@ -56,10 +60,12 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
                 method: "DELETE"
             })
             if (!resp.ok) {
-                setErr(await HandleError('delete secret', resp, 'deleteSecret'))
+                setDeleteErr(await HandleError('delete secret', resp, 'deleteSecret'))
+            } else {
+                setDeleteErr(null)
             }
         } catch (e) {
-            setErr(e.message)
+            setDeleteErr(e.message)
         }
     }
 
@@ -67,6 +73,8 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
     return {
         data,
         err,
+        createErr,
+        deleteErr,
         createSecret,
         deleteSecret,
         getSecrets
