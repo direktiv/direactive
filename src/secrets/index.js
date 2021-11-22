@@ -52,7 +52,7 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
 
     async function deleteSecret(name) {
         try {
-            let resp = await fetch(`namespaces/${namespace}/secrets/${name}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}`, {
                 method: "DELETE"
             })
             if (!resp.ok) {
