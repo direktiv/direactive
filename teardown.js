@@ -1,8 +1,8 @@
-const fetch = require('cross-fetch');
+const fetch = require('isomorphic-fetch');
 
 module.exports = async () => {
     console.log("tearing up deleting namespace")
-    await fetch.fetch(`${process.env.API_URL}namespaces/${process.env.NAMESPACE}`,{
+    await fetch(`${process.env.API_URL}namespaces/${process.env.NAMESPACE}`,{
         method: "DELETE",
     })
 };

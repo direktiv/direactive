@@ -1,7 +1,6 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
-import "cross-fetch/polyfill"
 import {  HandleError } from '../util'
+const fetch = require('isomorphic-fetch')
 
 /*
     useSecrets is a react hook which returns create registry, delete registry and data
@@ -53,7 +52,7 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
 
     async function deleteSecret(name) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}`, {
+            let resp = await fetch(`namespaces/${namespace}/secrets/${name}`, {
                 method: "DELETE"
             })
             if (!resp.ok) {
