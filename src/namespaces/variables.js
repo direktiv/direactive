@@ -1,7 +1,7 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
 import { CloseEventSource, HandleError } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
+const fetch = require('isomorphic-fetch')
 
 /*
     useNamespaceVariables is a react hook
@@ -79,10 +79,10 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
             if(resp.ok) {
                 return {data: await resp.text(), contentType: resp.headers.get("Content-Type")}
             } else {
-                setErr(await HandleError('get variable', resp, 'getNamespaceVariable'))
+                return await HandleError('get variable', resp, 'getNamespaceVariable')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -92,10 +92,10 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
                 method: "DELETE"
             })
             if(!resp.ok) {
-                setErr(await HandleError('delete variable', resp, 'deleteNamespaceVariable'))
+                return await HandleError('delete variable', resp, 'deleteNamespaceVariable')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -112,10 +112,10 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
                 },
             })
             if (!resp.ok) {
-               setErr(await HandleError('set variable', resp, 'setNamespaceVariable'))
+               return await HandleError('set variable', resp, 'setNamespaceVariable')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 

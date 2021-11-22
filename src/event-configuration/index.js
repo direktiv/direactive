@@ -1,6 +1,6 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
 import { HandleError } from '../util'
+const fetch = require('isomorphic-fetch')
 
 /*
     useBroadcastConfiguration is a react hook
@@ -40,10 +40,10 @@ export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
                 body: newconfig
             })
             if (!resp.ok) {
-                setErr(await HandleError('set config', resp, 'setNamespaceConfiguration'))
+                return await HandleError('set config', resp, 'setNamespaceConfiguration')
             }
         } catch (e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
