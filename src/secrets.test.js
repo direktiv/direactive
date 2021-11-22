@@ -12,16 +12,15 @@ describe('useSecrets', () => {
         const { result, waitForNextUpdate } = renderHook(() => useSecrets(Config.url, Config.namespace));
         await waitForNextUpdate()
         
-        console.log(result.current)
         expect(result.current.data).toBeArray()
     })
     it('create and delete secret', async () => {
         const { result, waitForNextUpdate } = renderHook(() => useSecrets(Config.url, Config.namespace));
         await waitForNextUpdate()
         expect(result.current.data).toBeArray()
+        await result.current.createSecret(Config.secret, Config.secretdata)
 
         await act(async()=>{
-            await result.current.createSecret(Config.secret, Config.secretdata)
             result.current.getSecrets()
         })
 
@@ -34,9 +33,9 @@ describe('useSecrets', () => {
         }
         expect(found).toBeTrue()
 
+        await result.current.deleteSecret(Config.secret)
 
         await act(async()=>{
-           await result.current.deleteSecret(Config.secret)
            result.current.getSecrets()
         })
 
@@ -53,17 +52,14 @@ describe('useSecrets', () => {
     it('create dumb secret', async()=>{
         const { result, waitForNextUpdate } = renderHook(() => useSecrets(Config.url, Config.namespace));
         await waitForNextUpdate()
-        await act(async()=>{
-            await result.current.createSecret("not a url", "us e r:tes t")
-        })
-        expect(result.current.createErr).not.toBeNull()
+        let err=   await result.current.createSecret("not a url", "us e r:tes t")
+        expect(err).toBe("create secret: secret name must match the regex pattern `^(([a-z][a-z0-9_\\-]*[a-z0-9])|([a-z]))$`")
     })
     it('delete secret that doesnt exist', async()=>{
         const { result, waitForNextUpdate } = renderHook(() => useSecrets(Config.url, Config.namespace));
         await waitForNextUpdate()
-        await act(async()=>{
-            await result.current.deleteSecret('test')
-        })
-        expect(result.current.deleteErr).not.toBeNull()
+        let err =await result.current.deleteSecret('test')
+        // todo fix non existent secret
+        expect(err).toBe(undefined)
     })
 })

@@ -1,5 +1,6 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
+import "cross-fetch/polyfill"
 import {  HandleError } from '../util'
 
 /*
@@ -12,8 +13,6 @@ import {  HandleError } from '../util'
 export const useDirektivSecrets = (url, namespace, apikey) => {
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
-    const [createErr, setCreateErr] = React.useState(null)
-    const [deleteErr, setDeleteErr] = React.useState(null)
 
     React.useEffect(()=>{
         if(data === null) {
@@ -45,27 +44,23 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
                 body: value
             })
             if(!resp.ok){
-                setCreateErr(await HandleError('create secret', resp, 'createSecret'))
-            } else {
-                setCreateErr(null)
+                return await HandleError('create secret', resp, 'createSecret')
             }
         } catch(e) {
-            setCreateErr(e.message)
+            return e.message
         }
     }
 
     async function deleteSecret(name) {
         try {
-            let resp = await fetch(`/namespaces/${namespace}/secrets/${name}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}`, {
                 method: "DELETE"
             })
             if (!resp.ok) {
-                setDeleteErr(await HandleError('delete secret', resp, 'deleteSecret'))
-            } else {
-                setDeleteErr(null)
+                return await HandleError('delete secret', resp, 'deleteSecret')
             }
         } catch (e) {
-            setDeleteErr(e.message)
+            return e.message
         }
     }
 
@@ -73,8 +68,6 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
     return {
         data,
         err,
-        createErr,
-        deleteErr,
         createSecret,
         deleteSecret,
         getSecrets
