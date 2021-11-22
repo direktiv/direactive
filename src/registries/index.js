@@ -1,6 +1,6 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
 import {  HandleError } from '../util'
+const fetch = require("isomorphic-fetch")
 
 /*
     useRegistries is a react hook which returns create registry, delete registry and data
@@ -16,8 +16,6 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
 
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
-    const [createErr, setCreateErr] = React.useState(null)
-    const [deleteErr, setDeleteErr] = React.useState(null)
 
     React.useEffect(()=>{
         if(data === null) {
@@ -49,10 +47,10 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
                 body: JSON.stringify({data:val, reg: key})
             })
             if(!resp.ok){
-                setCreateErr(await HandleError('create registry', resp, 'createRegistry'))
+                return await HandleError('create registry', resp, 'createRegistry')
             }
         } catch(e) {
-            setCreateErr(e.message)
+            return e.message
         }
     }
 
@@ -65,18 +63,16 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
                 })
             })
             if (!resp.ok) {
-                setDeleteErr(await HandleError('delete registry', resp, 'deleteRegistry'))
+                return await HandleError('delete registry', resp, 'deleteRegistry')
             }
         } catch (e) {
-            setDeleteErr(e.message)
+            return e.message
         }
     }
 
     return {
         data,
         err,
-        createErr,
-        deleteErr,
         createRegistry,
         deleteRegistry,
         getRegistries
