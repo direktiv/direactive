@@ -1,6 +1,6 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
 import { CloseEventSource, HandleError } from '../util'
+const fetch = require('isomorphic-fetch')
 const {EventSourcePolyfill} = require('event-source-polyfill')
 
 /*
@@ -46,7 +46,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey) => {
                 getInstances()
             }
         }
-    },[data])
+    },[data, eventSource])
 
     React.useEffect(()=>{
         return () => CloseEventSource(eventSource)

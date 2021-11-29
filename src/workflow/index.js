@@ -98,10 +98,10 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
                 body: newwf
             })
             if (!resp.ok) {
-                setErr(await HandleError('update workflow', resp, 'updateWorkflow'))
+                return await HandleError('update workflow', resp, 'updateWorkflow')
             }
         } catch (e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -115,10 +115,10 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok){
-                setErr(await HandleError('toggle workflow', resp, 'toggleWorkflow'))
+                return await HandleError('toggle workflow', resp, 'toggleWorkflow')
             }
         } catch(e) {
-           setErr(e.message)
+           return e.message
         }
     }
 
@@ -146,13 +146,14 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
                 body: JSON.stringify({
                     route: routes,
                     live: live,
-                })
+                }),
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok) {
-                setErr(await HandleError('edit workflow router', resp, 'editRouter'))
+                return await HandleError('edit workflow router', resp, 'editRouter')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -166,10 +167,10 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok){
-                setErr(await HandleError('set log to event', resp, 'getWorkflow'))
+                return await HandleError('set log to event', resp, 'getWorkflow')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -177,16 +178,17 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=execute`, {
                 method: "POST",
-                body: input
+                body: input,
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
                 let json = await resp.json()
                 return json.instance
             } else {
-                setErr(await HandleError('execute workflow', resp, 'executeWorkflow'))
+                return await HandleError('execute workflow', resp, 'executeWorkflow')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -196,13 +198,14 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
                 method: "PUT",
                 body: JSON.stringify({
                     attributes: attributes
-                })
+                }),
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok){
-                setErr(await HandleError('add workflow attributes', resp, 'createAttribute'))
+                return await HandleError('add workflow attributes', resp, 'createAttribute')
             }
         } catch(e){
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -212,13 +215,14 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
                 method: "DELETE",
                 body: JSON.stringify({
                     attributes: attributes
-                })
+                }),
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok){
-                setErr(await HandleError('delete workflow attributes', resp, 'deleteAttribute'))
+                return await HandleError('delete workflow attributes', resp, 'deleteAttribute')
             }
         } catch(e){
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -257,15 +261,16 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=save-workflow&ref=${rev}`, {
-                method: "POST"
+                method: "POST",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok) {
-                setErr(await HandleError('save workflow', resp, 'saveWorkflow'))
+                return await HandleError('save workflow', resp, 'saveWorkflow')
             } else {
                 return await resp.json()
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -276,13 +281,14 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-revision&ref=${ref}`, {
-                method:"POST"
+                method:"POST",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(!resp.ok) {
-                setErr(await HandleError(`delete revision`, resp, 'deleteRevision'))
+                return await HandleError(`delete revision`, resp, 'deleteRevision')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -293,13 +299,14 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=discard-workflow&ref=${rev}`, {
-                method: "POST"
+                method: "POST",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(!resp.ok) {
-                setErr(await HandleError('discard workflow', resp, 'discardWorkflow'))
+                return await HandleError('discard workflow', resp, 'discardWorkflow')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -310,13 +317,14 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tag&ref=${ref}&tag=${tag}`,{
-                method: "POST"
+                method: "POST",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(!resp.ok) {
-                setErr(await HandleError(`tag workflow`, resp, 'tag'))
+                return await HandleError(`tag workflow`, resp, 'tag')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 

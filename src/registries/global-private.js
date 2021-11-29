@@ -1,6 +1,6 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
 import {  HandleError } from '../util'
+const fetch = require('isomorphic-fetch')
 
 /*
     useGlobalPrivateRegistries is a react hook which returns create registry, delete registry and data
@@ -43,7 +43,8 @@ export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
                 body: JSON.stringify({data:val, reg: key})
             })
             if(!resp.ok){
-                setErr(await HandleError('create registry', resp, 'createRegistry'))
+                return await HandleError('create registry', resp, 'createRegistry')
+
             }
         } catch(e) {
             setErr(e.message)
@@ -59,7 +60,8 @@ export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
                 })
             })
             if (!resp.ok) {
-                setErr(await HandleError('delete registry', resp, 'deleteRegistry'))
+                return await HandleError('delete registry', resp, 'deleteRegistry')
+
             }
         } catch (e) {
             setErr(e.message)

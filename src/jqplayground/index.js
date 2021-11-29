@@ -1,5 +1,5 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
+const fetch = require('isomorphic-fetch')
 import { HandleError } from '../util'
 
 

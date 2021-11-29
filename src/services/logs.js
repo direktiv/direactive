@@ -44,6 +44,33 @@ export const useDirektivPodLogs = (url, pod, apikey) => {
         return () => CloseEventSource(eventSource)
     },[eventSource])
 
+    React.useEffect(()=>{
+        if(eventSource !== null) {
+            // setup event listener 
+            let listener = new EventSourcePolyfill(`${url}functions/logs/pod/${pod}`, {
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+            })
+
+            listener.onerror = (e) => {
+                if(e.status === 403) {
+                    setErr("permission denied")
+                }
+            }
+
+            async function readData(e) {
+                if(e.data === "") {
+                    return
+                }
+                let json = JSON.parse(e.data)
+                setData(json)
+            }
+
+            listener.onmessage = e => readData(e)
+            setEventSource(listener)
+        }
+
+    },[pod])
+
     return {
         data,
         err

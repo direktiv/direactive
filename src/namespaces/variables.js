@@ -75,7 +75,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
 
     async function getNamespaceVariable(name) {
         try {
-            let resp = await fetch(`${url}/namespaces/${namespace}/vars/${name}`, {})
+            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}`, {})
             if(resp.ok) {
                 return {data: await resp.text(), contentType: resp.headers.get("Content-Type")}
             } else {
