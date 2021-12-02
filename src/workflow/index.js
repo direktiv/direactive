@@ -1,7 +1,7 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
 import { CloseEventSource, HandleError } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
+const fetch = require('isomorphic-fetch')
 
 /*
     useWorkflows is a react hook which returns a list of items, createDirectory, createWorkflow, deleteDirectory, deleteWorkflow
@@ -132,10 +132,10 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
                 let json = await resp.json()
                 return json
             } else {
-                setErr(await HandleError('get workflow router', resp, 'getWorkflow'))
+                return await HandleError('get workflow router', resp, 'getWorkflow')
             }
         } catch (e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -228,15 +228,15 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
 
     async function getInstancesForWorkflow() {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/instances?filter.field=AS&filter.type=CONTAINS&filter.val=${path}`,{})
+            let resp = await fetch(`${url}namespaces/${namespace}/instances?filter.field=AS&filter.type=CONTAINS&filter.val=${path.substring(1)}`,{})
             if (resp.ok) {
                 let json = await resp.json()
                 return json.instances.edges
             } else {
-                setErr(await HandleError('list instances', resp, 'listInstances'))
+                return await HandleError('list instances', resp, 'listInstances')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -247,10 +247,10 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
                 let json = await resp.json()
                 return json.results
             } else {
-                setErr(await HandleError("get state metrics", resp, "getMetrics"))
+                return await HandleError("get state metrics", resp, "getMetrics")
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
