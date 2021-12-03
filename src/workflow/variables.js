@@ -1,7 +1,7 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
 import { CloseEventSource, HandleError } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
+const fetch = require("isomorphic-fetch")
 
 /*
     useWorkflowVariables is a react hook
@@ -85,10 +85,10 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                 },
             })
             if (!resp.ok) {
-               setErr(await HandleError('set variable', resp, 'setWorkflowVariable'))
+               return await HandleError('set variable', resp, 'setWorkflowVariable')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -98,10 +98,10 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
             if(resp.ok) {
                 return {data: await resp.text(), contentType: resp.headers.get("Content-Type")}
             } else {
-                setErr(await HandleError('get variable', resp, 'getWorkflowVariable'))
+                return await HandleError('get variable', resp, 'getWorkflowVariable')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -111,10 +111,10 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                 method: "DELETE"
             })
             if(!resp.ok) {
-                setErr(await HandleError('delete variable', resp, 'deleteWorkflowVariable'))
+                return await HandleError('delete variable', resp, 'deleteWorkflowVariable')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
