@@ -13,33 +13,37 @@ const fetch = require('isomorphic-fetch')
 export const useDirektivNamespaces = (url, stream, apikey) => {
     
     const [data, setData] = React.useState(null)
+    const [load, setLoad] = React.useState(true)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
     React.useEffect(()=>{
         if(stream) {
             if (eventSource === null){
-                // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces`, {
-                    headers: apikey === undefined ? {}:{"apikey": apikey}
-                })
+                    // setup event listener 
+                    let listener = new EventSourcePolyfill(`${url}namespaces`, {
+                        headers: !apikey ? {}:{"apikey": apikey}
+                    })
 
-                listener.onerror = (e) => {
-                    if(e.status === 403) {
-                        setErr("permission denied")
+                    listener.onerror = (e) => {
+                        setErr(e)
+                        if(e.status === 403) {
+                            setErr("permission denied")
+                        }
                     }
-                }
 
-                async function readData(e) {
-                    if(e.data === "") {
-                        return
+                    async function readData(e) {
+                        if(e.data === "") {
+                            return
+                        }
+                        let json = JSON.parse(e.data)
+                        setData(json.edges)
                     }
-                    let json = JSON.parse(e.data)
-                    setData(json.edges)
-                }
 
-                listener.onmessage = e => readData(e)
-                setEventSource(listener)
+                    listener.onmessage = e => readData(e)
+                    setEventSource(listener)
+                    setLoad(false)
+                    setErr("")
             }
         } else {
             if(data === null) {
@@ -47,6 +51,34 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
             }
         }
     },[data])
+
+    React.useEffect(()=>{
+        if(!load && eventSource !== null) {
+            CloseEventSource(eventSource)
+            // setup event listener 
+            let listener = new EventSourcePolyfill(`${url}namespaces`, {
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+            })
+
+            listener.onerror = (e) => {
+                if(e.status === 403) {
+                    setErr("permission denied")
+                }
+            }
+
+            async function readData(e) {
+                if(e.data === "") {
+                    return
+                }
+                let json = JSON.parse(e.data)
+                setData(json.edges)
+            }
+
+            listener.onmessage = e => readData(e)
+            setEventSource(listener)
+            setErr("")
+        }
+    },[apikey])
 
     React.useEffect(()=>{
         return () => {

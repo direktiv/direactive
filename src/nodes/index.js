@@ -328,6 +328,9 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
     React.useEffect(()=>{
         if(!load && eventSource !== null) {
             CloseEventSource(eventSource)
+            setErr(null)
+            setData(null)
+            
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
@@ -350,7 +353,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
             listener.onmessage = e => readData(e)
             setEventSource(listener)
         }
-    },[path])
+    },[path, namespace])
 
     React.useEffect(()=>{
         if(stream) {

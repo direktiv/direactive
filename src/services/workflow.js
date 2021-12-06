@@ -1,8 +1,7 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
 import { CloseEventSource, HandleError } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
-
+const fetch = require('isomorphic-fetch')
 /* 
     useNamespaceServiceRevision takes
     - url
