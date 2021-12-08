@@ -1,8 +1,7 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
 import { CloseEventSource, HandleError } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
-
+const fetch = require('isomorphic-fetch')
 
 /*
     useInstanceLogs is a react hook which returns details for an instance
@@ -15,11 +14,14 @@ const {EventSourcePolyfill} = require('event-source-polyfill')
 */
 export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey) => {
     const [data, setData] = React.useState(null)
+    const logsRef = React.useRef([])
+
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
     React.useEffect(()=>{
         if(stream) {
+            let log = logsRef.current
             if (eventSource === null){
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/instances/${instance}/logs`, {
@@ -37,7 +39,11 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
                         return
                     }
                     let json = JSON.parse(e.data)
-                    setData(json.edges)
+                    for(let i=0; i < json.edges.length; i++) {
+                        log.push(json.edges[i])
+                    }
+                    logsRef.current = log
+                    setData(JSON.parse(JSON.stringify(logsRef.current)))
                 }
 
                 listener.onmessage = e => readData(e)
@@ -111,6 +117,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
                         return
                     }
                     let json = JSON.parse(e.data)
+                    json.instance["flow"] = json.flow
                     setData(json.instance)
                 }
 
@@ -139,10 +146,10 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
                 let json = await resp.json()
                 setData(json.instance)
             } else {
-                setErr(await HandleError('get instance', resp, "getInstance"))
+                return await HandleError('get instance', resp, "getInstance")
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -155,10 +162,10 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
                 let json = await resp.json()
                 return atob(json.data)
             } else {
-                setErr(await HandleError('get instance input', resp, 'getInstance'))
+                return await HandleError('get instance input', resp, 'getInstance')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -171,10 +178,10 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
                 let json = await resp.json()
                 return atob(json.data)
             } else {
-                setErr(await HandleError('get instance output', resp, 'getInstance'))
+                return await HandleError('get instance output', resp, 'getInstance')
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -184,10 +191,10 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
                 method:"POST"
             })
             if(!resp.ok){
-                setErr(await HandleError('cancelling instance', resp, "cancelInstance"))
+                return await HandleError('cancelling instance', resp, "cancelInstance")
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
