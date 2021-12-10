@@ -268,7 +268,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
 
     async function getInstancesForWorkflow() {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/instances?filter.field=AS&filter.type=CONTAINS&filter.val=${path.substring(1)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/instances?filter.field=AS&filter.type=WORKFLOW&filter.val=${path}`,{
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
@@ -278,6 +278,40 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
                 return await HandleError('list instances', resp, 'listInstances')
             }
         } catch(e) {
+            return e.message
+        }
+    }
+
+    async function getSuccessFailedMetrics() {
+        try {
+            let respFailed = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-failed`, {
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+            })
+            let respSuccess = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-successful`, {
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+            })
+
+            let x = {
+                success: [],
+                failure: []
+            }
+
+            if(respFailed.ok) {
+                let j = await respFailed.json()
+                x.failure = j.results
+            } else {
+                return await HandleError("get failed metrics", respFailed, "getMetrics")
+            }
+
+            if(respSuccess.ok){
+                let j = await respSuccess.json()
+                x.success = j.results
+            } else {
+                return await HandleError("get success metrics", respSuccess, "getMetrics")
+            }
+
+            return x
+        } catch(e){
             return e.message
         }
     }
@@ -379,6 +413,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         setWorkflowLogToEvent,
         getWorkflowRevisionData,
         getWorkflowSankeyMetrics,
+        getSuccessFailedMetrics,
         toggleWorkflow,
         getWorkflowRouter,
         editWorkflowRouter,
