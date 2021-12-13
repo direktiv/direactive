@@ -1,5 +1,5 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
+const fetch = require('isomorphic-fetch')
 import { CloseEventSource, HandleError } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 
