@@ -124,20 +124,16 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
     }
 
     async function updateWorkflow(newwf) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=update-workflow`, {
-                method: "post",
-                headers: {
-                    "Content-type": "text/yaml",
-                    "Content-Length": newwf.length,
-                },
-                body: newwf
-            })
-            if (!resp.ok) {
-                return await HandleError('update workflow', resp, 'updateWorkflow')
-            }
-        } catch (e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=update-workflow`, {
+            method: "post",
+            headers: {
+                "Content-type": "text/yaml",
+                "Content-Length": newwf.length,
+            },
+            body: newwf
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('update workflow', resp, 'updateWorkflow'))
         }
     }
 
