@@ -302,7 +302,7 @@ states:
       - namespace the namespace to send the requests to
       - apikey to provide authentication of an apikey
 */
-export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
+export const useDirektivNodes = (url, stream, namespace, path, apikey, orderField) => {
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [load, setLoad] = React.useState(true)
@@ -332,7 +332,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
             setData(null)
             
             // setup event listener 
-            let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}`, {
+            let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}?order.field=${orderField ? orderField : "NAME"}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
 
@@ -353,13 +353,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
             listener.onmessage = e => readData(e)
             setEventSource(listener)
         }
-    },[path, namespace])
+    },[path, namespace, orderField])
 
     React.useEffect(()=>{
         if(stream) {
             if (eventSource === null){
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}?order.field=${orderField ? orderField : "NAME"}`, {
                     headers: apikey === undefined ? {}:{"apikey": apikey}
                 })
 
