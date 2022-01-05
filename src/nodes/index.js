@@ -396,7 +396,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         try {
             let uri = `${url}namespaces/${namespace}/tree`
             if(path !== "") {
-                uri += `/${path}`
+                uri += `${sanitizePath(path)}`
             }
             let resp = await fetch(`${uri}/`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
@@ -416,7 +416,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path !== "") {
-                uriPath += `/${path}`
+                uriPath += `${sanitizePath(path)}`
             }
             let body = {
                 type: type
@@ -445,7 +445,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path){
-                uriPath += `/${path}`
+                uriPath += `${sanitizePath(path)}`
             }
             let resp = await fetch(`${uriPath}/${name}?op=delete-node`, {
                 method: "DELETE",
@@ -463,7 +463,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path) {
-                uriPath += `/${fpath}`
+                uriPath += `${sanitizePath(fpath)}`
             }
             let resp = await fetch(`${uriPath}/${oldname}?op=rename-node`,{
                 method: "POST",
@@ -510,6 +510,18 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         } catch(e) {
            return e.message
         }
+    }
+
+    function sanitizePath(path) {
+      if (path === "/") {
+        return ""
+      }
+      
+      if (path.startsWith("/")) {
+        return path
+      }
+
+      return "/" + path
     }
 
     return {
