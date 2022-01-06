@@ -59,10 +59,10 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
                 method: "GET"
             })
             if(!resp.ok){
-                setErr(await HandleError('get event listeners', resp, 'listEventListeners'))
+                return await HandleError('get event listeners', resp, 'listEventListeners')
             }
         } catch(e){
-            setErr(e.message)
+            return e.message
         }
     }
 
@@ -76,10 +76,10 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
                 }
             })
             if(!resp.ok) {
-                setErr(await HandleError('send namespace event', resp, "sendNamespaceEvent"))
+                return await HandleError('send namespace event', resp, "sendNamespaceEvent")
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
