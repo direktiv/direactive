@@ -103,16 +103,22 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
     }
 
     async function getRevisions(){
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=refs`,{})
-            if(resp.ok) {
-                let js = await resp.json()
-                return js.edges
-            } else {
-                setErr(await HandleError('fetch workflow refs', resp, 'getWorkflow'))
-            }
-        } catch(e) {
-            setErr(e.message)
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=refs`,{})
+        if(resp.ok) {
+            let js = await resp.json()
+            return js.edges
+        } else {
+            throw new Error(await HandleError('fetch workflow refs', resp, 'getWorkflow'))
+        }
+    }
+
+    async function getTags(){
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tags`,{})
+        if(resp.ok) {
+            let js = await resp.json()
+            return js.edges
+        } else {
+            throw new Error(await HandleError('fetch workflow tags', resp, 'getWorkflow'))
         }
     }
 
@@ -357,6 +363,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         discardWorkflow,
         tagWorkflow,
         getRevisions,
+        getTags,
         deleteRevision,
         addAttributes,
         deleteAttributes,
