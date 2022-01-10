@@ -318,7 +318,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
     }
 
     async function removeTag(tag) {
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=untag&ref=${ref}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=untag&ref=${tag}`, {
             method:"POST",
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
