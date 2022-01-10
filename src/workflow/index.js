@@ -317,6 +317,16 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
+    async function removeTag(tag) {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=untag&ref=${ref}`, {
+            method:"POST",
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if(!resp.ok) {
+            throw new Error(await HandleError(`untag`, resp, 'untag'))
+        }
+    }
+
     async function discardWorkflow(ref) {
         let rev = ref
         if(rev === undefined){
@@ -364,6 +374,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         tagWorkflow,
         getRevisions,
         getTags,
+        removeTag,
         deleteRevision,
         addAttributes,
         deleteAttributes,

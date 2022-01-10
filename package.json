@@ -1,6 +1,6 @@
 {
   "name": "direktiv-react-hooks",
-  "version": "0.0.91",
+  "version": "0.0.92",
   "description": "A custom react hook library to talk to direktiv",
   "author": "direktiv",
   "license": "MIT",
