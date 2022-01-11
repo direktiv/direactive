@@ -72,7 +72,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
                         return
                     }
                     let json = JSON.parse(e.data)
-                    setEventHistory(json.edges)
+                    setEventHistory(json.events.edges)
                 }
 
                 listener.onmessage = e => readData(e)

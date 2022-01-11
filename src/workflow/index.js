@@ -103,7 +103,9 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
     }
 
     async function getRevisions(){
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=refs`,{})
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=refs`,{
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
         if(resp.ok) {
             let js = await resp.json()
             return js.edges
@@ -113,7 +115,9 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
     }
 
     async function getTags(){
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tags`,{})
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tags`,{
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
         if(resp.ok) {
             let js = await resp.json()
             return js.edges
