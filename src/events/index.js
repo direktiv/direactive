@@ -1,7 +1,7 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
 import { CloseEventSource, HandleError } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
+const fetch = require('isomorphic-fetch')
 
 
 /*
@@ -76,10 +76,10 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
                 }
             })
             if(!resp.ok) {
-                setErr(await HandleError('send namespace event', resp, "sendNamespaceEvent"))
+                return await HandleError('send namespace event', resp, "sendNamespaceEvent"))
             }
         } catch(e) {
-            setErr(e.message)
+            return e.message
         }
     }
 
