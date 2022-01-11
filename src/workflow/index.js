@@ -78,135 +78,113 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         if(rev){
             ref = rev
         }
-        try {
-            let uri = `${url}namespaces/${namespace}/tree/${path}?ref=${rev}&op=metrics-sankey`
-            let resp = await fetch(`${uri}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                return await resp.json()
-            } else {
-                return await HandleError('get workflow data', resp, 'getWorkflow')
-            }
-        } catch(e) {
-            return e.message
+
+        let uri = `${url}namespaces/${namespace}/tree/${path}?ref=${rev}&op=metrics-sankey`
+        let resp = await fetch(`${uri}`, {
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (resp.ok) {
+            return resp.json()
+        } else {
+            throw new Error(await HandleError('get workflow data', resp, 'getWorkflow'))
         }
     }
 
     async function getWorkflowRevisionData(rev) {
-        try {
-            let uri = `${url}namespaces/${namespace}/tree/${path}?ref=${rev}`
-            let resp = await fetch(`${uri}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                return await resp.json()
-            } else {
-                return await HandleError('get workflow data', resp, 'getWorkflow')
-            }
-        } catch(e) {
-            return e.message
+        let uri = `${url}namespaces/${namespace}/tree/${path}?ref=${rev}`
+        let resp = await fetch(`${uri}`, {
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (resp.ok) {
+            return resp.json()
+        } else {
+            throw new Error(await HandleError('get workflow data', resp, 'getWorkflow'))
         }
     }
 
     async function getRevisions(){
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=refs`,{})
-            if(resp.ok) {
-                let js = await resp.json()
-                return js.edges
-            } else {
-                setErr(await HandleError('fetch workflow refs', resp, 'getWorkflow'))
-            }
-        } catch(e) {
-            setErr(e.message)
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=refs`,{})
+        if(resp.ok) {
+            let js = await resp.json()
+            return js.edges
+        } else {
+            throw new Error(await HandleError('fetch workflow refs', resp, 'getWorkflow'))
+        }
+    }
+
+    async function getTags(){
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tags`,{})
+        if(resp.ok) {
+            let js = await resp.json()
+            return js.edges
+        } else {
+            throw new Error(await HandleError('fetch workflow tags', resp, 'getWorkflow'))
         }
     }
 
     async function updateWorkflow(newwf) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=update-workflow`, {
-                method: "post",
-                headers: {
-                    "Content-type": "text/yaml",
-                    "Content-Length": newwf.length,
-                },
-                body: newwf
-            })
-            if (!resp.ok) {
-                return await HandleError('update workflow', resp, 'updateWorkflow')
-            }
-        } catch (e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=update-workflow`, {
+            method: "post",
+            headers: {
+                "Content-type": "text/yaml",
+                "Content-Length": newwf.length,
+            },
+            body: newwf
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('update workflow', resp, 'updateWorkflow'))
         }
     }
 
     async function toggleWorkflow(active) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=toggle`, {
-                method: "POST",
-                body: JSON.stringify({
-                    live: active
-                }),
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok){
-                return await HandleError('toggle workflow', resp, 'toggleWorkflow')
-            }
-        } catch(e) {
-           return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=toggle`, {
+            method: "POST",
+            body: JSON.stringify({
+                live: active
+            }),
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (!resp.ok){
+            throw new Error( await HandleError('toggle workflow', resp, 'toggleWorkflow'))
         }
     }
 
     async function getWorkflowRouter() {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=router`, {
-                method: "get",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                return json
-            } else {
-                return await HandleError('get workflow router', resp, 'getWorkflow')
-            }
-        } catch (e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=router`, {
+            method: "get",
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (resp.ok) {
+            return resp.json()
+        } else {
+            throw new Error(await HandleError('get workflow router', resp, 'getWorkflow'))
         }
     }
 
     async function editWorkflowRouter(routes, live) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=edit-router`, {
-                method: "POST",
-                body: JSON.stringify({
-                    route: routes,
-                    live: live,
-                }),
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok) {
-                return await HandleError('edit workflow router', resp, 'editRouter')
-            }
-        } catch(e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=edit-router`, {
+            method: "POST",
+            body: JSON.stringify({
+                route: routes,
+                live: live,
+            }),
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('edit workflow router', resp, 'editRouter'))
         }
     }
 
     async function setWorkflowLogToEvent(val) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=set-workflow-event-logging`,{
-                method: "POST",
-                body: JSON.stringify({
-                    logger: val
-                }),
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok){
-                return await HandleError('set log to event', resp, 'getWorkflow')
-            }
-        } catch(e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=set-workflow-event-logging`,{
+            method: "POST",
+            body: JSON.stringify({
+                logger: val
+            }),
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (!resp.ok){
+            throw new Error(await HandleError('set log to event', resp, 'getWorkflow'))
         }
     }
 
@@ -215,120 +193,96 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         if(revision) {
             ref = revision
         }
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=execute&ref=${ref}`, {
-                method: "POST",
-                body: input,
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                return json.instance
-            } else {
-                return await HandleError('execute workflow', resp, 'executeWorkflow')
-            }
-        } catch(e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=execute&ref=${ref}`, {
+            method: "POST",
+            body: input,
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            return json.instance
+        } else {
+            throw new Error(await HandleError('execute workflow', resp, 'executeWorkflow'))
         }
     }
 
     async function addAttributes(attributes) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=create-node-attributes`, {
-                method: "PUT",
-                body: JSON.stringify({
-                    attributes: attributes
-                }),
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok){
-                return await HandleError('add workflow attributes', resp, 'createAttribute')
-            }
-        } catch(e){
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=create-node-attributes`, {
+            method: "PUT",
+            body: JSON.stringify({
+                attributes: attributes
+            }),
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (!resp.ok){
+            throw new Error(await HandleError('add workflow attributes', resp, 'createAttribute'))
         }
     }
 
     async function deleteAttributes(attributes){
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-node-attributes`, {
-                method: "DELETE",
-                body: JSON.stringify({
-                    attributes: attributes
-                }),
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok){
-                return await HandleError('delete workflow attributes', resp, 'deleteAttribute')
-            }
-        } catch(e){
-            return e.message
+                let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-node-attributes`, {
+            method: "DELETE",
+            body: JSON.stringify({
+                attributes: attributes
+            }),
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (!resp.ok){
+            throw new Error(await HandleError('delete workflow attributes', resp, 'deleteAttribute'))
         }
     }
 
     async function getInstancesForWorkflow() {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/instances?filter.field=AS&filter.type=WORKFLOW&filter.val=${path}`,{
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                return json.instances.edges
-            } else {
-                return await HandleError('list instances', resp, 'listInstances')
-            }
-        } catch(e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/instances?filter.field=AS&filter.type=WORKFLOW&filter.val=${path}`,{
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            return json.instances.edges
+        } else {
+            throw new Error(await HandleError('list instances', resp, 'listInstances'))
         }
     }
 
     async function getSuccessFailedMetrics() {
-        try {
-            let respFailed = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-failed`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            let respSuccess = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-successful`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
+        let respFailed = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-failed`, {
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        let respSuccess = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-successful`, {
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
 
-            let x = {
-                success: [],
-                failure: []
-            }
-
-            if(respFailed.ok) {
-                let j = await respFailed.json()
-                x.failure = j.results
-            } else {
-                return await HandleError("get failed metrics", respFailed, "getMetrics")
-            }
-
-            if(respSuccess.ok){
-                let j = await respSuccess.json()
-                x.success = j.results
-            } else {
-                return await HandleError("get success metrics", respSuccess, "getMetrics")
-            }
-
-            return x
-        } catch(e){
-            return e.message
+        let x = {
+            success: [],
+            failure: []
         }
+
+        if(respFailed.ok) {
+            let j = await respFailed.json()
+            x.failure = j.results
+        } else {
+            throw new Error(await HandleError("get failed metrics", respFailed, "getMetrics"))
+        }
+
+        if(respSuccess.ok){
+            let j = await respSuccess.json()
+            x.success = j.results
+        } else {
+            throw new Error(await HandleError("get success metrics", respSuccess, "getMetrics"))
+        }
+
+        return x
     }
 
     async function getStateMillisecondMetrics(){
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-state-milliseconds`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                return json.results
-            } else {
-                return await HandleError("get state metrics", resp, "getMetrics")
-            }
-        } catch(e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-state-milliseconds`, {
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            return json.results
+        } else {
+            throw new Error(await HandleError("get state metrics", resp, "getMetrics"))
         }
     }
 
@@ -337,19 +291,15 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         if(rev === undefined){
             rev = "latest"
         }
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=save-workflow&ref=${rev}`, {
-                method: "POST",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok) {
-                return await HandleError('save workflow', resp, 'saveWorkflow')
-            } else {
-                return await resp.json()
-            }
-        } catch(e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=save-workflow&ref=${rev}`, {
+            method: "POST",
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('save workflow', resp, 'saveWorkflow'))
         }
+
+        return resp.json()
     }
 
     async function deleteRevision(ref) {
@@ -357,16 +307,23 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         if(rev === undefined){
             rev = "latest"
         }
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-revision&ref=${ref}`, {
-                method:"POST",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(!resp.ok) {
-                return await HandleError(`delete revision`, resp, 'deleteRevision')
-            }
-        } catch(e) {
-            return e.message
+
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-revision&ref=${ref}`, {
+            method:"POST",
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if(!resp.ok) {
+            throw new Error(await HandleError(`delete revision`, resp, 'deleteRevision'))
+        }
+    }
+
+    async function removeTag(tag) {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=untag&ref=${tag}`, {
+            method:"POST",
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if(!resp.ok) {
+            throw new Error(await HandleError(`untag`, resp, 'untag'))
         }
     }
 
@@ -375,16 +332,13 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         if(rev === undefined){
             rev = "latest"
         }
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=discard-workflow&ref=${rev}`, {
-                method: "POST",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(!resp.ok) {
-                return await HandleError('discard workflow', resp, 'discardWorkflow')
-            }
-        } catch(e) {
-            return e.message
+
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=discard-workflow&ref=${rev}`, {
+            method: "POST",
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if(!resp.ok) {
+            throw new Error(await HandleError('discard workflow', resp, 'discardWorkflow'))
         }
     }
 
@@ -393,16 +347,12 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         if(rev === undefined){
             rev = "latest"
         }
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tag&ref=${ref}&tag=${tag}`,{
-                method: "POST",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(!resp.ok) {
-                return await HandleError(`tag workflow`, resp, 'tag')
-            }
-        } catch(e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tag&ref=${ref}&tag=${tag}`,{
+            method: "POST",
+            headers: apikey === undefined ? {}:{"apikey": apikey}
+        })
+        if(!resp.ok) {
+            throw new Error(await HandleError(`tag workflow`, resp, 'tag'))
         }
     }
 
@@ -423,6 +373,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         discardWorkflow,
         tagWorkflow,
         getRevisions,
+        getTags,
+        removeTag,
         deleteRevision,
         addAttributes,
         deleteAttributes,

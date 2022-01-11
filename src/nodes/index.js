@@ -302,7 +302,7 @@ states:
       - namespace the namespace to send the requests to
       - apikey to provide authentication of an apikey
 */
-export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
+export const useDirektivNodes = (url, stream, namespace, path, apikey, orderField) => {
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [load, setLoad] = React.useState(true)
@@ -332,7 +332,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
             setData(null)
             
             // setup event listener 
-            let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}`, {
+            let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}?order.field=${orderField ? orderField : "NAME"}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
 
@@ -353,13 +353,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
             listener.onmessage = e => readData(e)
             setEventSource(listener)
         }
-    },[path, namespace])
+    },[path, namespace, orderField])
 
     React.useEffect(()=>{
         if(stream) {
             if (eventSource === null){
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}?order.field=${orderField ? orderField : "NAME"}`, {
                     headers: apikey === undefined ? {}:{"apikey": apikey}
                 })
 
@@ -396,7 +396,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
         try {
             let uri = `${url}namespaces/${namespace}/tree`
             if(path !== "") {
-                uri += `/${path}`
+                uri += `${sanitizePath(path)}`
             }
             let resp = await fetch(`${uri}/`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
@@ -416,7 +416,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
         try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path !== "") {
-                uriPath += `/${path}`
+                uriPath += `${sanitizePath(path)}`
             }
             let body = {
                 type: type
@@ -445,7 +445,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
         try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path){
-                uriPath += `/${path}`
+                uriPath += `${sanitizePath(path)}`
             }
             let resp = await fetch(`${uriPath}/${name}?op=delete-node`, {
                 method: "DELETE",
@@ -463,7 +463,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
         try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path) {
-                uriPath += `/${fpath}`
+                uriPath += `${sanitizePath(fpath)}`
             }
             let resp = await fetch(`${uriPath}/${oldname}?op=rename-node`,{
                 method: "POST",
@@ -510,6 +510,18 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
         } catch(e) {
            return e.message
         }
+    }
+
+    function sanitizePath(path) {
+      if (path === "/") {
+        return ""
+      }
+      
+      if (path.startsWith("/")) {
+        return path
+      }
+
+      return "/" + path
     }
 
     return {

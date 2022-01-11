@@ -56,27 +56,33 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
     async function getEventListeners(){
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/events`,{
-                method: "GET"
+                method: "GET",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(!resp.ok){
-                setErr(await HandleError('get event listeners', resp, 'listEventListeners'))
+                return await HandleError('get event listeners', resp, 'listEventListeners')
             }
         } catch(e){
-            setErr(e.message)
+            return e.message
         }
     }
 
     async function sendEvent(event){
+        let headers = {
+            "content-type": "application/cloudevents+json; charset=UTF-8"
+        }
+        if(apikey !== undefined) {
+            apikey["apikey"] = apikey
+        }
+
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/broadcast`,{
                 method: "POST",
                 body: event,
-                headers: {
-                    "content-type": "application/cloudevents+json; charset=UTF-8"
-                }
+                headers: headers
             })
             if(!resp.ok) {
-                return await HandleError('send namespace event', resp, "sendNamespaceEvent"))
+                return await HandleError('send namespace event', resp, "sendNamespaceEvent")
             }
         } catch(e) {
             return e.message
