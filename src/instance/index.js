@@ -156,7 +156,9 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     async function getInput() {
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/input`, {
-                method:"GET"
+                method:"GET",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+
             })
             if(resp.ok) {
                 let json = await resp.json()
@@ -172,7 +174,9 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     async function getOutput(){
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/output`, {
-                method:"GET"
+                method:"GET",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+
             })
             if(resp.ok) {
                 let json = await resp.json()
@@ -188,7 +192,9 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     async function cancelInstance() {
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/cancel`, {
-                method:"POST"
+                method:"POST",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+
             })
             if(!resp.ok){
                 return await HandleError('cancelling instance', resp, "cancelInstance")
