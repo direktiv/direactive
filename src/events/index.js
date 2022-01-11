@@ -13,9 +13,45 @@ const fetch = require('isomorphic-fetch')
       - apikey to provide authentication of an apikey
 */
 export const useDirektivEvents = (url, stream, namespace, apikey) => {
-    const [data, setData] = React.useState(null)
-    const [err, setErr] = React.useState(null)
+    const [eventHistory, setEventHistory] = React.useState(null)
+    const [eventListeners, setEventListeners] = React.useState(null)
+
+    const [errHistory, setErrHistory] = React.useState(null)
+    const [errListeners, setErrListeners] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
+    const [eventListenerSource, setEventListenerSource] = React.useState(null)
+
+    React.useEffect(()=>{
+        if(stream){
+            if (eventSource === null){
+                // setup event listener 
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/event-listeners`, {
+                    headers: apikey === undefined ? {}:{"apikey": apikey}
+                })
+
+                listener.onerror = (e) => {
+                    if(e.status === 403) {
+                        setErrListeners("permission denied")
+                    }
+                }
+
+                async function readData(e) {
+                    if(e.data === "") {
+                        return
+                    }
+                    let json = JSON.parse(e.data)
+                    setEventListeners(json.edges)
+                }
+
+                listener.onmessage = e => readData(e)
+                setEventListenerSource(listener)
+            }
+        } else {
+            if(eventListeners === null) {
+                getEventListeners()
+            }
+        }
+    },[])
 
     React.useEffect(()=>{
         if(stream) {
@@ -27,7 +63,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
 
                 listener.onerror = (e) => {
                     if(e.status === 403) {
-                        setErr("permission denied")
+                        setErrHistory("permission denied")
                     }
                 }
 
@@ -36,18 +72,22 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
                         return
                     }
                     let json = JSON.parse(e.data)
-                    setData(json.edges)
+                    setEventHistory(json.edges)
                 }
 
                 listener.onmessage = e => readData(e)
                 setEventSource(listener)
             }
         } else {
-            if(data === null) {
-                getEventListeners()
+            if(eventHistory === null) {
+                getEventHistory()
             }
         }
-    },[data])
+    },[eventHistory])
+
+    React.useEffect(()=>{
+        return () => CloseEventSource(eventListenerSource)
+    },[eventListenerSource])
 
     React.useEffect(()=>{
         return () => CloseEventSource(eventSource)
@@ -55,14 +95,48 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
 
     async function getEventListeners(){
         try {
+            let resp = await fetch(`${url}namespaces/${namespace}/event-listeners`,{
+                method: "GET",
+                headers: apikey === undefined ? {}:{"apikey": apikey}
+            })
+            if(!resp.ok){
+                return await HandleError('get event listeners', resp, 'listEventHistory')
+            }
+        } catch(e){
+            return e.message
+        }
+    }
+
+    async function getEventHistory(){
+        try {
             let resp = await fetch(`${url}namespaces/${namespace}/events`,{
                 method: "GET",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(!resp.ok){
-                return await HandleError('get event listeners', resp, 'listEventListeners')
+                return await HandleError('get event history', resp, 'listEventHistory')
             }
         } catch(e){
+            return e.message
+        }
+    }
+
+    async function replayEvent(event){
+        let headers = {
+            "content-type": "application/cloudevents+json; charset=UTF-8"
+        }
+        if(apikey !== undefined) {
+            headers["apikey"] = apikey
+        }
+        try {
+            let resp = await fetch(`${url}namespaces/${namespace}/events/${event}/replay`,{
+                method: "POST",
+                headers: headers
+            })
+            if(!resp.ok) {
+                return await HandleError('send namespace event', resp, "sendNamespaceEvent")
+            }
+        } catch(e) {
             return e.message
         }
     }
@@ -72,9 +146,8 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
             "content-type": "application/cloudevents+json; charset=UTF-8"
         }
         if(apikey !== undefined) {
-            apikey["apikey"] = apikey
+            headers["apikey"] = apikey
         }
-
         try {
             let resp = await fetch(`${url}namespaces/${namespace}/broadcast`,{
                 method: "POST",
@@ -90,9 +163,13 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
     }
 
     return {
-        data,
-        err,
+        eventHistory,
+        eventListeners,
+        errHistory,
+        errListeners,
+        getEventHistory,
         getEventListeners,
-        sendEvent
+        sendEvent,
+        replayEvent
     }
 }
