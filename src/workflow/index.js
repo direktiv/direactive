@@ -129,9 +129,11 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
     async function updateWorkflow(newwf) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=update-workflow`, {
             method: "post",
+            headers: apikey === undefined ? {}:{"apikey": apikey},
             headers: {
                 "Content-type": "text/yaml",
                 "Content-Length": newwf.length,
+                "apikey": apikey === undefined ? "":apikey
             },
             body: newwf
         })
