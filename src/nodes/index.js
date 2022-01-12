@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -392,13 +392,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         return () => CloseEventSource(eventSource)
     },[eventSource])
 
-    async function getNode() {
+    async function getNode(...queryParameters) {
         try {
             let uri = `${url}namespaces/${namespace}/tree`
             if(path !== "") {
                 uri += `${sanitizePath(path)}`
             }
-            let resp = await fetch(`${uri}/`, {
+            let resp = await fetch(`${uri}/${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
@@ -412,7 +412,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         }
     }
 
-    async function createNode(name, type, yaml) {
+    async function createNode(name, type, yaml,...queryParameters) {
         try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path !== "") {
@@ -428,7 +428,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
                 name += `?op=create-directory`
                 body = JSON.stringify(body)
             }
-            let resp = await fetch(`${uriPath}/${name}`, {
+            let resp = await fetch(`${uriPath}/${name}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "PUT",
                 body: body,
                 headers: apikey === undefined ? {}:{"apikey": apikey}
@@ -441,13 +441,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         }
     }
 
-    async function deleteNode(name) {
+    async function deleteNode(name,...queryParameters) {
         try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path){
                 uriPath += `${sanitizePath(path)}`
             }
-            let resp = await fetch(`${uriPath}/${name}?op=delete-node`, {
+            let resp = await fetch(`${uriPath}/${name}?op=delete-node${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "DELETE",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -459,13 +459,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         }
     }
 
-    async function renameNode(fpath, oldname, newname) {
+    async function renameNode(fpath, oldname, newname,...queryParameters) {
         try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path) {
                 uriPath += `${sanitizePath(fpath)}`
             }
-            let resp = await fetch(`${uriPath}/${oldname}?op=rename-node`,{
+            let resp = await fetch(`${uriPath}/${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`,{
                 method: "POST",
                 body: JSON.stringify({new: newname}),
                 headers: apikey === undefined ? {}:{"apikey": apikey}
@@ -478,9 +478,9 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         }
     }
 
-    async function getWorkflowRouter(workflow) {
+    async function getWorkflowRouter(workflow,...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=router`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=router${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "get",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -495,9 +495,9 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         }
     }
 
-    async function toggleWorkflow(workflow, active) {
+    async function toggleWorkflow(workflow, active,...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=toggle`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=toggle${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "POST",
                 body: JSON.stringify({
                     live: active

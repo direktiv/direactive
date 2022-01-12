@@ -1,6 +1,6 @@
 import * as React from 'react'
 const fetch = require('isomorphic-fetch')
-import { HandleError } from '../util'
+import { HandleError, ExtractQueryString } from '../util'
 
 
 const cheatSheetMap = [
@@ -93,10 +93,10 @@ export const useDirektivJQPlayground = (url, apikey) => {
     const [err, setErr] = React.useState(null)
 
 
-    async function executeJQ(query, data) {
+    async function executeJQ(query, data,...queryParameters) {
         try {
             // fetch namespace list by default
-            let resp = await fetch(`${url}jq`, {
+            let resp = await fetch(`${url}jq${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "POST",
                 body: JSON.stringify({

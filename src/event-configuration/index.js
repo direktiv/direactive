@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { HandleError } from '../util'
+import { HandleError, ExtractQueryString } from '../util'
 const fetch = require('isomorphic-fetch')
 
 /*
@@ -19,9 +19,9 @@ export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
         }
     },[data])
 
-    async function getBroadcastConfiguration() {
+    async function getBroadcastConfiguration(...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/config`,{})
+            let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, ...queryParameters)}`,{})
             if(!resp.ok) {
                 await HandleError('fetch config', resp, 'getNamespaceConfiguration')
             } else {
@@ -33,9 +33,9 @@ export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
         }
     }
 
-    async function setBroadcastConfiguration(newconfig) {
+    async function setBroadcastConfiguration(newconfig, ...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/config`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "PATCH",
                 body: newconfig
             })

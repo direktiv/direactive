@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require("isomorphic-fetch")
 
@@ -55,9 +55,9 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
     },[eventSource])
 
 
-    async function getWorkflowVariables() {
+    async function getWorkflowVariables(...queryParameters) {
         try {
-            let uri = `${url}namespaces/${namespace}/tree/${path}?op=vars` 
+            let uri = `${url}namespaces/${namespace}/tree/${path}?op=vars${ExtractQueryString(true, ...queryParameters)}` 
             let resp = await fetch(`${uri}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -72,12 +72,12 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         }
     }
 
-    async function setWorkflowVariable(name, val, mimeType) {
+    async function setWorkflowVariable(name, val, mimeType,...queryParameters) {
         if(mimeType === undefined){
             mimeType = "application/json"
         }
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=set-var&var=${name}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=set-var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "PUT",
                 body: val,
                 headers: {
@@ -92,9 +92,9 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         }
     }
 
-    async function getWorkflowVariable(name) {
+    async function getWorkflowVariable(name,...queryParameters) {
         try {
-            let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}`, {})
+            let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {})
             if(resp.ok) {
                 return {data: await resp.text(), contentType: resp.headers.get("Content-Type")}
             } else {
@@ -105,9 +105,9 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         }
     }
 
-    async function deleteWorkflowVariable(name) {
+    async function deleteWorkflowVariable(name,...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-var&var=${name}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-var&var=${name}${ExtractQueryString(true, ...queryParameters)}`,{
                 method: "DELETE"
             })
             if(!resp.ok) {

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 /* 
@@ -309,9 +309,9 @@ export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey
     },[eventSource])
 
 
-    async function getWorkflowServices() {
+    async function getWorkflowServices(...queryParameters) {
         try {
-            let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=services`, {
+            let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=services${ExtractQueryString(true, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "GET"
             })

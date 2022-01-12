@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const fetch = require('isomorphic-fetch')
 const {EventSourcePolyfill} = require('event-source-polyfill')
 
@@ -54,10 +54,10 @@ export const useDirektivInstances = (url, stream, namespace, apikey) => {
 
 
     // getInstances returns a list of instances
-    async function getInstances() {
+    async function getInstances(...queryParameters) {
         try {
             // fetch instance list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/instances`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/instances${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok){

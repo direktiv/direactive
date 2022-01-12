@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -93,9 +93,9 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
         return () => CloseEventSource(eventSource)
     },[eventSource])
 
-    async function getEventListeners(){
+    async function getEventListeners(...queryParameters){
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/event-listeners`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/event-listeners${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "GET",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -107,9 +107,9 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
         }
     }
 
-    async function getEventHistory(){
+    async function getEventHistory(...queryParameters){
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/events`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/events${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "GET",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -121,7 +121,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
         }
     }
 
-    async function replayEvent(event){
+    async function replayEvent(event,...queryParameters){
         let headers = {
             "content-type": "application/cloudevents+json; charset=UTF-8"
         }
@@ -129,7 +129,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
             headers["apikey"] = apikey
         }
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/events/${event}/replay`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/events/${event}/replay${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "POST",
                 headers: headers
             })
@@ -141,7 +141,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
         }
     }
 
-    async function sendEvent(event){
+    async function sendEvent(event,...queryParameters){
         let headers = {
             "content-type": "application/cloudevents+json; charset=UTF-8"
         }
@@ -149,7 +149,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
             headers["apikey"] = apikey
         }
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/broadcast`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/broadcast${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "POST",
                 body: event,
                 headers: headers

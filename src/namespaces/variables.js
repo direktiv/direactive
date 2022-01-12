@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -56,10 +56,10 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
     },[eventSource])
 
     // getNamespaces returns a list of namespaces
-    async function getNamespaceVariables() {
+    async function getNamespaceVariables(...queryParameters) {
         try {
             // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/vars`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/vars${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
@@ -73,9 +73,9 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
         }
     }
 
-    async function getNamespaceVariable(name) {
+    async function getNamespaceVariable(name, ...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}`, {})
+            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {})
             if(resp.ok) {
                 return {data: await resp.text(), contentType: resp.headers.get("Content-Type")}
             } else {
@@ -86,9 +86,9 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
         }
     }
 
-    async function deleteNamespaceVariable(name) {
+    async function deleteNamespaceVariable(name,...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "DELETE"
             })
             if(!resp.ok) {
@@ -99,12 +99,12 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
         }
     }
 
-    async function setNamespaceVariable(name, val, mimeType) {
+    async function setNamespaceVariable(name, val, mimeType,...queryParameters) {
         if(mimeType === undefined){
             mimeType = "application/json"
         }
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "PUT",
                 body: val,
                 headers: {
