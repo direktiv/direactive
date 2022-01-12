@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {  HandleError } from '../util'
+import {  HandleError, ExtractQueryString } from '../util'
 const fetch = require('isomorphic-fetch')
 
 /*

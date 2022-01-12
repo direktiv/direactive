@@ -1,6 +1,6 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
-import { HandleError } from '../util'
+import { HandleError, ExtractQueryString } from '../util'
 
 /*
     useNamespaceMetrics is a react hook which metric details

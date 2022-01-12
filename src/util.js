@@ -39,3 +39,21 @@ export async function HandleError(summary, resp, perm) {
         return `You do not have permission to '${summary}', contact system admin to grant '${perm}'`
     }
 }
+
+export function ExtractQueryString(appendMode, ...queryParameters) {
+    let queryString = ""
+    for (let i = 0; i < queryParameters.length; i++) {
+        const query = queryParameters[i];
+        if (i > 0 || appendMode) {
+            queryString += `&${query}`
+        } else {
+            queryString += query
+        }
+    }
+
+    if (appendMode) {
+        return queryString
+    }
+
+    return `?${queryString}`
+}

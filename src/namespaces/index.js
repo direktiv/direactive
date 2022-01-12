@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -87,10 +87,10 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
     },[eventSource])
 
     // getNamespaces returns a list of namespaces
-    async function getNamespaces() {
+    async function getNamespaces(...queryParameters) {
         try {
             // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces`, {
+            let resp = await fetch(`${url}namespaces${ExtractQueryString(false, queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
