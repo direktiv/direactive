@@ -20,9 +20,9 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
     },[data])
 
     // getSecrets returns a list of registries
-    async function getSecrets() {
+    async function getSecrets(...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/secrets`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/secrets${ExtractQueryString(false, queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
@@ -36,9 +36,9 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
         }
     }
 
-    async function createSecret(name,value) {
+    async function createSecret(name,value,...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, queryParameters)}`,{
                 method: "PUT",
                 body: value
             })
@@ -50,9 +50,9 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
         }
     }
 
-    async function deleteSecret(name) {
+    async function deleteSecret(name,...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, queryParameters)}`, {
                 method: "DELETE"
             })
             if (!resp.ok) {

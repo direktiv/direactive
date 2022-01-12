@@ -57,10 +57,10 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey) =>
     },[eventSource])
 
     // getWorkflowLogs returns a list of workflow logs
-    async function getWorkflowLogs() {
+    async function getWorkflowLogs(...queryParameters) {
         try {
             // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=logs`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=logs${ExtractQueryString(true, queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {

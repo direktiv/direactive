@@ -55,11 +55,11 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
     },[eventSource])
 
 
-    async function getWorkflow() {
+    async function getWorkflow(...queryParameters) {
         try {
             let uri = `${url}namespaces/${namespace}/tree/${path}`
  
-            let resp = await fetch(`${uri}/`, {
+            let resp = await fetch(`${uri}/${ExtractQueryString(false, queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
@@ -73,14 +73,14 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function getWorkflowSankeyMetrics(rev) {
+    async function getWorkflowSankeyMetrics(rev,...queryParameters) {
         let ref = "latest"
         if(rev){
             ref = rev
         }
 
         let uri = `${url}namespaces/${namespace}/tree/${path}?ref=${rev}&op=metrics-sankey`
-        let resp = await fetch(`${uri}`, {
+        let resp = await fetch(`${uri}${ExtractQueryString(true, queryParameters)}`, {
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
         if (resp.ok) {
@@ -90,9 +90,9 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function getWorkflowRevisionData(rev) {
+    async function getWorkflowRevisionData(rev,...queryParameters) {
         let uri = `${url}namespaces/${namespace}/tree/${path}?ref=${rev}`
-        let resp = await fetch(`${uri}`, {
+        let resp = await fetch(`${uri}${ExtractQueryString(true, queryParameters)}`, {
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
         if (resp.ok) {
@@ -102,8 +102,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function getRevisions(){
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=refs`,{
+    async function getRevisions(...queryParameters){
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=refs${ExtractQueryString(true, queryParameters)}`,{
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
         if(resp.ok) {
@@ -114,8 +114,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function getTags(){
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tags`,{
+    async function getTags(...queryParameters){
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tags${ExtractQueryString(true, queryParameters)}`,{
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
         if(resp.ok) {
@@ -126,8 +126,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function updateWorkflow(newwf) {
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=update-workflow`, {
+    async function updateWorkflow(newwf,...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=update-workflow${ExtractQueryString(true, queryParameters)}`, {
             method: "post",
             headers: apikey === undefined ? {}:{"apikey": apikey},
             headers: {
@@ -142,8 +142,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function toggleWorkflow(active) {
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=toggle`, {
+    async function toggleWorkflow(active,...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=toggle${ExtractQueryString(true, queryParameters)}`, {
             method: "POST",
             body: JSON.stringify({
                 live: active
@@ -155,8 +155,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function getWorkflowRouter() {
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=router`, {
+    async function getWorkflowRouter(...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=router${ExtractQueryString(true, queryParameters)}`, {
             method: "get",
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
@@ -167,8 +167,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function editWorkflowRouter(routes, live) {
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=edit-router`, {
+    async function editWorkflowRouter(routes, live,...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=edit-router${ExtractQueryString(true, queryParameters)}`, {
             method: "POST",
             body: JSON.stringify({
                 route: routes,
@@ -181,8 +181,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function setWorkflowLogToEvent(val) {
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=set-workflow-event-logging`,{
+    async function setWorkflowLogToEvent(val,...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=set-workflow-event-logging${ExtractQueryString(true, queryParameters)}`,{
             method: "POST",
             body: JSON.stringify({
                 logger: val
@@ -194,12 +194,12 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function executeWorkflow(input, revision) {
+    async function executeWorkflow(input, revision,...queryParameters) {
         let ref = "latest"
         if(revision) {
             ref = revision
         }
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=execute&ref=${ref}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=execute&ref=${ref}${ExtractQueryString(true, queryParameters)}`, {
             method: "POST",
             body: input,
             headers: apikey === undefined ? {}:{"apikey": apikey}
@@ -212,8 +212,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function addAttributes(attributes) {
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=create-node-attributes`, {
+    async function addAttributes(attributes,...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=create-node-attributes${ExtractQueryString(true, queryParameters)}`, {
             method: "PUT",
             body: JSON.stringify({
                 attributes: attributes
@@ -225,8 +225,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function deleteAttributes(attributes){
-                let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-node-attributes`, {
+    async function deleteAttributes(attributes,...queryParameters){
+                let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-node-attributes${ExtractQueryString(true, queryParameters)}`, {
             method: "DELETE",
             body: JSON.stringify({
                 attributes: attributes
@@ -238,8 +238,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function getInstancesForWorkflow() {
-        let resp = await fetch(`${url}namespaces/${namespace}/instances?filter.field=AS&filter.type=WORKFLOW&filter.val=${path}`,{
+    async function getInstancesForWorkflow(...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/instances?filter.field=AS&filter.type=WORKFLOW&filter.val=${path}${ExtractQueryString(true, queryParameters)}`,{
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
         if (resp.ok) {
@@ -250,11 +250,11 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function getSuccessFailedMetrics() {
-        let respFailed = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-failed`, {
+    async function getSuccessFailedMetrics(...queryParameters) {
+        let respFailed = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-failed${ExtractQueryString(true, queryParameters)}`, {
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
-        let respSuccess = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-successful`, {
+        let respSuccess = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-successful${ExtractQueryString(true, queryParameters)}`, {
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
 
@@ -280,8 +280,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         return x
     }
 
-    async function getStateMillisecondMetrics(){
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-state-milliseconds`, {
+    async function getStateMillisecondMetrics(...queryParameters){
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-state-milliseconds${ExtractQueryString(true, queryParameters)}`, {
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
         if (resp.ok) {
@@ -292,12 +292,12 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function saveWorkflow(ref){
+    async function saveWorkflow(ref,...queryParameters){
         let rev = ref
         if(rev === undefined){
             rev = "latest"
         }
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=save-workflow&ref=${rev}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=save-workflow&ref=${rev}${ExtractQueryString(true, queryParameters)}`, {
             method: "POST",
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
@@ -308,13 +308,13 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         return resp.json()
     }
 
-    async function deleteRevision(ref) {
+    async function deleteRevision(ref,...queryParameters) {
         let rev = ref
         if(rev === undefined){
             rev = "latest"
         }
 
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-revision&ref=${ref}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-revision&ref=${ref}${ExtractQueryString(true, queryParameters)}`, {
             method:"POST",
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
@@ -323,8 +323,8 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function removeTag(tag) {
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=untag&ref=${tag}`, {
+    async function removeTag(tag,...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=untag&ref=${tag}${ExtractQueryString(true, queryParameters)}`, {
             method:"POST",
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
@@ -333,13 +333,13 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function discardWorkflow(ref) {
+    async function discardWorkflow(ref,...queryParameters) {
         let rev = ref
         if(rev === undefined){
             rev = "latest"
         }
 
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=discard-workflow&ref=${rev}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=discard-workflow&ref=${rev}${ExtractQueryString(true, queryParameters)}`, {
             method: "POST",
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
@@ -348,12 +348,12 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
-    async function tagWorkflow(ref, tag) {
+    async function tagWorkflow(ref, tag,...queryParameters) {
         let rev = ref
         if(rev === undefined){
             rev = "latest"
         }
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tag&ref=${ref}&tag=${tag}`,{
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tag&ref=${ref}&tag=${tag}${ExtractQueryString(true, queryParameters)}`,{
             method: "POST",
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })

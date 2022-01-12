@@ -54,10 +54,10 @@ export const useDirektivInstances = (url, stream, namespace, apikey) => {
 
 
     // getInstances returns a list of instances
-    async function getInstances() {
+    async function getInstances(...queryParameters) {
         try {
             // fetch instance list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/instances`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/instances${ExtractQueryString(false, queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok){

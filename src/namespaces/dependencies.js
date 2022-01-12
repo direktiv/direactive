@@ -15,10 +15,10 @@ export const useDirektivNamespaceDependencies = (url, namespace, apikey) => {
         }
     },[data])
 
-    async function getNamespaceDependencies() {
+    async function getNamespaceDependencies(...queryParameters) {
         try {
             // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/dependencies`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/dependencies${ExtractQueryString(false, queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
