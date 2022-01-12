@@ -428,7 +428,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
                 name += `?op=create-directory`
                 body = JSON.stringify(body)
             }
-            let resp = await fetch(`${uriPath}/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            let resp = await fetch(`${uriPath}/${name}${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "PUT",
                 body: body,
                 headers: apikey === undefined ? {}:{"apikey": apikey}
