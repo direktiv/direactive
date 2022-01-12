@@ -41,6 +41,10 @@ export async function HandleError(summary, resp, perm) {
 }
 
 export function ExtractQueryString(appendMode, ...queryParameters) {
+    if (queryParameters === undefined || queryParameters.length === 0){
+        return ""
+    }
+
     let queryString = ""
     for (let i = 0; i < queryParameters.length; i++) {
         const query = queryParameters[i];
