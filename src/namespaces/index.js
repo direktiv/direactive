@@ -90,7 +90,7 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
     async function getNamespaces(...queryParameters) {
         try {
             // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
@@ -107,7 +107,7 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
     // createNamespace creates a namespace from direktiv
     async function createNamespace(namespace, ...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "PUT",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -122,7 +122,7 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
     // deleteNamespace deletes a namespace from direktiv
     async function deleteNamespace(namespace, ...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}?recursive=true${ExtractQueryString(true, queryParameters)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}?recursive=true${ExtractQueryString(true, ...queryParameters)}`,{
                 method:"DELETE",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })

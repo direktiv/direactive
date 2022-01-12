@@ -14,7 +14,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getInvoked(...queryParameters){
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/metrics/invoked${ExtractQueryString(false, queryParameters)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/metrics/invoked${ExtractQueryString(false, ...queryParameters)}`,{
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(resp.ok){
@@ -29,7 +29,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getSuccessful(...queryParameters){
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/metrics/successful${ExtractQueryString(false, queryParameters)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/metrics/successful${ExtractQueryString(false, ...queryParameters)}`,{
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(resp.ok){
@@ -44,7 +44,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getFailed(...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/metrics/failed${ExtractQueryString(false, queryParameters)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/metrics/failed${ExtractQueryString(false, ...queryParameters)}`,{
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(resp.ok){
@@ -59,7 +59,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getMilliseconds(...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/metrics/milliseconds${ExtractQueryString(false, queryParameters)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/metrics/milliseconds${ExtractQueryString(false, ...queryParameters)}`,{
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(resp.ok){

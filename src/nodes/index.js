@@ -398,7 +398,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
             if(path !== "") {
                 uri += `${sanitizePath(path)}`
             }
-            let resp = await fetch(`${uri}/${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${uri}/${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
@@ -428,7 +428,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
                 name += `?op=create-directory`
                 body = JSON.stringify(body)
             }
-            let resp = await fetch(`${uriPath}/${name}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${uriPath}/${name}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "PUT",
                 body: body,
                 headers: apikey === undefined ? {}:{"apikey": apikey}
@@ -447,7 +447,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
             if(path){
                 uriPath += `${sanitizePath(path)}`
             }
-            let resp = await fetch(`${uriPath}/${name}?op=delete-node${ExtractQueryString(true, queryParameters)}`, {
+            let resp = await fetch(`${uriPath}/${name}?op=delete-node${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "DELETE",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -465,7 +465,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
             if(path) {
                 uriPath += `${sanitizePath(fpath)}`
             }
-            let resp = await fetch(`${uriPath}/${oldname}?op=rename-node${ExtractQueryString(true, queryParameters)}`,{
+            let resp = await fetch(`${uriPath}/${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`,{
                 method: "POST",
                 body: JSON.stringify({new: newname}),
                 headers: apikey === undefined ? {}:{"apikey": apikey}
@@ -480,7 +480,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
 
     async function getWorkflowRouter(workflow,...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=router${ExtractQueryString(true, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=router${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "get",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -497,7 +497,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
 
     async function toggleWorkflow(workflow, active,...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=toggle${ExtractQueryString(true, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=toggle${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "POST",
                 body: JSON.stringify({
                     live: active

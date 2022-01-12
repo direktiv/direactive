@@ -311,7 +311,7 @@ export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey
 
     async function getWorkflowServices(...queryParameters) {
         try {
-            let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=services${ExtractQueryString(true, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=services${ExtractQueryString(true, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "GET"
             })

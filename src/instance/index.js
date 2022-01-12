@@ -64,7 +64,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
     async function getInstanceLogs(...queryParameters) {
         try {
             // fetch instance list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/logs${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/logs${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok){
@@ -139,7 +139,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     async function getInstance(...queryParameters) {
         try {
             // fetch instance list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok){
@@ -155,7 +155,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
 
     async function getInput(...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/input${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/input${ExtractQueryString(false, ...queryParameters)}`, {
                 method:"GET",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
 
@@ -173,7 +173,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
 
     async function getOutput(...queryParameters){
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/output${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/output${ExtractQueryString(false, ...queryParameters)}`, {
                 method:"GET",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
 
@@ -191,7 +191,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
 
     async function cancelInstance(...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/cancel${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/cancel${ExtractQueryString(false, ...queryParameters)}`, {
                 method:"POST",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
 

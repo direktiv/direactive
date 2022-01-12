@@ -21,7 +21,7 @@ export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
 
     async function getBroadcastConfiguration(...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, queryParameters)}`,{})
+            let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, ...queryParameters)}`,{})
             if(!resp.ok) {
                 await HandleError('fetch config', resp, 'getNamespaceConfiguration')
             } else {
@@ -35,7 +35,7 @@ export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
 
     async function setBroadcastConfiguration(newconfig, ...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "PATCH",
                 body: newconfig
             })

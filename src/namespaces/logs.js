@@ -59,7 +59,7 @@ export const useDirektivNamespaceLogs = (url, stream, namespace, apikey) => {
     async function getNamespaceLogs(...queryParameters) {
         try {
             // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/logs${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/logs${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {

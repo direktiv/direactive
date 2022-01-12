@@ -45,7 +45,7 @@ export function ExtractQueryString(appendMode, ...queryParameters) {
     for (let i = 0; i < queryParameters.length; i++) {
         const query = queryParameters[i];
         if (i > 0 || appendMode) {
-            queryString += `&${query}`
+            queryString += "&" + query
         } else {
             queryString += query
         }

@@ -59,7 +59,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
     async function getNamespaceVariables(...queryParameters) {
         try {
             // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/vars${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/vars${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
@@ -75,7 +75,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
 
     async function getNamespaceVariable(name, ...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, queryParameters)}`, {})
+            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {})
             if(resp.ok) {
                 return {data: await resp.text(), contentType: resp.headers.get("Content-Type")}
             } else {
@@ -88,7 +88,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
 
     async function deleteNamespaceVariable(name,...queryParameters) {
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, queryParameters)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "DELETE"
             })
             if(!resp.ok) {
@@ -104,7 +104,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
             mimeType = "application/json"
         }
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "PUT",
                 body: val,
                 headers: {

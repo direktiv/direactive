@@ -95,7 +95,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
 
     async function getEventListeners(...queryParameters){
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/event-listeners${ExtractQueryString(false, queryParameters)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/event-listeners${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "GET",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -109,7 +109,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
 
     async function getEventHistory(...queryParameters){
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/events${ExtractQueryString(false, queryParameters)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/events${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "GET",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -129,7 +129,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
             headers["apikey"] = apikey
         }
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/events/${event}/replay${ExtractQueryString(false, queryParameters)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/events/${event}/replay${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "POST",
                 headers: headers
             })
@@ -149,7 +149,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
             headers["apikey"] = apikey
         }
         try {
-            let resp = await fetch(`${url}namespaces/${namespace}/broadcast${ExtractQueryString(false, queryParameters)}`,{
+            let resp = await fetch(`${url}namespaces/${namespace}/broadcast${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "POST",
                 body: event,
                 headers: headers

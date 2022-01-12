@@ -22,7 +22,7 @@ export const useDirektivGlobalRegistries = (url, apikey) => {
     // getGlobalRegistries returns a list of registries
     async function getRegistries(...queryParameters) {
         try {
-            let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
@@ -38,7 +38,7 @@ export const useDirektivGlobalRegistries = (url, apikey) => {
 
     async function createRegistry(key, val,...queryParameters){
         try {
-            let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "POST",
                 body: JSON.stringify({data:val, reg: key})
             })
@@ -53,7 +53,7 @@ export const useDirektivGlobalRegistries = (url, apikey) => {
 
     async function deleteRegistry(key, ...queryParameters){
         try {
-            let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "DELETE",
                 body: JSON.stringify({
                     reg: key

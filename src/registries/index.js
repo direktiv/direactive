@@ -26,7 +26,7 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
     // getRegistries returns a list of registries
     async function getRegistries(...queryParameters) {
         try {
-            let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
@@ -42,7 +42,7 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
 
     async function createRegistry(key, val,...queryParameters){
         try {
-            let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "POST",
                 body: JSON.stringify({data:val, reg: key})
             })
@@ -56,7 +56,7 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
 
     async function deleteRegistry(key,...queryParameters){
         try {
-            let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "DELETE",
                 body: JSON.stringify({
                     reg: key

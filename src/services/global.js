@@ -249,7 +249,7 @@ export const useDirektivGlobalService = (url, service, apikey) => {
 
     async function createGlobalServiceRevision(image, minScale, size, cmd, traffic,...queryParameters) {
         try {
-            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "POST",
                 body: JSON.stringify({
@@ -270,7 +270,7 @@ export const useDirektivGlobalService = (url, service, apikey) => {
 
     async function deleteGlobalServiceRevision(rev,...queryParameters){
         try {
-            let resp = await fetch(`${url}functions/${service}/revisions/${rev}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/${service}/revisions/${rev}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "DELETE"
             })
@@ -284,7 +284,7 @@ export const useDirektivGlobalService = (url, service, apikey) => {
 
     async function getServiceConfig(...queryParameters) {
         try {
-            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "GET"
             })
@@ -301,7 +301,7 @@ export const useDirektivGlobalService = (url, service, apikey) => {
 
     async function setGlobalServiceRevisionTraffic(rev1, rev1value, rev2, rev2value,...queryParameters) {
         try {
-            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "PATCH",
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 body: JSON.stringify({values:[{
@@ -424,7 +424,7 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
 
     async function getConfig(...queryParameters) {
         try {
-            let resp = await fetch(`${url}functions${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "GET"
             })
@@ -441,7 +441,7 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
 
     async function getGlobalServices(...queryParameters) {
         try {
-            let resp = await fetch(`${url}functions${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "GET"
             })
@@ -458,7 +458,7 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
 
     async function createGlobalService(name, image, minScale, size, cmd,...queryParameters) {
         try {
-            let resp = await fetch(`${url}functions${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "POST",
                 body: JSON.stringify({
@@ -479,7 +479,7 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
 
     async function deleteGlobalService(name,...queryParameters) {
         try {
-            let resp = await fetch(`${url}/functions/${name}${ExtractQueryString(false, queryParameters)}`, {
+            let resp = await fetch(`${url}/functions/${name}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "DELETE"
             })
