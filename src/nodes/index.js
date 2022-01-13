@@ -468,7 +468,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
             if(path) {
                 uriPath += `${sanitizePath(fpath)}`
             }
-            console.log(uriPath)
             console.log(`${uriPath}${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`)
             let resp = await fetch(`${uriPath}${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`,{
                 method: "POST",
