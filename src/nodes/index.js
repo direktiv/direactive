@@ -459,13 +459,18 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         }
     }
 
-    async function renameNode(fpath, oldname, newname,...queryParameters) {
+    async function renameNode(fpath, oldname, newname, ...queryParameters) {
         try {
+            console.log(fpath)
+            console.log(oldname)
+            console.log(newname)
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path) {
                 uriPath += `${sanitizePath(fpath)}`
             }
-            let resp = await fetch(`${uriPath}/${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`,{
+            console.log(uriPath)
+            console.log(`${uriPath}${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`)
+            let resp = await fetch(`${uriPath}${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`,{
                 method: "POST",
                 body: JSON.stringify({new: newname}),
                 headers: apikey === undefined ? {}:{"apikey": apikey}

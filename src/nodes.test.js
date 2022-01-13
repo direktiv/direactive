@@ -42,7 +42,7 @@ describe('useNodes', () => {
         expect(found).toBeTrue()
 
         act(()=> {
-            result.current.renameNode("/", "test-directory", "test-directory2")
+            result.current.renameNode("", "/test-directory", "/test-directory2")
         })
 
         await waitForNextUpdate()
