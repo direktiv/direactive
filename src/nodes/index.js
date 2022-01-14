@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { json } from 'stream/consumers'
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
@@ -393,7 +394,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
     },[eventSource])
 
     async function getNode(...queryParameters) {
-        try {
             let uri = `${url}namespaces/${namespace}/tree`
             if(path !== "") {
                 uri += `${sanitizePath(path)}`
@@ -404,16 +404,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json)
+                return json
             } else {
-                setErr(await HandleError('get node', resp, 'listNodes'))
+              throw new Error(await HandleError('get node', resp, 'listNodes'))
             }
-        } catch(e){
-            setErr(e.message)
-        }
     }
 
     async function createNode(name, type, yaml,...queryParameters) {
-        try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path !== "") {
                 uriPath += `${sanitizePath(path)}`
@@ -434,15 +431,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok) {
-                return await HandleError('create node', resp, 'createNode')
+              throw new Error( await HandleError('create node', resp, 'createNode'))
             }
-        } catch(e){
-            return e.message
-        }
+
+            return await resp.json()
     }
 
     async function deleteNode(name,...queryParameters) {
-        try {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path){
                 uriPath += `${sanitizePath(path)}`
@@ -452,39 +447,30 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(!resp.ok){
-                return await HandleError('delete node', resp, 'deleteNode')
+              throw new Error( await HandleError('delete node', resp, 'deleteNode'))
             }
-        } catch(e) {
-            return e.message
-        }
+
+            return await resp.json()
     }
 
     async function renameNode(fpath, oldname, newname, ...queryParameters) {
-        try {
-            console.log(fpath)
-            console.log(oldname)
-            console.log(newname)
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path) {
                 uriPath += `${sanitizePath(fpath)}`
             }
-            console.log(uriPath)
-            console.log(`${uriPath}${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`)
             let resp = await fetch(`${uriPath}${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`,{
                 method: "POST",
                 body: JSON.stringify({new: newname}),
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok) {
-                return await HandleError('rename node', resp, 'renameNode')
+              throw new Error( await HandleError('rename node', resp, 'renameNode'))
             }
-        } catch(e) {
-            return e.message
-        }
+
+            return await resp.json()
     }
 
     async function getWorkflowRouter(workflow,...queryParameters) {
-        try {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=router${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "get",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
@@ -493,15 +479,11 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
                 let json = await resp.json()
                 return json.live
             } else {
-                setErr(await HandleError('get workflow router', resp, 'getWorkflow'))
+              throw new Error(await HandleError('get workflow router', resp, 'getWorkflow'))
             }
-        } catch (e) {
-            setErr(e.message)
-        }
     }
 
     async function toggleWorkflow(workflow, active,...queryParameters) {
-        try {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=toggle${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "POST",
                 body: JSON.stringify({
@@ -510,11 +492,10 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok){
-                return await HandleError('toggle workflow', resp, 'toggleWorkflow')
+              throw new Error( await HandleError('toggle workflow', resp, 'toggleWorkflow'))
             }
-        } catch(e) {
-           return e.message
-        }
+
+            return await resp.json()
     }
 
     function sanitizePath(path) {

@@ -11,7 +11,6 @@ const fetch = require('isomorphic-fetch')
 export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
 
     const [data, setData] = React.useState(null)
-    const [err, setErr] = React.useState(null)
 
     React.useEffect(()=>{
         if(data === null) {
@@ -21,51 +20,42 @@ export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
 
     // getGlobalPrivateRegistries returns a list of registries
     async function getRegistries(...queryParameters) {
-        try {
             let resp = await fetch(`${url}functions/registries/private${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json.registries)
+                return json.registries
             } else {
-                setErr(await HandleError('list registries', resp, 'listGlobalPrivateRegistries'))
+                throw new Error(await HandleError('list registries', resp, 'listGlobalPrivateRegistries'))
             }
-        } catch(e) {
-            setErr(e.message)
-        }
-    }
+     }
 
     async function createRegistry(key, val,...queryParameters){
-        try {
-            let resp = await fetch(`${url}functions/registries/private${ExtractQueryString(false, ...queryParameters)}`, {
-                method: "POST",
-                body: JSON.stringify({data:val, reg: key})
-            })
-            if(!resp.ok){
-                return await HandleError('create registry', resp, 'createRegistry')
-
-            }
-        } catch(e) {
-            setErr(e.message)
+        let resp = await fetch(`${url}functions/registries/private${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "POST",
+            body: JSON.stringify({data:val, reg: key})
+        })
+        if(!resp.ok){
+            throw new Error( await HandleError('create registry', resp, 'createRegistry'))
         }
+
+        return await resp.json()
     }
 
     async function deleteRegistry(key,...queryParameters){
-        try {
-            let resp = await fetch(`${url}functions/registries/private${ExtractQueryString(false, ...queryParameters)}`, {
-                method: "DELETE",
-                body: JSON.stringify({
-                    reg: key
-                })
+        let resp = await fetch(`${url}functions/registries/private${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "DELETE",
+            body: JSON.stringify({
+                reg: key
             })
-            if (!resp.ok) {
-                return await HandleError('delete registry', resp, 'deleteRegistry')
-
-            }
-        } catch (e) {
-            setErr(e.message)
+        })
+        if (!resp.ok) {
+            throw new Error( await HandleError('delete registry', resp, 'deleteRegistry'))
         }
+
+        return await resp.json()
     }
 
     return {

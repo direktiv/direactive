@@ -56,7 +56,6 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
 
 
     async function getWorkflowVariables(...queryParameters) {
-        try {
             let uri = `${url}namespaces/${namespace}/tree/${path}?op=vars${ExtractQueryString(true, ...queryParameters)}` 
             let resp = await fetch(`${uri}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
@@ -64,19 +63,16 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json.variables.edges)
+                return json.variables.edges
             } else {
-                setErr(await HandleError('get node', resp, 'listNodes'))
+                throw new Error(await HandleError('get node', resp, 'listNodes'))
             }
-        } catch(e){
-            setErr(e.message)
-        }
     }
 
     async function setWorkflowVariable(name, val, mimeType,...queryParameters) {
         if(mimeType === undefined){
             mimeType = "application/json"
         }
-        try {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=set-var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "PUT",
                 body: val,
@@ -85,37 +81,30 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                 },
             })
             if (!resp.ok) {
-               return await HandleError('set variable', resp, 'setWorkflowVariable')
+                throw new Error(HandleError('set variable', resp, 'setWorkflowVariable'))
             }
-        } catch(e) {
-            return e.message
-        }
+
+            return await resp.json()
     }
 
     async function getWorkflowVariable(name,...queryParameters) {
-        try {
             let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {})
             if(resp.ok) {
                 return {data: await resp.text(), contentType: resp.headers.get("Content-Type")}
             } else {
-                return await HandleError('get variable', resp, 'getWorkflowVariable')
+                throw new Error( await HandleError('get variable', resp, 'getWorkflowVariable'))
             }
-        } catch(e) {
-            return e.message
-        }
     }
 
     async function deleteWorkflowVariable(name,...queryParameters) {
-        try {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-var&var=${name}${ExtractQueryString(true, ...queryParameters)}`,{
                 method: "DELETE"
             })
             if(!resp.ok) {
-                return await HandleError('delete variable', resp, 'deleteWorkflowVariable')
+                throw new Error( await HandleError('delete variable', resp, 'deleteWorkflowVariable'))
             }
-        } catch(e) {
-            return e.message
-        }
+
+            return await resp.json()
     }
 
     return {
