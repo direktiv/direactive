@@ -455,7 +455,7 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
     }
 
     async function deleteGlobalService(name,...queryParameters) {
-            let resp = await fetch(`${url}/functions/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            let resp = await fetch(`${url}functions/${name}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "DELETE"
             })
