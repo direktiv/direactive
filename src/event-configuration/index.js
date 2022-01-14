@@ -11,45 +11,36 @@ const fetch = require('isomorphic-fetch')
 */
 export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
     const [data, setData] = React.useState(null)
-    const [err, setErr] = React.useState(null)
 
-    React.useEffect(()=>{
-        if(data === null) {
+    React.useEffect(() => {
+        if (data === null) {
             getBroadcastConfiguration()
         }
-    },[data])
+    }, [data])
 
     async function getBroadcastConfiguration(...queryParameters) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, ...queryParameters)}`,{})
-            if(!resp.ok) {
-                await HandleError('fetch config', resp, 'getNamespaceConfiguration')
-            } else {
-                let json = await resp.json()
-                setData(json)
-            }
-        } catch(e) {
-            setErr(e.message)
+        let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, ...queryParameters)}`, {})
+        if (!resp.ok) {
+            throw new Error(await HandleError('fetch config', resp, 'getNamespaceConfiguration'))
         }
+        let json = await resp.json()
+        setData(json)
+        return json
     }
 
     async function setBroadcastConfiguration(newconfig, ...queryParameters) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, ...queryParameters)}`, {
-                method: "PATCH",
-                body: newconfig
-            })
-            if (!resp.ok) {
-                return await HandleError('set config', resp, 'setNamespaceConfiguration')
-            }
-        } catch (e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "PATCH",
+            body: newconfig
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('set config', resp, 'setNamespaceConfiguration'))
         }
+        return await resp.json()
     }
 
     return {
         data,
-        err,
         getBroadcastConfiguration,
         setBroadcastConfiguration
     }

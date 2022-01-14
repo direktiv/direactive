@@ -90,35 +90,29 @@ const cheatSheetMap = [
 export const useDirektivJQPlayground = (url, apikey) => {
 
     const [data, setData] = React.useState(null)
-    const [err, setErr] = React.useState(null)
 
-
-    async function executeJQ(query, data,...queryParameters) {
-        try {
-            // fetch namespace list by default
-            let resp = await fetch(`${url}jq${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "POST",
-                body: JSON.stringify({
-                    query: query,
-                    data: data,
-                })
+    async function executeJQ(query, data, ...queryParameters) {
+        // fetch namespace list by default
+        let resp = await fetch(`${url}jq${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "POST",
+            body: JSON.stringify({
+                query: query,
+                data: data,
             })
-            if (resp.ok) {
-                let json = await resp.json()
-                setData(json.results)
-            } else {
-                setErr(await HandleError('execute jq', resp, 'jqPlayground'))
-            }
-        } catch(e) {
-            setErr(e.message)
+        })
+        if (!resp.ok) {
+            throw new Error((await HandleError('execute jq', resp, 'jqPlayground')))
         }
+
+        let json = await resp.json()
+        setData(json.results)
+        return json.results
     }
 
 
     return {
         data,
-        err,
         executeJQ,
         cheatSheet: cheatSheetMap,
     }

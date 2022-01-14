@@ -10,70 +10,52 @@ import { HandleError, ExtractQueryString } from '../util'
       - apikey to provide authentication of an apikey
 */
 export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
-    const [err, setErr] = React.useState(null)
 
-    async function getInvoked(...queryParameters){
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/metrics/invoked${ExtractQueryString(false, ...queryParameters)}`,{
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(resp.ok){
-                return await resp.json()
-            } else {
-                setErr(await HandleError('get invoked metrics', resp, 'getMetrics'))
-            }
-        } catch(e){
-            setErr(e.message)
+    async function getInvoked(...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/metrics/invoked${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            return await resp.json()
+        } else {
+            throw new Error((await HandleError('get invoked metrics', resp, 'getMetrics')))
         }
     }
 
-    async function getSuccessful(...queryParameters){
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/metrics/successful${ExtractQueryString(false, ...queryParameters)}`,{
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(resp.ok){
-                return await resp.json()
-            } else {
-                setErr(await HandleError('get successful metrics', resp, 'getMetrics'))
-            }
-        } catch(e){
-            setErr(e.message)
+    async function getSuccessful(...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/metrics/successful${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            return await resp.json()
+        } else {
+            throw new Error((await HandleError('get successful metrics', resp, 'getMetrics')))
         }
     }
 
     async function getFailed(...queryParameters) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/metrics/failed${ExtractQueryString(false, ...queryParameters)}`,{
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(resp.ok){
-                return await resp.json()
-            } else {
-                setErr(await HandleError('get failed metrics', resp, 'getMetrics'))
-            }
-        } catch(e){
-            setErr(e.message)
+        let resp = await fetch(`${url}namespaces/${namespace}/metrics/failed${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            return await resp.json()
+        } else {
+            throw new Error(await HandleError('get failed metrics', resp, 'getMetrics'))
         }
     }
 
     async function getMilliseconds(...queryParameters) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/metrics/milliseconds${ExtractQueryString(false, ...queryParameters)}`,{
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(resp.ok){
-                return await resp.json()
-            } else {
-                setErr(await HandleError('get millisecond metrics', resp, 'getMetrics'))
-            }
-        } catch(e){
-            setErr(e.message)
+        let resp = await fetch(`${url}namespaces/${namespace}/metrics/milliseconds${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            return await resp.json()
+        } else {
+            throw new Error((await HandleError('get millisecond metrics', resp, 'getMetrics')))
         }
     }
 
     return {
-        err,
         getInvoked,
         getSuccessful,
         getFailed,

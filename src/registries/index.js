@@ -15,7 +15,6 @@ const fetch = require("isomorphic-fetch")
 export const useDirektivRegistries = (url, namespace, apikey) => {
 
     const [data, setData] = React.useState(null)
-    const [err, setErr] = React.useState(null)
 
     React.useEffect(()=>{
         if(data === null) {
@@ -25,37 +24,30 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
 
     // getRegistries returns a list of registries
     async function getRegistries(...queryParameters) {
-        try {
             let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json.registries)
+                return await json.registries
             } else {
-                setErr(await HandleError('list registries', resp, 'listRegistries'))
+                throw new Error(await HandleError('list registries', resp, 'listRegistries'))
             }
-        } catch(e) {
-            setErr(e.message)
-        }
     }
 
     async function createRegistry(key, val,...queryParameters){
-        try {
             let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "POST",
                 body: JSON.stringify({data:val, reg: key})
             })
             if(!resp.ok){
-                return await HandleError('create registry', resp, 'createRegistry')
+                throw new Error( await HandleError('create registry', resp, 'createRegistry'))
             }
-        } catch(e) {
-            return e.message
-        }
+            return await resp.json()
     }
 
     async function deleteRegistry(key,...queryParameters){
-        try {
             let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "DELETE",
                 body: JSON.stringify({
@@ -63,16 +55,13 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
                 })
             })
             if (!resp.ok) {
-                return await HandleError('delete registry', resp, 'deleteRegistry')
+                throw new Error( await HandleError('delete registry', resp, 'deleteRegistry'))
             }
-        } catch (e) {
-            return e.message
-        }
+            return await resp.json()
     }
 
     return {
         data,
-        err,
         createRegistry,
         deleteRegistry,
         getRegistries

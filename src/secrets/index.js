@@ -11,7 +11,6 @@ const fetch = require('isomorphic-fetch')
 */
 export const useDirektivSecrets = (url, namespace, apikey) => {
     const [data, setData] = React.useState(null)
-    const [err, setErr] = React.useState(null)
 
     React.useEffect(()=>{
         if(data === null) {
@@ -21,52 +20,41 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
 
     // getSecrets returns a list of registries
     async function getSecrets(...queryParameters) {
-        try {
             let resp = await fetch(`${url}namespaces/${namespace}/secrets${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json.secrets.edges)
+                return json.secrets.edges
             } else {
-                setErr(await HandleError('list secrets', resp, 'listSecrets'))
+                throw new Error(await HandleError('list secrets', resp, 'listSecrets'))
             }
-        } catch(e) {
-            setErr(e.message)
-        }
     }
 
     async function createSecret(name,value,...queryParameters) {
-        try {
             let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, ...queryParameters)}`,{
                 method: "PUT",
                 body: value
             })
             if(!resp.ok){
-                return await HandleError('create secret', resp, 'createSecret')
+                throw new Error( await HandleError('create secret', resp, 'createSecret'))
             }
-        } catch(e) {
-            return e.message
-        }
     }
 
     async function deleteSecret(name,...queryParameters) {
-        try {
             let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "DELETE"
             })
             if (!resp.ok) {
-                return await HandleError('delete secret', resp, 'deleteSecret')
+                throw new Error( await HandleError('delete secret', resp, 'deleteSecret'))
             }
-        } catch (e) {
-            return e.message
-        }
+            return await resp.json()
     }
 
 
     return {
         data,
-        err,
         createSecret,
         deleteSecret,
         getSecrets

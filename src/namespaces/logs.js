@@ -58,19 +58,16 @@ export const useDirektivNamespaceLogs = (url, stream, namespace, apikey) => {
 
     // getNamespaces returns a list of namespaces
     async function getNamespaceLogs(...queryParameters) {
-        try {
-            // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/logs${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setData(json.edges)
-            } else {
-                setErr(await HandleError('list namespace logs', resp, 'namespaceLogs'))
-            }
-        } catch(e) {
-            setErr(e.message)
+        // fetch namespace list by default
+        let resp = await fetch(`${url}namespaces/${namespace}/logs${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setData(json.edges)
+            return json.edges
+        } else {
+            throw new Error((await HandleError('list namespace logs', resp, 'namespaceLogs')))
         }
     }
 

@@ -56,7 +56,6 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
 
 
     async function getWorkflow(...queryParameters) {
-        try {
             let uri = `${url}namespaces/${namespace}/tree/${path}`
  
             let resp = await fetch(`${uri}/${ExtractQueryString(false, ...queryParameters)}`, {
@@ -65,12 +64,10 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json)
+                return json
             } else {
-                setErr(await HandleError('get node', resp, 'listNodes'))
+                throw new Error(await HandleError('get node', resp, 'listNodes'))
             }
-        } catch(e){
-            setErr(e.message)
-        }
     }
 
     async function getWorkflowSankeyMetrics(rev,...queryParameters) {
