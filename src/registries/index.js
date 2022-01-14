@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { json } from 'stream/consumers'
 import {  HandleError, ExtractQueryString } from '../util'
 const fetch = require("isomorphic-fetch")
 
@@ -63,7 +62,6 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
 
     return {
         data,
-        err,
         createRegistry,
         deleteRegistry,
         getRegistries

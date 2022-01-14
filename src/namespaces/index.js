@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { json } from 'stream/consumers'
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
@@ -123,7 +122,6 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
         if (!resp.ok) {
             throw new Error(await HandleError('delete a namespace', resp, 'deleteNamespace'))
         }
-        return resp.json()
     }
 
     return {

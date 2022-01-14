@@ -60,7 +60,6 @@ export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
 
     return {
         data,
-        err,
         createRegistry,
         deleteRegistry,
         getRegistries

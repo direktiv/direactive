@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { json } from 'stream/consumers'
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
@@ -449,8 +448,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
             if(!resp.ok){
               throw new Error( await HandleError('delete node', resp, 'deleteNode'))
             }
-
-            return await resp.json()
     }
 
     async function renameNode(fpath, oldname, newname, ...queryParameters) {

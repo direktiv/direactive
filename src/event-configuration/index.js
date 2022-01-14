@@ -11,7 +11,7 @@ const fetch = require('isomorphic-fetch')
 */
 export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
     const [data, setData] = React.useState(null)
-    
+
     React.useEffect(() => {
         if (data === null) {
             getBroadcastConfiguration()
@@ -41,7 +41,6 @@ export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
 
     return {
         data,
-        err,
         getBroadcastConfiguration,
         setBroadcastConfiguration
     }

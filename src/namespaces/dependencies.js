@@ -46,7 +46,6 @@ export const useDirektivNamespaceDependencies = (url, namespace, apikey) => {
 
     return {
         data,
-        err,
         getNamespaceDependencies,
         getNamespaceFunctions,
         getSecrets,

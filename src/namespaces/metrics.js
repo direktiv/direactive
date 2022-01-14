@@ -56,7 +56,6 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
     }
 
     return {
-        err,
         getInvoked,
         getSuccessful,
         getFailed,

@@ -279,8 +279,6 @@ export const useDirektivNamespaceService = (url, namespace, service, apikey) => 
             if (!resp.ok) {
                 throw new Error(await HandleError('create namespace service revision', resp, 'createRevision'))
             }
-
-            return await resp.json()
     }
 
     async function deleteNamespaceServiceRevision(rev,...queryParameters){
@@ -291,8 +289,6 @@ export const useDirektivNamespaceService = (url, namespace, service, apikey) => 
             if(!resp.ok){
                 throw new Error( await HandleError('delete namespace service revision', resp, 'deleteRevision'))
             }
-
-            return await resp.json()
     }
 
     async function setNamespaceServiceRevisionTraffic(rev1, rev1value, rev2, rev2value,...queryParameters) {
@@ -462,9 +458,6 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
             if (!resp.ok) {
                 throw new Error( await HandleError('create namespace service', resp, 'createService'))
             }
-
-            return resp.json()
-
     }
 
     async function deleteNamespaceService(name,...queryParameters) {
@@ -475,8 +468,6 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
             if(!resp.ok) {
                 throw new Error( await HandleError('delete namespace service', resp, 'deleteService'))
             }
-
-            return await resp.json()
     }
 
 

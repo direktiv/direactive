@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { json } from 'stream/consumers'
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
@@ -263,7 +262,6 @@ export const useDirektivGlobalService = (url, service, apikey) => {
             if (!resp.ok) {
                 throw new Error( await HandleError('create global service revision', resp, 'createRevision'))
             }
-            return await resp.json()
     }
 
     async function deleteGlobalServiceRevision(rev,...queryParameters){
@@ -274,7 +272,6 @@ export const useDirektivGlobalService = (url, service, apikey) => {
             if(!resp.ok){
                 throw new Error( await HandleError('delete global service revision', resp, 'deleteRevision'))
             }
-            return await resp.json()
     }
 
     async function getServiceConfig(...queryParameters) {
@@ -455,7 +452,6 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
             if (!resp.ok) {
                 throw new Error( await HandleError('create global service', resp, 'createService'))
             }
-            return await resp.json()
     }
 
     async function deleteGlobalService(name,...queryParameters) {
@@ -467,7 +463,6 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
                 throw new Error( await HandleError('delete global service', resp, 'deleteService'))
             }
 
-            return await resp.json()
     }
 
 

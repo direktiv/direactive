@@ -113,7 +113,6 @@ export const useDirektivJQPlayground = (url, apikey) => {
 
     return {
         data,
-        err,
         executeJQ,
         cheatSheet: cheatSheetMap,
     }

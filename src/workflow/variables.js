@@ -81,7 +81,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                 },
             })
             if (!resp.ok) {
-                throw new Error(HandleError('set variable', resp, 'setWorkflowVariable'))
+                throw new Error(await HandleError('set variable', resp, 'setWorkflowVariable'))
             }
 
             return await resp.json()
@@ -104,7 +104,6 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                 throw new Error( await HandleError('delete variable', resp, 'deleteWorkflowVariable'))
             }
 
-            return await resp.json()
     }
 
     return {

@@ -55,7 +55,6 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
 
     return {
         data,
-        err,
         createSecret,
         deleteSecret,
         getSecrets
