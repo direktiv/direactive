@@ -135,13 +135,13 @@ export const useDirektivWorkflowServiceRevision = (url, namespace, path, service
     - path
     - service
     - version
+    - navigate(react router object to navigate backwards)
     - apikey
 */
-export const useDirektivWorkflowService = (url, namespace, path, service, version, apikey)=> {
+export const useDirektivWorkflowService = (url, namespace, path, service, version, navigate, apikey)=> {
     const [revisions, setRevisions] = React.useState(null)
     
     const revisionsRef = React.useRef(revisions ? revisions: [])
-    
     
     const [err, setErr] = React.useState(null)
     
@@ -176,7 +176,7 @@ export const useDirektivWorkflowService = (url, namespace, path, service, versio
                             }
                         }
                         if (revs.length === 0) {
-                            history.goBack()
+                            navigate(-1)
                         }
                         break
                     case "MODIFIED":

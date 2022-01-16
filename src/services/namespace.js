@@ -131,14 +131,14 @@ export const useDirektivNamespaceServiceRevision = (url, namespace, service, rev
     - url
     - namespace
     - service
+    - navigate (react router object to navigate backwards)
     - apikey
 */
-export const useDirektivNamespaceService = (url, namespace, service, apikey) => {
+export const useDirektivNamespaceService = (url, namespace, service, navigate, apikey) => {
     const [revisions, setRevisions] = React.useState(null)
     const [fn, setFn] = React.useState(null)
     const [traffic, setTraffic] = React.useState(null)
     const [config, setConfig] = React.useState(null)
-    
     const revisionsRef = React.useRef(revisions ? revisions: [])
     
     
@@ -206,7 +206,7 @@ export const useDirektivNamespaceService = (url, namespace, service, apikey) => 
                             }
                         }
                         if (revs.length === 0) {
-                            history.goBack()
+                            navigate(-1)
                         }
                         break
                     case "MODIFIED":

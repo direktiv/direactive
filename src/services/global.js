@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -131,14 +132,14 @@ export const useDirektivGlobalServiceRevision = (url, service, revision, apikey)
     useGlobalService takes
     - url
     - service
+    - navigate (react router navigation to go backwards if revision is deleted)
     - apikey
 */
-export const useDirektivGlobalService = (url, service, apikey) => {
+export const useDirektivGlobalService = (url, service, navigate, apikey) => {
     const [revisions, setRevisions] = React.useState(null)
     const [fn, setFn] = React.useState(null)
     const [traffic, setTraffic] = React.useState(null)
     const [config, setConfig] = React.useState(null)
-    
     const revisionsRef = React.useRef(revisions ? revisions: [])
     
     
@@ -206,7 +207,7 @@ export const useDirektivGlobalService = (url, service, apikey) => {
                             }
                         }
                         if (revs.length === 0) {
-                            history.goBack()
+                            navigate(-1)
                         }
                         break
                     case "MODIFIED":
@@ -325,6 +326,7 @@ export const useDirektivGlobalService = (url, service, apikey) => {
     takes:
       - url to direktiv api http://x/api/
       - stream to use sse or a normal fetch
+      - navigate (react-router object to navigate backwards)
       - apikey to provide authentication of an apikey
 */
 export const useDirektivGlobalServices = (url, stream, apikey) => {
