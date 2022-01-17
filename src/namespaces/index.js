@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -87,50 +87,40 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
     },[eventSource])
 
     // getNamespaces returns a list of namespaces
-    async function getNamespaces() {
-        try {
-            // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setData(json.edges)
-            } else {
-                setErr(await HandleError('list namespaces', resp, 'listNamespaces'))
-            }
-        } catch(e) {
-            setErr(e.message)
+    async function getNamespaces(...queryParameters) {
+        // fetch namespace list by default
+        let resp = await fetch(`${url}namespaces${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setData(json.edges)
+            return json.edges
+        } else {
+            throw new Error((await HandleError('list namespaces', resp, 'listNamespaces')))
         }
     }
 
     // createNamespace creates a namespace from direktiv
-    async function createNamespace(namespace) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}`, {
-                method: "PUT",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(!resp.ok){
-                return await HandleError('create a namespace', resp, 'addNamespace')
-            } 
-        } catch(e) {
-            return e.message
+    async function createNamespace(namespace, ...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "PUT",
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('create a namespace', resp, 'addNamespace'))
         }
+        return await resp.json()
     }
 
     // deleteNamespace deletes a namespace from direktiv
-    async function deleteNamespace(namespace) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}?recursive=true`,{
-                method:"DELETE",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(!resp.ok) {
-                return await HandleError('delete a namespace', resp, 'deleteNamespace')
-            }
-        } catch(e) {
-            return e.message
+    async function deleteNamespace(namespace, ...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}?recursive=true${ExtractQueryString(true, ...queryParameters)}`, {
+            method: "DELETE",
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('delete a namespace', resp, 'deleteNamespace'))
         }
     }
 

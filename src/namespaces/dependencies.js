@@ -1,13 +1,12 @@
 import * as React from 'react'
 
-import { HandleError } from '../util'
+import { HandleError, ExtractQueryString } from '../util'
 const fetch = require('isomorphic-fetch')
 
 
 export const useDirektivNamespaceDependencies = (url, namespace, apikey) => {
 
     const [data, setData] = React.useState(null)
-    const [err, setErr] = React.useState(null)
     
     React.useEffect(()=>{
         if(data === null) {
@@ -15,21 +14,18 @@ export const useDirektivNamespaceDependencies = (url, namespace, apikey) => {
         }
     },[data])
 
-    async function getNamespaceDependencies() {
-        try {
+    async function getNamespaceDependencies(...queryParameters) {
             // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/dependencies`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/dependencies${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
-            if (resp.ok) {
-                let json = await resp.json()
-                setData(json)
-            } else {
-                setErr(await HandleError('list namespace dependencies', resp, 'namespaceDependencies'))
+            if (!resp.ok) {
+                throw new Error((await HandleError('list namespace dependencies', resp, 'namespaceDependencies')))
             }
-        } catch(e) {
-            setErr(e.message)
-        }
+
+            let json = await resp.json()
+            setData(json)
+            return json
     }
 
     async function getNamespaceFunctions(){
@@ -50,7 +46,6 @@ export const useDirektivNamespaceDependencies = (url, namespace, apikey) => {
 
     return {
         data,
-        err,
         getNamespaceDependencies,
         getNamespaceFunctions,
         getSecrets,

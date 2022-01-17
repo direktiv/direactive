@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -131,14 +132,14 @@ export const useDirektivGlobalServiceRevision = (url, service, revision, apikey)
     useGlobalService takes
     - url
     - service
+    - navigate (react router navigation to go backwards if revision is deleted)
     - apikey
 */
-export const useDirektivGlobalService = (url, service, apikey) => {
+export const useDirektivGlobalService = (url, service, navigate, apikey) => {
     const [revisions, setRevisions] = React.useState(null)
     const [fn, setFn] = React.useState(null)
     const [traffic, setTraffic] = React.useState(null)
     const [config, setConfig] = React.useState(null)
-    
     const revisionsRef = React.useRef(revisions ? revisions: [])
     
     
@@ -206,7 +207,7 @@ export const useDirektivGlobalService = (url, service, apikey) => {
                             }
                         }
                         if (revs.length === 0) {
-                            history.goBack()
+                            navigate(-1)
                         }
                         break
                     case "MODIFIED":
@@ -247,9 +248,8 @@ export const useDirektivGlobalService = (url, service, apikey) => {
         }
     },[eventSource, trafficSource])
 
-    async function createGlobalServiceRevision(image, minScale, size, cmd, traffic) {
-        try {
-            let resp = await fetch(`${url}functions/${service}`, {
+    async function createGlobalServiceRevision(image, minScale, size, cmd, traffic,...queryParameters) {
+            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "POST",
                 body: JSON.stringify({
@@ -261,47 +261,36 @@ export const useDirektivGlobalService = (url, service, apikey) => {
                 })
             })
             if (!resp.ok) {
-                return await HandleError('create global service revision', resp, 'createRevision')
+                throw new Error( await HandleError('create global service revision', resp, 'createRevision'))
             }
-        } catch(e){
-            return e.message
-        }
     }
 
-    async function deleteGlobalServiceRevision(rev){
-        try {
-            let resp = await fetch(`${url}functions/${service}/revisions/${rev}`, {
+    async function deleteGlobalServiceRevision(rev,...queryParameters){
+            let resp = await fetch(`${url}functions/${service}/revisions/${rev}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "DELETE"
             })
             if(!resp.ok){
-                return await HandleError('delete global service revision', resp, 'deleteRevision')
+                throw new Error( await HandleError('delete global service revision', resp, 'deleteRevision'))
             }
-        } catch(e){
-            return e.message
-        }
     }
 
-    async function getServiceConfig() {
-        try {
-            let resp = await fetch(`${url}functions/${service}`, {
+    async function getServiceConfig(...queryParameters) {
+            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "GET"
             })
             if (resp.ok) {
                 let json = await resp.json()
                 setConfig(json.config)
+                return json.config
             } else {
-                setErr(await HandleError('get namespace service', resp, 'getService'))
+                throw new Error(await HandleError('get namespace service', resp, 'getService'))
             }
-        } catch(e){
-            setErr(e.message)
-        }
     }
 
-    async function setGlobalServiceRevisionTraffic(rev1, rev1value, rev2, rev2value) {
-        try {
-            let resp = await fetch(`${url}functions/${service}`, {
+    async function setGlobalServiceRevisionTraffic(rev1, rev1value, rev2, rev2value,...queryParameters) {
+            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
                 method: "PATCH",
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 body: JSON.stringify({values:[{
@@ -313,11 +302,10 @@ export const useDirektivGlobalService = (url, service, apikey) => {
                 }]})
             })
             if(!resp.ok){
-                return await HandleError('update traffic global service', resp, 'updateTraffic')
+                throw new Error( await HandleError('update traffic global service', resp, 'updateTraffic'))
             }
-        } catch(e){
-            return e.message
-        }
+
+            return resp.json()
     }
 
     return {
@@ -338,6 +326,7 @@ export const useDirektivGlobalService = (url, service, apikey) => {
     takes:
       - url to direktiv api http://x/api/
       - stream to use sse or a normal fetch
+      - navigate (react-router object to navigate backwards)
       - apikey to provide authentication of an apikey
 */
 export const useDirektivGlobalServices = (url, stream, apikey) => {
@@ -422,43 +411,36 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
     },[eventSource])
 
 
-    async function getConfig() {
-        try {
-            let resp = await fetch(`${url}functions`, {
+    async function getConfig(...queryParameters) {
+            let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "GET"
             })
             if (resp.ok) {
                 let json = await resp.json()
                 setConfig(json.config)
+                return json.config
             } else {
-                setErr(await HandleError('get namespace service', resp, 'listServices'))
+                throw new Error(await HandleError('get namespace service', resp, 'listServices'))
             }
-        } catch(e){
-            setErr(e.message)
-        }
     }
 
-    async function getGlobalServices() {
-        try {
-            let resp = await fetch(`${url}functions`, {
+    async function getGlobalServices(...queryParameters) {
+            let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "GET"
             })
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json.functions)
+                return json.functions
             } else {
-                setErr(await HandleError('get global services', resp, 'listServices'))
+                throw new Error(await HandleError('get global services', resp, 'listServices'))
             }
-        } catch(e){
-            setErr(e.message)
-        }
     }
 
-    async function createGlobalService(name, image, minScale, size, cmd) {
-        try {
-            let resp = await fetch(`${url}functions`, {
+    async function createGlobalService(name, image, minScale, size, cmd,...queryParameters) {
+            let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "POST",
                 body: JSON.stringify({
@@ -470,25 +452,19 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
                 })
             })
             if (!resp.ok) {
-                return await HandleError('create global service', resp, 'createService')
+                throw new Error( await HandleError('create global service', resp, 'createService'))
             }
-        } catch(e){
-            return e.message
-        }
     }
 
-    async function deleteGlobalService(name) {
-        try {
-            let resp = await fetch(`${url}/functions/${name}`, {
+    async function deleteGlobalService(name,...queryParameters) {
+            let resp = await fetch(`${url}functions/${name}${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "DELETE"
             })
             if(!resp.ok) {
-                return await HandleError('delete global service', resp, 'deleteService')
+                throw new Error( await HandleError('delete global service', resp, 'deleteService'))
             }
-        } catch(e) {
-            return e.message
-        }
+
     }
 
 

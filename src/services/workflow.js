@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 /* 
@@ -135,13 +135,13 @@ export const useDirektivWorkflowServiceRevision = (url, namespace, path, service
     - path
     - service
     - version
+    - navigate(react router object to navigate backwards)
     - apikey
 */
-export const useDirektivWorkflowService = (url, namespace, path, service, version, apikey)=> {
+export const useDirektivWorkflowService = (url, namespace, path, service, version, navigate, apikey)=> {
     const [revisions, setRevisions] = React.useState(null)
     
     const revisionsRef = React.useRef(revisions ? revisions: [])
-    
     
     const [err, setErr] = React.useState(null)
     
@@ -176,7 +176,7 @@ export const useDirektivWorkflowService = (url, namespace, path, service, versio
                             }
                         }
                         if (revs.length === 0) {
-                            history.goBack()
+                            navigate(-1)
                         }
                         break
                     case "MODIFIED":
@@ -309,21 +309,18 @@ export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey
     },[eventSource])
 
 
-    async function getWorkflowServices() {
-        try {
-            let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=services`, {
+    async function getWorkflowServices(...queryParameters) {
+            let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=services${ExtractQueryString(true, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey},
                 method: "GET"
             })
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json)
+                return json
             } else {
-                setErr(await HandleError('get workflow services', resp, 'listServices'))
+                throw new Error(await HandleError('get workflow services', resp, 'listServices'))
             }
-        } catch(e){
-            setErr(e.message)
-        }
     }
 
     return {

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 
 /*
@@ -57,21 +57,18 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey) =>
     },[eventSource])
 
     // getWorkflowLogs returns a list of workflow logs
-    async function getWorkflowLogs() {
-        try {
+    async function getWorkflowLogs(...queryParameters) {
             // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=logs`, {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=logs${ExtractQueryString(true, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json.edges)
+                return json.edges
             } else {
-                setErr(await HandleError('list namespace logs', resp, 'namespaceLogs'))
+                throw new Error(await HandleError('list namespace logs', resp, 'namespaceLogs'))
             }
-        } catch(e) {
-            setErr(e.message)
-        }
     }
 
 

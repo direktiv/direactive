@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -302,7 +302,7 @@ states:
       - namespace the namespace to send the requests to
       - apikey to provide authentication of an apikey
 */
-export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
+export const useDirektivNodes = (url, stream, namespace, path, apikey, orderField) => {
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [load, setLoad] = React.useState(true)
@@ -332,7 +332,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
             setData(null)
             
             // setup event listener 
-            let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}`, {
+            let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}?order.field=${orderField ? orderField : "NAME"}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
 
@@ -353,13 +353,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
             listener.onmessage = e => readData(e)
             setEventSource(listener)
         }
-    },[path, namespace])
+    },[path, namespace, orderField])
 
     React.useEffect(()=>{
         if(stream) {
             if (eventSource === null){
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}?order.field=${orderField ? orderField : "NAME"}`, {
                     headers: apikey === undefined ? {}:{"apikey": apikey}
                 })
 
@@ -392,31 +392,27 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
         return () => CloseEventSource(eventSource)
     },[eventSource])
 
-    async function getNode() {
-        try {
+    async function getNode(...queryParameters) {
             let uri = `${url}namespaces/${namespace}/tree`
             if(path !== "") {
-                uri += `/${path}`
+                uri += `${sanitizePath(path)}`
             }
-            let resp = await fetch(`${uri}/`, {
+            let resp = await fetch(`${uri}/${ExtractQueryString(false, ...queryParameters)}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json)
+                return json
             } else {
-                setErr(await HandleError('get node', resp, 'listNodes'))
+              throw new Error(await HandleError('get node', resp, 'listNodes'))
             }
-        } catch(e){
-            setErr(e.message)
-        }
     }
 
-    async function createNode(name, type, yaml) {
-        try {
+    async function createNode(name, type, yaml,...queryParameters) {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path !== "") {
-                uriPath += `/${path}`
+                uriPath += `${sanitizePath(path)}`
             }
             let body = {
                 type: type
@@ -428,59 +424,51 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
                 name += `?op=create-directory`
                 body = JSON.stringify(body)
             }
-            let resp = await fetch(`${uriPath}/${name}`, {
+            let resp = await fetch(`${uriPath}/${name}${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "PUT",
                 body: body,
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok) {
-                return await HandleError('create node', resp, 'createNode')
+              throw new Error( await HandleError('create node', resp, 'createNode'))
             }
-        } catch(e){
-            return e.message
-        }
+
+            return await resp.json()
     }
 
-    async function deleteNode(name) {
-        try {
+    async function deleteNode(name,...queryParameters) {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path){
-                uriPath += `/${path}`
+                uriPath += `${sanitizePath(path)}`
             }
-            let resp = await fetch(`${uriPath}/${name}?op=delete-node`, {
+            let resp = await fetch(`${uriPath}/${name}?op=delete-node${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "DELETE",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if(!resp.ok){
-                return await HandleError('delete node', resp, 'deleteNode')
+              throw new Error( await HandleError('delete node', resp, 'deleteNode'))
             }
-        } catch(e) {
-            return e.message
-        }
     }
 
-    async function renameNode(fpath, oldname, newname) {
-        try {
+    async function renameNode(fpath, oldname, newname, ...queryParameters) {
             let uriPath = `${url}namespaces/${namespace}/tree`
             if(path) {
-                uriPath += `/${fpath}`
+                uriPath += `${sanitizePath(fpath)}`
             }
-            let resp = await fetch(`${uriPath}/${oldname}?op=rename-node`,{
+            let resp = await fetch(`${uriPath}${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`,{
                 method: "POST",
                 body: JSON.stringify({new: newname}),
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok) {
-                return await HandleError('rename node', resp, 'renameNode')
+              throw new Error( await HandleError('rename node', resp, 'renameNode'))
             }
-        } catch(e) {
-            return e.message
-        }
+
+            return await resp.json()
     }
 
-    async function getWorkflowRouter(workflow) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=router`, {
+    async function getWorkflowRouter(workflow,...queryParameters) {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=router${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "get",
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
@@ -488,16 +476,12 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
                 let json = await resp.json()
                 return json.live
             } else {
-                setErr(await HandleError('get workflow router', resp, 'getWorkflow'))
+              throw new Error(await HandleError('get workflow router', resp, 'getWorkflow'))
             }
-        } catch (e) {
-            setErr(e.message)
-        }
     }
 
-    async function toggleWorkflow(workflow, active) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=toggle`, {
+    async function toggleWorkflow(workflow, active,...queryParameters) {
+            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=toggle${ExtractQueryString(true, ...queryParameters)}`, {
                 method: "POST",
                 body: JSON.stringify({
                     live: active
@@ -505,11 +489,22 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey) => {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
             if (!resp.ok){
-                return await HandleError('toggle workflow', resp, 'toggleWorkflow')
+              throw new Error( await HandleError('toggle workflow', resp, 'toggleWorkflow'))
             }
-        } catch(e) {
-           return e.message
-        }
+
+            return await resp.json()
+    }
+
+    function sanitizePath(path) {
+      if (path === "/") {
+        return ""
+      }
+      
+      if (path.startsWith("/")) {
+        return path
+      }
+
+      return "/" + path
     }
 
     return {

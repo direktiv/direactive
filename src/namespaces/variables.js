@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -56,66 +56,50 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
     },[eventSource])
 
     // getNamespaces returns a list of namespaces
-    async function getNamespaceVariables() {
-        try {
-            // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/vars`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setData(json.variables.edges)
-            } else {
-                setErr(await HandleError('list namespace variables', resp, 'namespaceVars'))
-            }
-        } catch(e) {
-            setErr(e.message)
+    async function getNamespaceVariables(...queryParameters) {
+        // fetch namespace list by default
+        let resp = await fetch(`${url}namespaces/${namespace}/vars${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setData(json.variables.edges)
+        } else {
+            throw new Error((await HandleError('list namespace variables', resp, 'namespaceVars')))
         }
     }
 
-    async function getNamespaceVariable(name) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}`, {})
-            if(resp.ok) {
-                return {data: await resp.text(), contentType: resp.headers.get("Content-Type")}
-            } else {
-                return await HandleError('get variable', resp, 'getNamespaceVariable')
-            }
-        } catch(e) {
-            return e.message
+    async function getNamespaceVariable(name, ...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {})
+        if (resp.ok) {
+            return { data: await resp.text(), contentType: resp.headers.get("Content-Type") }
+        } else {
+            throw new Error(await HandleError('get variable', resp, 'getNamespaceVariable'))
         }
     }
 
-    async function deleteNamespaceVariable(name) {
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}`,{
-                method: "DELETE"
-            })
-            if(!resp.ok) {
-                return await HandleError('delete variable', resp, 'deleteNamespaceVariable')
-            }
-        } catch(e) {
-            return e.message
+    async function deleteNamespaceVariable(name, ...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "DELETE"
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('delete variable', resp, 'deleteNamespaceVariable'))
         }
     }
 
-    async function setNamespaceVariable(name, val, mimeType) {
-        if(mimeType === undefined){
+    async function setNamespaceVariable(name, val, mimeType, ...queryParameters) {
+        if (mimeType === undefined) {
             mimeType = "application/json"
         }
-        try {
-            let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}`, {
-                method: "PUT",
-                body: val,
-                headers: {
-                    "Content-type": mimeType,
-                },
-            })
-            if (!resp.ok) {
-               return await HandleError('set variable', resp, 'setNamespaceVariable')
-            }
-        } catch(e) {
-            return e.message
+        let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "PUT",
+            body: val,
+            headers: {
+                "Content-type": mimeType,
+            },
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('set variable', resp, 'setNamespaceVariable'))
         }
     }
 

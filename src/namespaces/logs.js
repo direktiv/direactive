@@ -1,6 +1,7 @@
 import * as React from 'react'
-import fetch from "cross-fetch"
-import { CloseEventSource, HandleError } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+
+const fetch = require('isomorphic-fetch')
 const {EventSourcePolyfill} = require('event-source-polyfill')
 
 /*
@@ -56,20 +57,17 @@ export const useDirektivNamespaceLogs = (url, stream, namespace, apikey) => {
     },[eventSource])
 
     // getNamespaces returns a list of namespaces
-    async function getNamespaceLogs() {
-        try {
-            // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/logs`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setData(json.edges)
-            } else {
-                setErr(await HandleError('list namespace logs', resp, 'namespaceLogs'))
-            }
-        } catch(e) {
-            setErr(e.message)
+    async function getNamespaceLogs(...queryParameters) {
+        // fetch namespace list by default
+        let resp = await fetch(`${url}namespaces/${namespace}/logs${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setData(json.edges)
+            return json.edges
+        } else {
+            throw new Error((await HandleError('list namespace logs', resp, 'namespaceLogs')))
         }
     }
 
