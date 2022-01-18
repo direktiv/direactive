@@ -353,7 +353,9 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                 }
                 let json = JSON.parse(e.data)
                 setData(json)
-                setPageInfo(json.children.pageInfo)
+                if (json.children) {
+                  setPageInfo(json.children.pageInfo)
+                }   
             }
 
             listener.onmessage = e => readData(e)
@@ -381,7 +383,9 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                     }
                     let json = JSON.parse(e.data)
                     setData(json)
-                    setPageInfo(json.children.pageInfo)
+                    if (json.children) {
+                      setPageInfo(json.children.pageInfo)
+                    }
                 }
 
                 listener.onmessage = e => readData(e)
@@ -422,7 +426,9 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json)
-                setPageInfo(json.children.pageInfo)
+                if (json.children) {
+                  setPageInfo(json.children.pageInfo)
+                }
                 return json
             } else {
               throw new Error(await HandleError('get node', resp, 'listNodes'))
