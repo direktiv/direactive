@@ -129,7 +129,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
         if (!resp.ok) {
             throw new Error(await HandleError('send namespace event', resp, "sendNamespaceEvent"))
         }
-        return resp.json()
+        return
     }
 
     async function sendEvent(event, ...queryParameters) {

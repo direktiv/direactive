@@ -313,7 +313,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
                 throw new Error( await HandleError('update traffic namespace service', resp, 'updateTraffic'))
             }
 
-            return await resp.json()
+            return
     }
 
     return {
