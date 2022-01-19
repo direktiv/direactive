@@ -304,8 +304,6 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
             if(!resp.ok){
                 throw new Error( await HandleError('update traffic global service', resp, 'updateTraffic'))
             }
-
-            return 
     }
 
     return {
