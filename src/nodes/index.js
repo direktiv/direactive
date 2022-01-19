@@ -302,7 +302,7 @@ states:
       - namespace the namespace to send the requests to
       - apikey to provide authentication of an apikey
 */
-export const useDirektivNodes = (url, stream, namespace, path, apikey, orderField) => {
+export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryParameters) => {
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [load, setLoad] = React.useState(true)
@@ -322,8 +322,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         zwitch,
         eventXor,
         eventAnd,
-
     }
+
+    // Store Query parameters
+    const [queryString, setQueryString] = React.useState(ExtractQueryString(false, ...queryParameters))
+
+    // Stores PageInfo about instances list stream
+    const [pageInfo, setPageInfo] = React.useState(null)
 
     React.useEffect(()=>{
         if(!load && eventSource !== null) {
@@ -332,7 +337,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
             setData(null)
             
             // setup event listener 
-            let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}?order.field=${orderField ? orderField : "NAME"}`, {
+            let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}${queryString}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
 
@@ -348,18 +353,21 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
                 }
                 let json = JSON.parse(e.data)
                 setData(json)
+                if (json.children) {
+                  setPageInfo(json.children.pageInfo)
+                }   
             }
 
             listener.onmessage = e => readData(e)
             setEventSource(listener)
         }
-    },[path, namespace, orderField])
+    },[path, namespace])
 
     React.useEffect(()=>{
         if(stream) {
             if (eventSource === null){
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}?order.field=${orderField ? orderField : "NAME"}`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}${queryString}`, {
                     headers: apikey === undefined ? {}:{"apikey": apikey}
                 })
 
@@ -375,6 +383,9 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
                     }
                     let json = JSON.parse(e.data)
                     setData(json)
+                    if (json.children) {
+                      setPageInfo(json.children.pageInfo)
+                    }
                 }
 
                 listener.onmessage = e => readData(e)
@@ -386,7 +397,19 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
                 getNode()
             }
         }
-    },[data])
+    },[data, eventSource, queryString])
+
+    // If queryParameters change and streaming: update queryString, and reset sse connection
+    React.useEffect(()=>{
+      if(stream){
+          let newQueryString = ExtractQueryString(false, ...queryParameters)
+          if (newQueryString !== queryString) {
+              setQueryString(newQueryString)
+              CloseEventSource(eventSource)
+              setEventSource(null)
+          }
+      }
+  },[eventSource, queryParameters, queryString, stream])
 
     React.useEffect(()=>{
         return () => CloseEventSource(eventSource)
@@ -403,6 +426,9 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json)
+                if (json.children) {
+                  setPageInfo(json.children.pageInfo)
+                }
                 return json
             } else {
               throw new Error(await HandleError('get node', resp, 'listNodes'))
@@ -511,6 +537,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, orderFiel
         data,
         err,
         templates,
+        pageInfo,
         getNode,
         createNode,
         deleteNode,
