@@ -17,6 +17,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
+    
 
     React.useEffect(()=>{
         if(stream) {
@@ -104,8 +105,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
         if(resp.ok) {
-            let js = await resp.json()
-            return js.edges
+            return await resp.json()
         } else {
             throw new Error(await HandleError('fetch workflow refs', resp, 'getWorkflow'))
         }
@@ -116,8 +116,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
         if(resp.ok) {
-            let js = await resp.json()
-            return js.edges
+            return await resp.json()
         } else {
             throw new Error(await HandleError('fetch workflow tags', resp, 'getWorkflow'))
         }

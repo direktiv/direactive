@@ -12,19 +12,25 @@ const fetch = require('isomorphic-fetch')
       - instance the id used for the instance
       - apikey to provide authentication of an apikey
 */
-export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey) => {
+export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey, ...queryParameters) => {
     const [data, setData] = React.useState(null)
     const logsRef = React.useRef([])
 
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
+    // Store Query parameters
+    const [queryString, setQueryString] = React.useState(ExtractQueryString(false, ...queryParameters))
+
+    // Stores PageInfo about instances list stream
+    const [pageInfo, setPageInfo] = React.useState(null)
+
     React.useEffect(() => {
         if (stream) {
             let log = logsRef.current
             if (eventSource === null) {
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/instances/${instance}/logs`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/instances/${instance}/logs${queryString}`, {
                     headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
 
@@ -44,6 +50,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
                     }
                     logsRef.current = log
                     setData(JSON.parse(JSON.stringify(logsRef.current)))
+                    setPageInfo(json.pageInfo)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -60,6 +67,19 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
         return () => CloseEventSource(eventSource)
     }, [eventSource])
 
+    
+    // If queryParameters change and streaming: update queryString, and reset sse connection
+    React.useEffect(()=>{
+        if(stream){
+            let newQueryString = ExtractQueryString(false, ...queryParameters)
+            if (newQueryString !== queryString) {
+                setQueryString(newQueryString)
+                CloseEventSource(eventSource)
+                setEventSource(null)
+            }
+        }
+    },[eventSource, queryParameters, queryString, stream])
+
     // getInstanceLogs returns a list of logs
     async function getInstanceLogs(...queryParameters) {
         // fetch instance list by default
@@ -69,6 +89,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
         if (resp.ok) {
             let json = await resp.json()
             setData(json.edges)
+            setPageInfo(json.pageInfo)
             return json.edges
         }
 
@@ -79,6 +100,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
     return {
         data,
         err,
+        pageInfo,
         getInstanceLogs
     }
 }

@@ -12,17 +12,23 @@ const fetch = require("isomorphic-fetch")
       - path to the workflow you want to change
       - apikey to provide authentication of an apikey
 */
-export const useDirektivWorkflowVariables = (url, stream, namespace, path, apikey) => {
+export const useDirektivWorkflowVariables = (url, stream, namespace, path, apikey, ...queryParameters) => {
 
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
+    // Store Query parameters
+    const [queryString, setQueryString] = React.useState(ExtractQueryString(true, ...queryParameters))
+
+    // Stores PageInfo about instances list stream
+    const [pageInfo, setPageInfo] = React.useState(null)
+
     React.useEffect(()=>{
         if(stream) {
             if (eventSource === null){
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree/${path}?op=vars`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree/${path}?op=vars${queryString}`, {
                     headers: apikey === undefined ? {}:{"apikey": apikey}
                 })
 
@@ -38,6 +44,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                     }
                     let json = JSON.parse(e.data)
                     setData(json.variables.edges)
+                    setPageInfo(json.variables.pageInfo)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -54,6 +61,18 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         return () => CloseEventSource(eventSource)
     },[eventSource])
 
+    // If queryParameters change and streaming: update queryString, and reset sse connection
+    React.useEffect(()=>{
+        if(stream){
+            let newQueryString = ExtractQueryString(true, ...queryParameters)
+            if (newQueryString !== queryString) {
+                setQueryString(newQueryString)
+                CloseEventSource(eventSource)
+                setEventSource(null)
+            }
+        }
+    },[eventSource, queryParameters, queryString, stream])
+
 
     async function getWorkflowVariables(...queryParameters) {
             let uri = `${url}namespaces/${namespace}/tree/${path}?op=vars${ExtractQueryString(true, ...queryParameters)}` 
@@ -63,6 +82,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
             if (resp.ok) {
                 let json = await resp.json()
                 setData(json.variables.edges)
+                setPageInfo(json.variables.pageInfo)
                 return json.variables.edges
             } else {
                 throw new Error(await HandleError('get node', resp, 'listNodes'))
@@ -109,6 +129,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
     return {
         data,
         err,
+        pageInfo,
         getWorkflowVariables,
         setWorkflowVariable,
         deleteWorkflowVariable,
