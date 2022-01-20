@@ -21,7 +21,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
     // Store Query parameters
     const [queryString, setQueryString] = React.useState(ExtractQueryString(true, ...queryParameters))
 
-    // Stores PageInfo about instances list stream
+    // Stores PageInfo about workflow variables list stream
     const [pageInfo, setPageInfo] = React.useState(null)
 
     React.useEffect(()=>{

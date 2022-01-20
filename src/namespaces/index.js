@@ -20,7 +20,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
     // Store Query parameters
     const [queryString, setQueryString] = React.useState(ExtractQueryString(false, ...queryParameters))
 
-    // Stores PageInfo about instances list stream
+    // Stores PageInfo about namespace list stream
     const [pageInfo, setPageInfo] = React.useState(null)
 
     React.useEffect(()=>{

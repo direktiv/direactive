@@ -21,7 +21,7 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
     // Store Query parameters
     const [queryString, setQueryString] = React.useState(ExtractQueryString(true, ...queryParameters))
 
-    // Stores PageInfo about instances list stream
+    // Stores PageInfo about workflow log stream
     const [pageInfo, setPageInfo] = React.useState(null)
 
     React.useEffect(()=>{

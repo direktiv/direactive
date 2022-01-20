@@ -327,7 +327,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
     // Store Query parameters
     const [queryString, setQueryString] = React.useState(ExtractQueryString(false, ...queryParameters))
 
-    // Stores PageInfo about instances list stream
+    // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
 
     React.useEffect(()=>{
