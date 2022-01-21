@@ -150,7 +150,7 @@ export const useDirektivWorkflowService = (url, namespace, path, service, versio
     React.useEffect(()=>{
         if (eventSource === null){
             // setup event listener 
-            let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/tree/${path}?op=function-revisions&svn=${service}&version=${version}`, {
+            let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/tree${path}?op=function-revisions&svn=${service}&version=${version}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
 
