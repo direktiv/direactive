@@ -11,17 +11,23 @@ const fetch = require('isomorphic-fetch')
       - apikey to provide authentication of an apikey
 */
 
-export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) => {
+export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ...queryParameters) => {
 
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
+    // Store Query parameters
+    const [queryString, setQueryString] = React.useState(ExtractQueryString(false, ...queryParameters))
+
+    // Stores PageInfo about namespace variable list stream
+    const [pageInfo, setPageInfo] = React.useState(null)
+
     React.useEffect(()=>{
         if(stream) {
             if (eventSource === null){
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/vars`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/vars${queryString}`, {
                     headers: apikey === undefined ? {}:{"apikey": apikey}
                 })
 
@@ -37,6 +43,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
                     }
                     let json = JSON.parse(e.data)
                     setData(json.variables.edges)
+                    setPageInfo(json.variables.pageInfo)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -55,6 +62,18 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
         }
     },[eventSource])
 
+    // If queryParameters change and streaming: update queryString, and reset sse connection
+    React.useEffect(()=>{
+        if(stream){
+            let newQueryString = ExtractQueryString(false, ...queryParameters)
+            if (newQueryString !== queryString) {
+                setQueryString(newQueryString)
+                CloseEventSource(eventSource)
+                setEventSource(null)
+            }
+        }
+    },[eventSource, queryParameters, queryString, stream])
+
     // getNamespaces returns a list of namespaces
     async function getNamespaceVariables(...queryParameters) {
         // fetch namespace list by default
@@ -64,6 +83,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
         if (resp.ok) {
             let json = await resp.json()
             setData(json.variables.edges)
+            setPageInfo(json.variables.pageInfo)
         } else {
             throw new Error((await HandleError('list namespace variables', resp, 'namespaceVars')))
         }
@@ -106,6 +126,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey) =>
     return {
         data,
         err,
+        pageInfo,
         getNamespaceVariables,
         getNamespaceVariable,
         deleteNamespaceVariable,

@@ -44,7 +44,6 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
             if(!resp.ok){
                 throw new Error( await HandleError('create registry', resp, 'createRegistry'))
             }
-            return await resp.json()
     }
 
     async function deleteRegistry(key,...queryParameters){
@@ -57,7 +56,6 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
             if (!resp.ok) {
                 throw new Error( await HandleError('delete registry', resp, 'deleteRegistry'))
             }
-            return await resp.json()
     }
 
     return {

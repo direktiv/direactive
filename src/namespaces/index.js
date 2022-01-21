@@ -10,18 +10,24 @@ const fetch = require('isomorphic-fetch')
       - stream to use sse or a normal fetch
       - apikey to provide authentication of an apikey
 */
-export const useDirektivNamespaces = (url, stream, apikey) => {
+export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) => {
     
     const [data, setData] = React.useState(null)
     const [load, setLoad] = React.useState(true)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
+    // Store Query parameters
+    const [queryString, setQueryString] = React.useState(ExtractQueryString(false, ...queryParameters))
+
+    // Stores PageInfo about namespace list stream
+    const [pageInfo, setPageInfo] = React.useState(null)
+
     React.useEffect(()=>{
         if(stream) {
             if (eventSource === null){
                     // setup event listener 
-                    let listener = new EventSourcePolyfill(`${url}namespaces`, {
+                    let listener = new EventSourcePolyfill(`${url}namespaces${queryString}`, {
                         headers: !apikey ? {}:{"apikey": apikey}
                     })
 
@@ -38,6 +44,7 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
                         }
                         let json = JSON.parse(e.data)
                         setData(json.edges)
+                        setPageInfo(json.pageInfo)
                     }
 
                     listener.onmessage = e => readData(e)
@@ -56,7 +63,7 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
         if(!load && eventSource !== null) {
             CloseEventSource(eventSource)
             // setup event listener 
-            let listener = new EventSourcePolyfill(`${url}namespaces`, {
+            let listener = new EventSourcePolyfill(`${url}namespaces${queryString}`, {
                 headers: apikey === undefined ? {}:{"apikey": apikey}
             })
 
@@ -72,6 +79,7 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
                 }
                 let json = JSON.parse(e.data)
                 setData(json.edges)
+                setPageInfo(json.pageInfo)
             }
 
             listener.onmessage = e => readData(e)
@@ -79,6 +87,18 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
             setErr("")
         }
     },[apikey])
+
+    // If queryParameters change and streaming: update queryString, and reset sse connection
+    React.useEffect(()=>{
+        if(stream){
+            let newQueryString = ExtractQueryString(false, ...queryParameters)
+            if (newQueryString !== queryString) {
+                setQueryString(newQueryString)
+                CloseEventSource(eventSource)
+                setEventSource(null)
+            }
+        }
+    },[eventSource, queryParameters, queryString, stream])
 
     React.useEffect(()=>{
         return () => {
@@ -95,6 +115,7 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
         if (resp.ok) {
             let json = await resp.json()
             setData(json.edges)
+            setPageInfo(json.pageInfo)
             return json.edges
         } else {
             throw new Error((await HandleError('list namespaces', resp, 'listNamespaces')))
@@ -127,6 +148,7 @@ export const useDirektivNamespaces = (url, stream, apikey) => {
     return {
         data,
         err,
+        pageInfo,
         createNamespace,
         deleteNamespace,
         getNamespaces

@@ -12,7 +12,7 @@ const fetch = require('isomorphic-fetch')
       - namespace the namespace to send the requests to
       - apikey to provide authentication of an apikey
 */
-export const useDirektivEvents = (url, stream, namespace, apikey) => {
+export const useDirektivEvents = (url, stream, namespace, apikey, queryParameters) => {
     const [eventHistory, setEventHistory] = React.useState(null)
     const [eventListeners, setEventListeners] = React.useState(null)
 
@@ -21,11 +21,20 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
     const [eventSource, setEventSource] = React.useState(null)
     const [eventListenerSource, setEventListenerSource] = React.useState(null)
 
+    // Store Query parameters
+    const [eventListenersQueryString, setEventListenersQueryString] = React.useState(ExtractQueryString(false, (queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : []))
+    const [eventHistoryQueryString, setEventHistoryQueryString] = React.useState(ExtractQueryString(false, (queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : []))
+
+
+    // Stores PageInfo about event list streams
+    const [eventListenersPageInfo, setEventListenersPageInfo] = React.useState(null)
+    const [eventHistoryPageInfo, setEventHistorysPageInfo] = React.useState(null)
+
     React.useEffect(() => {
         if (stream) {
             if (eventSource === null) {
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/event-listeners`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/event-listeners${eventListenersQueryString}`, {
                     headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
 
@@ -41,6 +50,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
                     }
                     let json = JSON.parse(e.data)
                     setEventListeners(json.edges)
+                    setEventHistorysPageInfo(json.pageInfo)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -57,7 +67,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
         if (stream) {
             if (eventSource === null) {
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/events`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/events${eventHistoryQueryString}`, {
                     headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
 
@@ -73,6 +83,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
                     }
                     let json = JSON.parse(e.data)
                     setEventHistory(json.events.edges)
+                    setEventListenersPageInfo(json.events.pageInfo)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -92,6 +103,25 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
     React.useEffect(() => {
         return () => CloseEventSource(eventSource)
     }, [eventSource])
+
+    React.useEffect(()=>{
+        if(stream){
+            let newListenerQueryString = ExtractQueryString(false, (queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : [])
+            let newHistoryQueryString = ExtractQueryString(false, (queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : [])
+
+            if (newHistoryQueryString !== eventHistoryQueryString) {
+                setEventHistoryQueryString(newHistoryQueryString)
+                CloseEventSource(eventSource)
+                setEventSource(null)
+            }
+
+            if (newListenerQueryString !== eventListenersQueryString) {
+                setEventListenersQueryString(newListenerQueryString)
+                CloseEventSource(eventListenerSource)
+                setEventListenerSource(null)
+            }
+        }
+    },[eventSource, eventListenerSource, queryParameters, eventHistoryQueryString, eventListenersQueryString, stream])
 
     async function getEventListeners(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/event-listeners${ExtractQueryString(false, ...queryParameters)}`, {
@@ -154,6 +184,8 @@ export const useDirektivEvents = (url, stream, namespace, apikey) => {
         eventListeners,
         errHistory,
         errListeners,
+        eventListenersPageInfo,
+        eventHistoryPageInfo,
         getEventHistory,
         getEventListeners,
         sendEvent,
