@@ -116,6 +116,15 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
             }
     }
 
+    async function getWorkflowVariableBuffer(name, ...queryParameters) {
+        let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {})
+        if (resp.ok) {
+            return { data: await resp.arrayBuffer(), contentType: resp.headers.get("Content-Type") }
+        } else {
+            throw new Error(await HandleError('get variable', resp, 'getWorkflowVariable'))
+        }
+    }
+
     async function deleteWorkflowVariable(name,...queryParameters) {
             let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-var&var=${name}${ExtractQueryString(true, ...queryParameters)}`,{
                 method: "DELETE"
@@ -133,6 +142,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         getWorkflowVariables,
         setWorkflowVariable,
         deleteWorkflowVariable,
-        getWorkflowVariable
+        getWorkflowVariable,
+        getWorkflowVariableBuffer
     }
 }

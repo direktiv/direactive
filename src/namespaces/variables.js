@@ -98,6 +98,15 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         }
     }
 
+    async function getNamespaceVariableBuffer(name, ...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {})
+        if (resp.ok) {
+            return { data: await resp.arrayBuffer(), contentType: resp.headers.get("Content-Type") }
+        } else {
+            throw new Error(await HandleError('get variable', resp, 'getNamespaceVariable'))
+        }
+    }
+
     async function deleteNamespaceVariable(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "DELETE"
@@ -129,6 +138,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         pageInfo,
         getNamespaceVariables,
         getNamespaceVariable,
+        getNamespaceVariableBuffer,
         deleteNamespaceVariable,
         setNamespaceVariable
     }
