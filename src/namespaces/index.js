@@ -22,6 +22,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
 
     // Stores PageInfo about namespace list stream
     const [pageInfo, setPageInfo] = React.useState(null)
+    const [totalCount , setTotalCount] = React.useState(null)
 
     React.useEffect(()=>{
         if(stream) {
@@ -45,6 +46,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
                         let json = JSON.parse(e.data)
                         setData(json.edges)
                         setPageInfo(json.pageInfo)
+                        setTotalCount(json.totalCount)
                     }
 
                     listener.onmessage = e => readData(e)
@@ -80,6 +82,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
                 let json = JSON.parse(e.data)
                 setData(json.edges)
                 setPageInfo(json.pageInfo)
+                setTotalCount(json.totalCount)
             }
 
             listener.onmessage = e => readData(e)
@@ -116,6 +119,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
             let json = await resp.json()
             setData(json.edges)
             setPageInfo(json.pageInfo)
+            setTotalCount(json.totalCount)
             return json.edges
         } else {
             throw new Error((await HandleError('list namespaces', resp, 'listNamespaces')))
@@ -149,6 +153,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
         data,
         err,
         pageInfo,
+        totalCount,
         createNamespace,
         deleteNamespace,
         getNamespaces

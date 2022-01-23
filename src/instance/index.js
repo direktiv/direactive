@@ -24,6 +24,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
 
     // Stores PageInfo about instance log stream
     const [pageInfo, setPageInfo] = React.useState(null)
+    const [totalCount , setTotalCount] = React.useState(null)
 
     React.useEffect(() => {
         if (stream) {
@@ -51,6 +52,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
                     logsRef.current = log
                     setData(JSON.parse(JSON.stringify(logsRef.current)))
                     setPageInfo(json.pageInfo)
+                    setTotalCount(json.totalCount)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -90,6 +92,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
             let json = await resp.json()
             setData(json.edges)
             setPageInfo(json.pageInfo)
+            setTotalCount(json.totalCount)
             return json.edges
         }
 
@@ -101,6 +104,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
         data,
         err,
         pageInfo,
+        totalCount,
         getInstanceLogs
     }
 }

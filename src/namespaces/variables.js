@@ -22,6 +22,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
 
     // Stores PageInfo about namespace variable list stream
     const [pageInfo, setPageInfo] = React.useState(null)
+    const [totalCount , setTotalCount] = React.useState(null)
 
     React.useEffect(()=>{
         if(stream) {
@@ -44,6 +45,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
                     let json = JSON.parse(e.data)
                     setData(json.variables.edges)
                     setPageInfo(json.variables.pageInfo)
+                    setTotalCount(json.variables.totalCount)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -84,6 +86,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
             let json = await resp.json()
             setData(json.variables.edges)
             setPageInfo(json.variables.pageInfo)
+            setTotalCount(json.variables.totalCount)
         } else {
             throw new Error((await HandleError('list namespace variables', resp, 'namespaceVars')))
         }
@@ -136,6 +139,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         data,
         err,
         pageInfo,
+        totalCount,
         getNamespaceVariables,
         getNamespaceVariable,
         getNamespaceVariableBuffer,

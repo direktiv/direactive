@@ -23,6 +23,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
 
     // Stores PageInfo about workflow variables list stream
     const [pageInfo, setPageInfo] = React.useState(null)
+    const [totalCount , setTotalCount ] = React.useState(null)
 
     React.useEffect(()=>{
         if(stream) {
@@ -45,6 +46,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                     let json = JSON.parse(e.data)
                     setData(json.variables.edges)
                     setPageInfo(json.variables.pageInfo)
+                    setTotalCount(json.variables.totalCount)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -83,6 +85,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                 let json = await resp.json()
                 setData(json.variables.edges)
                 setPageInfo(json.variables.pageInfo)
+                setTotalCount(json.variables.totalCount)
                 return json.variables.edges
             } else {
                 throw new Error(await HandleError('get node', resp, 'listNodes'))
@@ -139,6 +142,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         data,
         err,
         pageInfo,
+        totalCount,
         getWorkflowVariables,
         setWorkflowVariable,
         deleteWorkflowVariable,
