@@ -30,6 +30,9 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
     const [eventListenersPageInfo, setEventListenersPageInfo] = React.useState(null)
     const [eventHistoryPageInfo, setEventHistorysPageInfo] = React.useState(null)
 
+    const [eventListenersTotalCount, setEventListenersTotalCount] = React.useState(null)
+    const [eventHistoryTotalCount, setEventHistorysTotalCount] = React.useState(null)
+
     React.useEffect(() => {
         if (stream) {
             if (eventSource === null) {
@@ -51,6 +54,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                     let json = JSON.parse(e.data)
                     setEventListeners(json.edges)
                     setEventHistorysPageInfo(json.pageInfo)
+                    setEventHistorysTotalCount(json.totalCount)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -84,6 +88,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                     let json = JSON.parse(e.data)
                     setEventHistory(json.events.edges)
                     setEventListenersPageInfo(json.events.pageInfo)
+                    setEventListenersTotalCount(json.events.totalCount)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -186,6 +191,8 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
         errListeners,
         eventListenersPageInfo,
         eventHistoryPageInfo,
+        eventListenersTotalCount,
+        eventHistoryTotalCount,
         getEventHistory,
         getEventListeners,
         sendEvent,

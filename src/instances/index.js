@@ -23,6 +23,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
 
     // Stores PageInfo about instances list stream
     const [pageInfo, setPageInfo] = React.useState(null)
+    const [totalCount , setTotalCount ] = React.useState(null)
 
     React.useEffect(()=>{
         if(stream) {
@@ -43,6 +44,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
                     let json = JSON.parse(e.data)
                     setData(json.instances.edges)
                     setPageInfo(json.instances.pageInfo)
+                    setTotalCount(json.instances.totalCount)
                 }
                 listener.onmessage = e => readData(e)
                 setEventSource(listener)
@@ -84,6 +86,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
             let json = await resp.json()
             setData(json.instances.edges)
             setPageInfo(json.instances.pageInfo)
+            setTotalCount(json.instances.totalCount)
             return json
     }
     
@@ -91,6 +94,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
         data,
         err,
         pageInfo,
+        totalCount,
         getInstances
     }
 }

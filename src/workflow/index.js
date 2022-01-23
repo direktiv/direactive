@@ -239,8 +239,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
         if (resp.ok) {
-            let json = await resp.json()
-            return json.instances.edges
+            return await resp.json()
         } else {
             throw new Error(await HandleError('list instances', resp, 'listInstances'))
         }

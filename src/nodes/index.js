@@ -329,6 +329,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
 
     // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
+    const [totalCount , setTotalCount ] = React.useState(null)
 
     React.useEffect(()=>{
         if(!load && eventSource !== null) {
@@ -355,6 +356,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                 setData(json)
                 if (json.children) {
                   setPageInfo(json.children.pageInfo)
+                  setTotalCount(json.children.totalCount)
                 }   
             }
 
@@ -385,6 +387,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                     setData(json)
                     if (json.children) {
                       setPageInfo(json.children.pageInfo)
+                      setTotalCount(json.children.totalCount)
                     }
                 }
 
@@ -428,6 +431,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                 setData(json)
                 if (json.children) {
                   setPageInfo(json.children.pageInfo)
+                  setTotalCount(json.children.totalCount)
                 }
                 return json
             } else {
@@ -538,6 +542,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         err,
         templates,
         pageInfo,
+        totalCount,
         getNode,
         createNode,
         deleteNode,
