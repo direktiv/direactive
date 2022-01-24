@@ -53,8 +53,8 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                     }
                     let json = JSON.parse(e.data)
                     setEventListeners(json.edges)
-                    setEventHistorysPageInfo(json.pageInfo)
-                    setEventHistorysTotalCount(json.totalCount)
+                    setEventListenersPageInfo(json.pageInfo)
+                    setEventListenersTotalCount(json.totalCount)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -87,8 +87,8 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                     }
                     let json = JSON.parse(e.data)
                     setEventHistory(json.events.edges)
-                    setEventListenersPageInfo(json.events.pageInfo)
-                    setEventListenersTotalCount(json.events.totalCount)
+                    setEventHistorysPageInfo(json.events.pageInfo)
+                    setEventHistorysTotalCount(json.events.totalCount)
                 }
 
                 listener.onmessage = e => readData(e)

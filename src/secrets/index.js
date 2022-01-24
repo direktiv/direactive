@@ -49,7 +49,6 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
             if (!resp.ok) {
                 throw new Error( await HandleError('delete secret', resp, 'deleteSecret'))
             }
-            return await resp.json()
     }
 
 

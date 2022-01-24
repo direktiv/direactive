@@ -323,9 +323,20 @@ export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey
             }
     }
 
+    async function deleteWorkflowService(service, version, ...queryParameters) {
+        let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=delete-service&svn=${service}&version=${version}${ExtractQueryString(true, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "DELETE"
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('deleting workflow service', resp, 'deleteWorkflowService'))
+        }
+    }
+
     return {
         data,
         err,
+        deleteWorkflowService,
         getWorkflowServices
     }
 }
