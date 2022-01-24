@@ -135,7 +135,6 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
         if (!resp.ok) {
             throw new Error(await HandleError('create a namespace', resp, 'addNamespace'))
         }
-        return await resp.json()
     }
 
     // deleteNamespace deletes a namespace from direktiv
