@@ -22,8 +22,8 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
     const [eventListenerSource, setEventListenerSource] = React.useState(null)
 
     // Store Query parameters
-    const [eventListenersQueryString, setEventListenersQueryString] = React.useState(ExtractQueryString(false, (queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : []))
-    const [eventHistoryQueryString, setEventHistoryQueryString] = React.useState(ExtractQueryString(false, (queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : []))
+    const [eventListenersQueryString, setEventListenersQueryString] = React.useState(ExtractQueryString(false, ...(queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : []))
+    const [eventHistoryQueryString, setEventHistoryQueryString] = React.useState(ExtractQueryString(false, ...(queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : []))
 
 
     // Stores PageInfo about event list streams
@@ -111,8 +111,8 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
 
     React.useEffect(()=>{
         if(stream){
-            let newListenerQueryString = ExtractQueryString(false, (queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : [])
-            let newHistoryQueryString = ExtractQueryString(false, (queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : [])
+            let newListenerQueryString = ExtractQueryString(false, ...(queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : [])
+            let newHistoryQueryString = ExtractQueryString(false, ...(queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : [])
 
             if (newHistoryQueryString !== eventHistoryQueryString) {
                 setEventHistoryQueryString(newHistoryQueryString)
