@@ -61,3 +61,18 @@ export function ExtractQueryString(appendMode, ...queryParameters) {
 
     return `?${queryString}`
 }
+
+export function QueryStringsContainsQuery(containQuery, ...queryParameters) {
+    if (queryParameters === undefined || queryParameters.length === 0){
+        return false
+    }
+
+    for (let i = 0; i < queryParameters.length; i++) {
+        const query = queryParameters[i];
+        if (query.startsWith(`${containQuery}=`)) {
+            return true
+        }
+    }
+
+    return false
+}
