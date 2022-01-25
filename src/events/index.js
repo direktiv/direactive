@@ -35,7 +35,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
 
     React.useEffect(() => {
         if (stream) {
-            if (eventSource === null) {
+            if (eventListenerSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/event-listeners${eventListenersQueryString}`, {
                     headers: apikey === undefined ? {} : { "apikey": apikey }
@@ -65,7 +65,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                 getEventListeners()
             }
         }
-    }, [])
+    }, [stream, eventListenerSource, eventListeners])
 
     React.useEffect(() => {
         if (stream) {
@@ -99,7 +99,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                 getEventHistory()
             }
         }
-    }, [eventHistory])
+    }, [stream, eventHistory, eventSource])
 
     React.useEffect(() => {
         return () => CloseEventSource(eventListenerSource)
