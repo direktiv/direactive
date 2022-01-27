@@ -119,6 +119,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
 */
 export const useDirektivInstance = (url, stream, namespace, instance, apikey) => {
     const [data, setData] = React.useState(null)
+    const [workflow, setWorkflow] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
@@ -143,6 +144,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
                     let json = JSON.parse(e.data)
                     json.instance["flow"] = json.flow
                     setData(json.instance)
+                    setWorkflow(json.workflow)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -168,6 +170,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
         if (resp.ok) {
             let json = await resp.json()
             setData(json.instance)
+            setWorkflow(json.workflow)
             return json.instance
         }
         throw new Error(await HandleError('get instance', resp, "getInstance"))
@@ -214,6 +217,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
 
     return {
         data,
+        workflow,
         err,
         getInstance,
         cancelInstance,
