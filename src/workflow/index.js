@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor} from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -17,7 +17,10 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
     const [data, setData] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
-    
+
+    // Internal pageInfo tracking for instances
+    const [instanceData, setInstanceData] = React.useState(null)
+    const [instancePageInfo, setInstancePageInfo] = React.useState(null)
 
     React.useEffect(()=>{
         if(stream) {
@@ -239,7 +242,17 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
             headers: apikey === undefined ? {}:{"apikey": apikey}
         })
         if (resp.ok) {
-            return await resp.json()
+            let json = await resp.json()
+            let pInfo = PageInfoProcessor(instancePageInfo, json.instances.pageInfo, instanceData, json.instances.edges, ...queryParameters)
+            setInstancePageInfo(pInfo.pageInfo)
+            json.instances.pageInfo = pInfo.pageInfo
+            if (pInfo.shouldUpdate) {
+                setInstanceData(json.instances.edges)
+            } else {
+                json.instances.edges = instanceData
+            }
+            
+            return json
         } else {
             throw new Error(await HandleError('list instances', resp, 'listInstances'))
         }

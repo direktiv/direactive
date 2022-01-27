@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor} from '../util'
 const {EventSourcePolyfill} = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -353,11 +353,16 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                     return
                 }
                 let json = JSON.parse(e.data)
-                setData(json)
                 if (json.children) {
-                  setPageInfo(json.children.pageInfo)
+                  let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
+                  setPageInfo(pInfo.pageInfo)
                   setTotalCount(json.children.totalCount)
-                }   
+                  if (pInfo.shouldUpdate) {
+                      setData(json)
+                  }
+                } else {
+                  setData(json)
+                }  
             }
 
             listener.onmessage = e => readData(e)
@@ -384,10 +389,15 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                         return
                     }
                     let json = JSON.parse(e.data)
-                    setData(json)
                     if (json.children) {
-                      setPageInfo(json.children.pageInfo)
+                      let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
+                      setPageInfo(pInfo.pageInfo)
                       setTotalCount(json.children.totalCount)
+                      if (pInfo.shouldUpdate) {
+                          setData(json)
+                      }
+                    } else {
+                      setData(json)
                     }
                 }
 
@@ -428,10 +438,15 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
             })
             if (resp.ok) {
                 let json = await resp.json()
-                setData(json)
                 if (json.children) {
-                  setPageInfo(json.children.pageInfo)
+                  let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
+                  setPageInfo(pInfo.pageInfo)
                   setTotalCount(json.children.totalCount)
+                  if (pInfo.shouldUpdate) {
+                      setData(json)
+                  }
+                } else {
+                  setData(json)
                 }
                 return json
             } else {

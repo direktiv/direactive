@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString, QueryStringsContainsQuery } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor } from '../util'
 // For testing
 // import fetch from "cross-fetch"
 // In Production
@@ -42,59 +42,11 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
                         return
                     }
                     let json = JSON.parse(e.data)
-
-                    let goingBackward = QueryStringsContainsQuery("before", ...queryParameters)
-
-                    if (goingBackward) {
-                        console.log("going backwards")
-                        if (json.instances.edges.length === 0 && data !== null && pageInfo !== null ) {
-                            let piCopy = pageInfo
-                            if (!json.instances.pageInfo.hasPreviousPage) {
-                                piCopy.hasNextPage = true
-                            } else {
-                                piCopy.hasNextPage = false
-                            }
-    
-                            piCopy.hasPreviousPage = json.instances.pageInfo.hasPreviousPage
-    
-                            setPageInfo(piCopy)
-    
-                            
-                            console.log("pageInfo = ", pageInfo)
-                            console.log("pageInfo = ", piCopy)
-    
-                        } else {
-                            json.instances.pageInfo.hasNextPage = true
-                            console.log("json.instances.pageInfo = ", json.instances.pageInfo)
-                            setData(json.instances.edges)
-                            setPageInfo(json.instances.pageInfo)
-                        }
-                    } else {
-                        if (json.instances.edges.length === 0 && data !== null && pageInfo !== null ) {
-                            let piCopy = pageInfo
-                            if (!json.instances.pageInfo.hasNextPage) {
-                                piCopy.hasPreviousPage = true
-                            } else {
-                                piCopy.hasPreviousPage = false
-                            }
-    
-                            piCopy.hasNextPage = json.instances.pageInfo.hasNextPage
-    
-                            setPageInfo(piCopy)
-    
-                            
-                            console.log("pageInfo = ", pageInfo)
-                            console.log("pageInfo = ", piCopy)
-    
-                        } else {
-                            json.instances.pageInfo.hasPreviousPage = true
-                            console.log("json.instances.pageInfo = ", json.instances.pageInfo)
-                            setData(json.instances.edges)
-                            setPageInfo(json.instances.pageInfo)
-                        }
+                    let pInfo = PageInfoProcessor(pageInfo, json.instances.pageInfo, data, json.instances.edges, ...queryParameters)
+                    setPageInfo(pInfo.pageInfo)
+                    if (pInfo.shouldUpdate) {
+                        setData(json.instances.edges)
                     }
-
-
 
                     setTotalCount(json.instances.totalCount)
                 }
@@ -136,8 +88,11 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
             }
 
             let json = await resp.json()
-            setData(json.instances.edges)
-            setPageInfo(json.instances.pageInfo)
+            let pInfo = PageInfoProcessor(pageInfo, json.instances.pageInfo, data, json.instances.edges, ...queryParameters)
+            setPageInfo(pInfo.pageInfo)
+            if (pInfo.shouldUpdate) {
+                setData(json.instances.edges)
+            }
             setTotalCount(json.instances.totalCount)
             return json
     }

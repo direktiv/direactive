@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -52,9 +52,12 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                         return
                     }
                     let json = JSON.parse(e.data)
-                    setEventListeners(json.edges)
-                    setEventListenersPageInfo(json.pageInfo)
+                    let pInfo = PageInfoProcessor(eventListenersPageInfo, json.pageInfo, eventListeners, json.edges, ...(queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : [])
+                    setEventListenersPageInfo(pInfo.pageInfo)
                     setEventListenersTotalCount(json.totalCount)
+                    if (pInfo.shouldUpdate) {
+                        setEventListeners(json.edges)
+                    }
                 }
 
                 listener.onmessage = e => readData(e)
@@ -86,9 +89,12 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                         return
                     }
                     let json = JSON.parse(e.data)
-                    setEventHistory(json.events.edges)
-                    setEventHistorysPageInfo(json.events.pageInfo)
+                    let pInfo = PageInfoProcessor(eventHistoryPageInfo, json.events.pageInfo, eventHistory, json.events.edges, ...(queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : [])
+                    setEventHistorysPageInfo(pInfo.pageInfo)
                     setEventHistorysTotalCount(json.events.totalCount)
+                    if (pInfo.shouldUpdate) {
+                        setEventHistory(json.events.edges)
+                    }
                 }
 
                 listener.onmessage = e => readData(e)
