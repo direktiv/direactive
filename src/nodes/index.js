@@ -354,7 +354,14 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                 }
                 let json = JSON.parse(e.data)
                 if (json.children) {
-                  let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
+                  let currentData = data
+
+                  // Set currentData to null if paths have changed
+                  if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
+                    currentData = null
+                  }
+
+                  let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, currentData, json.children.edges, ...queryParameters)
                   setPageInfo(pInfo.pageInfo)
                   setTotalCount(json.children.totalCount)
                   if (pInfo.shouldUpdate) {
@@ -390,6 +397,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                     }
                     let json = JSON.parse(e.data)
                     if (json.children) {
+                      let currentData = data
+
+                      // Set currentData to null if paths have changed
+                      if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
+                        currentData = null
+                      }
+
                       let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
                       setPageInfo(pInfo.pageInfo)
                       setTotalCount(json.children.totalCount)
@@ -439,6 +453,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
             if (resp.ok) {
                 let json = await resp.json()
                 if (json.children) {
+                  let currentData = data
+
+                  // Set currentData to null if paths have changed
+                  if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
+                    currentData = null
+                  }
+                  
                   let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
                   setPageInfo(pInfo.pageInfo)
                   setTotalCount(json.children.totalCount)
