@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor } from '../util'
 // For testing
 // import fetch from "cross-fetch"
 // In Production
@@ -42,8 +42,12 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
                         return
                     }
                     let json = JSON.parse(e.data)
-                    setData(json.instances.edges)
-                    setPageInfo(json.instances.pageInfo)
+                    let pInfo = PageInfoProcessor(pageInfo, json.instances.pageInfo, data, json.instances.edges, ...queryParameters)
+                    setPageInfo(pInfo.pageInfo)
+                    if (pInfo.shouldUpdate) {
+                        setData(json.instances.edges)
+                    }
+
                     setTotalCount(json.instances.totalCount)
                 }
                 listener.onmessage = e => readData(e)
@@ -55,7 +59,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
                 getInstances()
             }
         }
-    },[data, eventSource, queryParameters])
+    },[data, eventSource, queryParameters, pageInfo])
 
     // If queryParameters change and streaming: update queryString, and reset sse connection
     React.useEffect(()=>{
@@ -84,8 +88,11 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
             }
 
             let json = await resp.json()
-            setData(json.instances.edges)
-            setPageInfo(json.instances.pageInfo)
+            let pInfo = PageInfoProcessor(pageInfo, json.instances.pageInfo, data, json.instances.edges, ...queryParameters)
+            setPageInfo(pInfo.pageInfo)
+            if (pInfo.shouldUpdate) {
+                setData(json.instances.edges)
+            }
             setTotalCount(json.instances.totalCount)
             return json
     }
