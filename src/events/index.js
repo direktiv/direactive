@@ -85,7 +85,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                         setErrHistory("permission denied")
                     } else if (e.status === 404) {
                         setErrHistory(e.statusText)
-                      }
+                    }
                 }
 
                 async function readData(e) {
@@ -119,8 +119,8 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
         return () => CloseEventSource(eventSource)
     }, [eventSource])
 
-    React.useEffect(()=>{
-        if(stream){
+    React.useEffect(() => {
+        if (stream) {
             let newListenerQueryString = ExtractQueryString(false, ...(queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : [])
             let newHistoryQueryString = ExtractQueryString(false, ...(queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : [])
 
@@ -136,7 +136,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                 setEventListenerSource(null)
             }
         }
-    },[eventSource, eventListenerSource, queryParameters, eventHistoryQueryString, eventListenersQueryString, stream])
+    }, [eventSource, eventListenerSource, queryParameters, eventHistoryQueryString, eventListenersQueryString, stream])
 
     async function getEventListeners(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/event-listeners${ExtractQueryString(false, ...queryParameters)}`, {

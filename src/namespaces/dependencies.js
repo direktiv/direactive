@@ -7,30 +7,30 @@ const fetch = require('isomorphic-fetch')
 export const useDirektivNamespaceDependencies = (url, namespace, apikey) => {
 
     const [data, setData] = React.useState(null)
-    
-    React.useEffect(()=>{
-        if(data === null) {
+
+    React.useEffect(() => {
+        if (data === null) {
             getNamespaceDependencies()
         }
-    },[data])
+    }, [data])
 
     async function getNamespaceDependencies(...queryParameters) {
-            // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/dependencies${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok) {
-                throw new Error((await HandleError('list namespace dependencies', resp, 'namespaceDependencies')))
-            }
+        // fetch namespace list by default
+        let resp = await fetch(`${url}namespaces/${namespace}/dependencies${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (!resp.ok) {
+            throw new Error((await HandleError('list namespace dependencies', resp, 'namespaceDependencies')))
+        }
 
-            let json = await resp.json()
-            setData(json)
-            return json
+        let json = await resp.json()
+        setData(json)
+        return json
     }
 
-    async function getNamespaceFunctions(){
+    async function getNamespaceFunctions() {
         return data.namespace_functions
-    }    
+    }
 
     async function getSecrets() {
         return data.secrets

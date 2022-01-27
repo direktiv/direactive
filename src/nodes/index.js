@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor} from '../util'
-const {EventSourcePolyfill} = require('event-source-polyfill')
+import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor } from '../util'
+const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
 
@@ -48,14 +48,14 @@ states:
     greeting: jq(.return.greeting)
 `
 
-export const delay =`description: A simple 'delay' state that waits for 5 seconds
+export const delay = `description: A simple 'delay' state that waits for 5 seconds
 states:
 - id: delay
   type: delay
   duration: PT5S
 `
 
-export const error =`description: A simple 'error' state workflow that checks an email attempts to validate it.
+export const error = `description: A simple 'error' state workflow that checks an email attempts to validate it.
 states:
 - id: data
   type: noop
@@ -85,7 +85,7 @@ states:
     result: "Email is valid."
 `
 
-export const foreach =`description: A simple 'foreach' state that solves expressions
+export const foreach = `description: A simple 'foreach' state that solves expressions
 functions: 
 - id: solve
   image: direktiv/solve:v1
@@ -107,7 +107,7 @@ states:
     solved: jq(.return)
 `
 
-export const generateEvent =`description: A simple 'generateEvent' state that sends data to a greeting listener.
+export const generateEvent = `description: A simple 'generateEvent' state that sends data to a greeting listener.
 states:
 - id: generate
   type: generateEvent
@@ -118,7 +118,7 @@ states:
       name: "Trent"
 `
 
-export const generateSolveEvent =`description: A simple 'generateEvent' state that sends an expression to a solve listener.
+export const generateSolveEvent = `description: A simple 'generateEvent' state that sends an expression to a solve listener.
 states:
 - id: generate
   type: generateEvent
@@ -129,7 +129,7 @@ states:
       x: "10+5"
 `
 
-export const getAndSet=`description: "Simple Counter getter and setter variable example"
+export const getAndSet = `description: "Simple Counter getter and setter variable example"
 states:
   - id: counter-get
     type: getter 
@@ -146,7 +146,7 @@ states:
         value: 'jq(.newCounter)'
 `
 
-export const parallel=`description: A simple 'parallel' state workflow that runs solve container to solve expressions.
+export const parallel = `description: A simple 'parallel' state workflow that runs solve container to solve expressions.
 functions: 
 - id: solve
   image: direktiv/solve:v1
@@ -172,7 +172,7 @@ states:
   mode: and
 `
 
-export const validate =`description: A simple 'validate' state workflow that checks an email
+export const validate = `description: A simple 'validate' state workflow that checks an email
 states:
 - id: data
   type: noop
@@ -260,7 +260,7 @@ states:
     solvedexpression: jq(.return)
 `
 
-export const eventAnd =`functions:
+export const eventAnd = `functions:
 - id: greeter
   image: direktiv/greeting:v1
   type: reusable
@@ -303,292 +303,292 @@ states:
       - apikey to provide authentication of an apikey
 */
 export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryParameters) => {
-    const [data, setData] = React.useState(null)
-    const [err, setErr] = React.useState(null)
-    const [load, setLoad] = React.useState(true)
-    const [eventSource, setEventSource] = React.useState(null)
-    const templates = {
-        noop,
-        action,
-        consumeEvent,
-        delay,
-        error,
-        foreach,
-        generateEvent,
-        generateSolveEvent,
-        getAndSet,
-        parallel,
-        validate,
-        zwitch,
-        eventXor,
-        eventAnd,
-    }
+  const [data, setData] = React.useState(null)
+  const [err, setErr] = React.useState(null)
+  const [load, setLoad] = React.useState(true)
+  const [eventSource, setEventSource] = React.useState(null)
+  const templates = {
+    noop,
+    action,
+    consumeEvent,
+    delay,
+    error,
+    foreach,
+    generateEvent,
+    generateSolveEvent,
+    getAndSet,
+    parallel,
+    validate,
+    zwitch,
+    eventXor,
+    eventAnd,
+  }
 
-    // Store Query parameters
-    const [queryString, setQueryString] = React.useState(ExtractQueryString(false, ...queryParameters))
+  // Store Query parameters
+  const [queryString, setQueryString] = React.useState(ExtractQueryString(false, ...queryParameters))
 
-    // Stores PageInfo about node list stream
-    const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount , setTotalCount ] = React.useState(null)
+  // Stores PageInfo about node list stream
+  const [pageInfo, setPageInfo] = React.useState(null)
+  const [totalCount, setTotalCount] = React.useState(null)
 
-    React.useEffect(()=>{
-        if(!load && eventSource !== null) {
-            CloseEventSource(eventSource)
-            setErr(null)
-            setData(null)
-            
-            // setup event listener 
-            let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}${queryString}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
+  React.useEffect(() => {
+    if (!load && eventSource !== null) {
+      CloseEventSource(eventSource)
+      setErr(null)
+      setData(null)
 
-            listener.onerror = (e) => {
-                if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
-                  setErr("permission denied")
-                }
-               
-            }
+      // setup event listener 
+      let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}${queryString}`, {
+        headers: apikey === undefined ? {} : { "apikey": apikey }
+      })
 
-            async function readData(e) {
-                if(e.data === "") {
-                    return
-                }
-                let json = JSON.parse(e.data)
-                if (json.children) {
-                  let currentData = data
-
-                  // Set currentData to null if paths have changed
-                  if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
-                    currentData = null
-                  }
-
-                  let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, currentData, json.children.edges, ...queryParameters)
-                  setPageInfo(pInfo.pageInfo)
-                  setTotalCount(json.children.totalCount)
-                  if (pInfo.shouldUpdate) {
-                      setData(json)
-                  }
-                } else {
-                  setData(json)
-                }  
-            }
-
-            listener.onmessage = e => readData(e)
-            setEventSource(listener)
+      listener.onerror = (e) => {
+        if (e.status === 404) {
+          setErr(e.statusText)
+        } else if (e.status === 403) {
+          setErr("permission denied")
         }
-    },[path, namespace])
 
-    React.useEffect(()=>{
-        if(stream) {
-            if (eventSource === null){
-                // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}${queryString}`, {
-                    headers: apikey === undefined ? {}:{"apikey": apikey}
-                })
+      }
 
-                listener.onerror = (e) => {
-                    if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
-                      setErr("permission denied")
-                    }
-                }
-
-                async function readData(e) {
-                    if(e.data === "") {
-                        return
-                    }
-                    let json = JSON.parse(e.data)
-                    if (json.children) {
-                      let currentData = data
-
-                      // Set currentData to null if paths have changed
-                      if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
-                        currentData = null
-                      }
-
-                      let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
-                      setPageInfo(pInfo.pageInfo)
-                      setTotalCount(json.children.totalCount)
-                      if (pInfo.shouldUpdate) {
-                          setData(json)
-                      }
-                    } else {
-                      setData(json)
-                    }
-                }
-
-                listener.onmessage = e => readData(e)
-                setEventSource(listener)
-                setLoad(false)
-            }
-        } else {
-            if(data === null) {
-                getNode()
-            }
+      async function readData(e) {
+        if (e.data === "") {
+          return
         }
-    },[data, eventSource, queryString])
+        let json = JSON.parse(e.data)
+        if (json.children) {
+          let currentData = data
 
-    // If queryParameters change and streaming: update queryString, and reset sse connection
-    React.useEffect(()=>{
-      if(stream){
-          let newQueryString = ExtractQueryString(false, ...queryParameters)
-          if (newQueryString !== queryString) {
-              setQueryString(newQueryString)
-              CloseEventSource(eventSource)
-              setEventSource(null)
+          // Set currentData to null if paths have changed
+          if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
+            currentData = null
           }
-      }
-  },[eventSource, queryParameters, queryString, stream])
 
-    React.useEffect(()=>{
-        return () => CloseEventSource(eventSource)
-    },[eventSource])
-
-    async function getNode(...queryParameters) {
-            let uri = `${url}namespaces/${namespace}/tree`
-            if(path !== "") {
-                uri += `${sanitizePath(path)}`
-            }
-            let resp = await fetch(`${uri}/${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                if (json.children) {
-                  let currentData = data
-
-                  // Set currentData to null if paths have changed
-                  if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
-                    currentData = null
-                  }
-                  
-                  let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
-                  setPageInfo(pInfo.pageInfo)
-                  setTotalCount(json.children.totalCount)
-                  if (pInfo.shouldUpdate) {
-                      setData(json)
-                  }
-                } else {
-                  setData(json)
-                }
-                return json
-            } else {
-              throw new Error(await HandleError('get node', resp, 'listNodes'))
-            }
-    }
-
-    async function createNode(name, type, yaml,...queryParameters) {
-            let uriPath = `${url}namespaces/${namespace}/tree`
-            if(path !== "") {
-                uriPath += `${sanitizePath(path)}`
-            }
-            let body = {
-                type: type
-            }
-            if(type === "workflow") {
-                body = yaml
-                name += `?op=create-workflow`
-            } else {
-                name += `?op=create-directory`
-                body = JSON.stringify(body)
-            }
-            let resp = await fetch(`${uriPath}/${name}${ExtractQueryString(true, ...queryParameters)}`, {
-                method: "PUT",
-                body: body,
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok) {
-              throw new Error( await HandleError('create node', resp, 'createNode'))
-            }
-
-            return await resp.json()
-    }
-
-    async function deleteNode(name,...queryParameters) {
-            let uriPath = `${url}namespaces/${namespace}/tree`
-            if(path){
-                uriPath += `${sanitizePath(path)}`
-            }
-            let resp = await fetch(`${uriPath}/${name}?op=delete-node${ExtractQueryString(true, ...queryParameters)}`, {
-                method: "DELETE",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if(!resp.ok){
-              throw new Error( await HandleError('delete node', resp, 'deleteNode'))
-            }
-    }
-
-    async function renameNode(fpath, oldname, newname, ...queryParameters) {
-            let uriPath = `${url}namespaces/${namespace}/tree`
-            if(path) {
-                uriPath += `${sanitizePath(fpath)}`
-            }
-            let resp = await fetch(`${uriPath}${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`,{
-                method: "POST",
-                body: JSON.stringify({new: newname}),
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok) {
-              throw new Error( await HandleError('rename node', resp, 'renameNode'))
-            }
-
-            return await resp.json()
-    }
-
-    async function getWorkflowRouter(workflow,...queryParameters) {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=router${ExtractQueryString(true, ...queryParameters)}`, {
-                method: "get",
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                return json.live
-            } else {
-              throw new Error(await HandleError('get workflow router', resp, 'getWorkflow'))
-            }
-    }
-
-    async function toggleWorkflow(workflow, active,...queryParameters) {
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=toggle${ExtractQueryString(true, ...queryParameters)}`, {
-                method: "POST",
-                body: JSON.stringify({
-                    live: active
-                }),
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok){
-              throw new Error( await HandleError('toggle workflow', resp, 'toggleWorkflow'))
-            }
-
-            return await resp.json()
-    }
-
-    function sanitizePath(path) {
-      if (path === "/") {
-        return ""
-      }
-      
-      if (path.startsWith("/")) {
-        return path
+          let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, currentData, json.children.edges, ...queryParameters)
+          setPageInfo(pInfo.pageInfo)
+          setTotalCount(json.children.totalCount)
+          if (pInfo.shouldUpdate) {
+            setData(json)
+          }
+        } else {
+          setData(json)
+        }
       }
 
-      return "/" + path
+      listener.onmessage = e => readData(e)
+      setEventSource(listener)
+    }
+  }, [path, namespace])
+
+  React.useEffect(() => {
+    if (stream) {
+      if (eventSource === null) {
+        // setup event listener 
+        let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}${queryString}`, {
+          headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+
+        listener.onerror = (e) => {
+          if (e.status === 404) {
+            setErr(e.statusText)
+          } else if (e.status === 403) {
+            setErr("permission denied")
+          }
+        }
+
+        async function readData(e) {
+          if (e.data === "") {
+            return
+          }
+          let json = JSON.parse(e.data)
+          if (json.children) {
+            let currentData = data
+
+            // Set currentData to null if paths have changed
+            if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
+              currentData = null
+            }
+
+            let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
+            setPageInfo(pInfo.pageInfo)
+            setTotalCount(json.children.totalCount)
+            if (pInfo.shouldUpdate) {
+              setData(json)
+            }
+          } else {
+            setData(json)
+          }
+        }
+
+        listener.onmessage = e => readData(e)
+        setEventSource(listener)
+        setLoad(false)
+      }
+    } else {
+      if (data === null) {
+        getNode()
+      }
+    }
+  }, [data, eventSource, queryString])
+
+  // If queryParameters change and streaming: update queryString, and reset sse connection
+  React.useEffect(() => {
+    if (stream) {
+      let newQueryString = ExtractQueryString(false, ...queryParameters)
+      if (newQueryString !== queryString) {
+        setQueryString(newQueryString)
+        CloseEventSource(eventSource)
+        setEventSource(null)
+      }
+    }
+  }, [eventSource, queryParameters, queryString, stream])
+
+  React.useEffect(() => {
+    return () => CloseEventSource(eventSource)
+  }, [eventSource])
+
+  async function getNode(...queryParameters) {
+    let uri = `${url}namespaces/${namespace}/tree`
+    if (path !== "") {
+      uri += `${sanitizePath(path)}`
+    }
+    let resp = await fetch(`${uri}/${ExtractQueryString(false, ...queryParameters)}`, {
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    })
+    if (resp.ok) {
+      let json = await resp.json()
+      if (json.children) {
+        let currentData = data
+
+        // Set currentData to null if paths have changed
+        if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
+          currentData = null
+        }
+
+        let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
+        setPageInfo(pInfo.pageInfo)
+        setTotalCount(json.children.totalCount)
+        if (pInfo.shouldUpdate) {
+          setData(json)
+        }
+      } else {
+        setData(json)
+      }
+      return json
+    } else {
+      throw new Error(await HandleError('get node', resp, 'listNodes'))
+    }
+  }
+
+  async function createNode(name, type, yaml, ...queryParameters) {
+    let uriPath = `${url}namespaces/${namespace}/tree`
+    if (path !== "") {
+      uriPath += `${sanitizePath(path)}`
+    }
+    let body = {
+      type: type
+    }
+    if (type === "workflow") {
+      body = yaml
+      name += `?op=create-workflow`
+    } else {
+      name += `?op=create-directory`
+      body = JSON.stringify(body)
+    }
+    let resp = await fetch(`${uriPath}/${name}${ExtractQueryString(true, ...queryParameters)}`, {
+      method: "PUT",
+      body: body,
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    })
+    if (!resp.ok) {
+      throw new Error(await HandleError('create node', resp, 'createNode'))
     }
 
-    return {
-        data,
-        err,
-        templates,
-        pageInfo,
-        totalCount,
-        getNode,
-        createNode,
-        deleteNode,
-        renameNode,
-        toggleWorkflow,
-        getWorkflowRouter,
+    return await resp.json()
+  }
+
+  async function deleteNode(name, ...queryParameters) {
+    let uriPath = `${url}namespaces/${namespace}/tree`
+    if (path) {
+      uriPath += `${sanitizePath(path)}`
     }
+    let resp = await fetch(`${uriPath}/${name}?op=delete-node${ExtractQueryString(true, ...queryParameters)}`, {
+      method: "DELETE",
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    })
+    if (!resp.ok) {
+      throw new Error(await HandleError('delete node', resp, 'deleteNode'))
+    }
+  }
+
+  async function renameNode(fpath, oldname, newname, ...queryParameters) {
+    let uriPath = `${url}namespaces/${namespace}/tree`
+    if (path) {
+      uriPath += `${sanitizePath(fpath)}`
+    }
+    let resp = await fetch(`${uriPath}${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`, {
+      method: "POST",
+      body: JSON.stringify({ new: newname }),
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    })
+    if (!resp.ok) {
+      throw new Error(await HandleError('rename node', resp, 'renameNode'))
+    }
+
+    return await resp.json()
+  }
+
+  async function getWorkflowRouter(workflow, ...queryParameters) {
+    let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=router${ExtractQueryString(true, ...queryParameters)}`, {
+      method: "get",
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    })
+    if (resp.ok) {
+      let json = await resp.json()
+      return json.live
+    } else {
+      throw new Error(await HandleError('get workflow router', resp, 'getWorkflow'))
+    }
+  }
+
+  async function toggleWorkflow(workflow, active, ...queryParameters) {
+    let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=toggle${ExtractQueryString(true, ...queryParameters)}`, {
+      method: "POST",
+      body: JSON.stringify({
+        live: active
+      }),
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    })
+    if (!resp.ok) {
+      throw new Error(await HandleError('toggle workflow', resp, 'toggleWorkflow'))
+    }
+
+    return await resp.json()
+  }
+
+  function sanitizePath(path) {
+    if (path === "/") {
+      return ""
+    }
+
+    if (path.startsWith("/")) {
+      return path
+    }
+
+    return "/" + path
+  }
+
+  return {
+    data,
+    err,
+    templates,
+    pageInfo,
+    totalCount,
+    getNode,
+    createNode,
+    deleteNode,
+    renameNode,
+    toggleWorkflow,
+    getWorkflowRouter,
+  }
 }

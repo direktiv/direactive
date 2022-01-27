@@ -24,7 +24,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
 
     // Stores PageInfo about instance log stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount , setTotalCount] = React.useState(null)
+    const [totalCount, setTotalCount] = React.useState(null)
 
     React.useEffect(() => {
         if (stream) {
@@ -40,7 +40,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
                         setErr("permission denied")
                     } else if (e.status === 404) {
                         setErr(e.statusText)
-                      }
+                    }
                 }
 
                 async function readData(e) {
@@ -71,10 +71,10 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
         return () => CloseEventSource(eventSource)
     }, [eventSource])
 
-    
+
     // If queryParameters change and streaming: update queryString, and reset sse connection
-    React.useEffect(()=>{
-        if(stream){
+    React.useEffect(() => {
+        if (stream) {
             let newQueryString = ExtractQueryString(false, ...queryParameters)
             if (newQueryString !== queryString) {
                 setQueryString(newQueryString)
@@ -82,7 +82,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
                 setEventSource(null)
             }
         }
-    },[eventSource, queryParameters, queryString, stream])
+    }, [eventSource, queryParameters, queryString, stream])
 
     // getInstanceLogs returns a list of logs
     async function getInstanceLogs(...queryParameters) {
@@ -140,7 +140,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
                         setErr(e.statusText)
                     } else {
                         try {
-                            let json  = JSON.parse(e.data)
+                            let json = JSON.parse(e.data)
                             setErr(json.Message)
                         } catch (e) {
                             // TODO

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {  HandleError, ExtractQueryString } from '../util'
+import { HandleError, ExtractQueryString } from '../util'
 const fetch = require('isomorphic-fetch')
 
 /*
@@ -12,16 +12,16 @@ export const useDirektivGlobalRegistries = (url, apikey) => {
 
     const [data, setData] = React.useState(null)
 
-    React.useEffect(()=>{
-        if(data === null) {
+    React.useEffect(() => {
+        if (data === null) {
             getRegistries()
         }
-    },[data])
+    }, [data])
 
     // getGlobalRegistries returns a list of registries
     async function getRegistries(...queryParameters) {
         let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {}:{"apikey": apikey}
+            headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -32,28 +32,28 @@ export const useDirektivGlobalRegistries = (url, apikey) => {
         }
     }
 
-    async function createRegistry(key, val,...queryParameters){
-            let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, ...queryParameters)}`, {
-                method: "POST",
-                body: JSON.stringify({data:val, reg: key})
-            })
-            if(!resp.ok){
-                throw new Error( await HandleError('create registry', resp, 'createRegistry'))
+    async function createRegistry(key, val, ...queryParameters) {
+        let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "POST",
+            body: JSON.stringify({ data: val, reg: key })
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('create registry', resp, 'createRegistry'))
 
-            }
+        }
     }
 
-    async function deleteRegistry(key, ...queryParameters){
-            let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, ...queryParameters)}`, {
-                method: "DELETE",
-                body: JSON.stringify({
-                    reg: key
-                })
+    async function deleteRegistry(key, ...queryParameters) {
+        let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "DELETE",
+            body: JSON.stringify({
+                reg: key
             })
-            if (!resp.ok) {
-                throw new Error( await HandleError('delete registry', resp, 'deleteRegistry'))
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('delete registry', resp, 'deleteRegistry'))
 
-            }
+        }
     }
 
     return {

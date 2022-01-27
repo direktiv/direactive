@@ -1,7 +1,7 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
-const {EventSourcePolyfill} = require('event-source-polyfill')
+const { EventSourcePolyfill } = require('event-source-polyfill')
 
 /*
     useWorkflowLogs is a react hook which returns data, err or getWorkflowLogs()
@@ -23,26 +23,26 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
 
     // Stores PageInfo about workflow log stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount , setTotalCount ] = React.useState(null)
+    const [totalCount, setTotalCount] = React.useState(null)
 
-    React.useEffect(()=>{
-        if(stream) {
-            if (eventSource === null){
+    React.useEffect(() => {
+        if (stream) {
+            if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree/${path}?op=logs${queryString}`, {
-                    headers: apikey === undefined ? {}:{"apikey": apikey}
+                    headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
 
                 listener.onerror = (e) => {
                     if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                        setErr(e.statusText)
+                    } else if (e.status === 403) {
                         setErr("permission denied")
                     }
                 }
 
                 async function readData(e) {
-                    if(e.data === "") {
+                    if (e.data === "") {
                         return
                     }
                     let json = JSON.parse(e.data)
@@ -55,21 +55,21 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
                 setEventSource(listener)
             }
         } else {
-            if(data === null) {
+            if (data === null) {
                 getWorkflowLogs()
             }
         }
-    },[data])
+    }, [data])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => {
             CloseEventSource(eventSource)
         }
-    },[eventSource])
+    }, [eventSource])
 
     // If queryParameters change and streaming: update queryString, and reset sse connection
-    React.useEffect(()=>{
-        if(stream){
+    React.useEffect(() => {
+        if (stream) {
             let newQueryString = ExtractQueryString(true, ...queryParameters)
             if (newQueryString !== queryString) {
                 setQueryString(newQueryString)
@@ -77,23 +77,23 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
                 setEventSource(null)
             }
         }
-    },[eventSource, queryParameters, queryString, stream])
+    }, [eventSource, queryParameters, queryString, stream])
 
     // getWorkflowLogs returns a list of workflow logs
     async function getWorkflowLogs(...queryParameters) {
-            // fetch namespace list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=logs${ExtractQueryString(true, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setData(json.edges)
-                setPageInfo(json.pageInfo)
-                setTotalCount(json.totalCount)
-                return json.edges
-            } else {
-                throw new Error(await HandleError('list namespace logs', resp, 'namespaceLogs'))
-            }
+        // fetch namespace list by default
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=logs${ExtractQueryString(true, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setData(json.edges)
+            setPageInfo(json.pageInfo)
+            setTotalCount(json.totalCount)
+            return json.edges
+        } else {
+            throw new Error(await HandleError('list namespace logs', resp, 'namespaceLogs'))
+        }
     }
 
 

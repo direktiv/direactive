@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {  HandleError, ExtractQueryString } from '../util'
+import { HandleError, ExtractQueryString } from '../util'
 const fetch = require('isomorphic-fetch')
 
 /*
@@ -12,43 +12,43 @@ const fetch = require('isomorphic-fetch')
 export const useDirektivSecrets = (url, namespace, apikey) => {
     const [data, setData] = React.useState(null)
 
-    React.useEffect(()=>{
-        if(data === null) {
+    React.useEffect(() => {
+        if (data === null) {
             getSecrets()
         }
-    },[data])
+    }, [data])
 
     // getSecrets returns a list of registries
     async function getSecrets(...queryParameters) {
-            let resp = await fetch(`${url}namespaces/${namespace}/secrets${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setData(json.secrets.edges)
-                return json.secrets.edges
-            } else {
-                throw new Error(await HandleError('list secrets', resp, 'listSecrets'))
-            }
+        let resp = await fetch(`${url}namespaces/${namespace}/secrets${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setData(json.secrets.edges)
+            return json.secrets.edges
+        } else {
+            throw new Error(await HandleError('list secrets', resp, 'listSecrets'))
+        }
     }
 
-    async function createSecret(name,value,...queryParameters) {
-            let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, ...queryParameters)}`,{
-                method: "PUT",
-                body: value
-            })
-            if(!resp.ok){
-                throw new Error( await HandleError('create secret', resp, 'createSecret'))
-            }
+    async function createSecret(name, value, ...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "PUT",
+            body: value
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('create secret', resp, 'createSecret'))
+        }
     }
 
-    async function deleteSecret(name,...queryParameters) {
-            let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, ...queryParameters)}`, {
-                method: "DELETE"
-            })
-            if (!resp.ok) {
-                throw new Error( await HandleError('delete secret', resp, 'deleteSecret'))
-            }
+    async function deleteSecret(name, ...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "DELETE"
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('delete secret', resp, 'deleteSecret'))
+        }
     }
 
 
@@ -58,5 +58,5 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
         deleteSecret,
         getSecrets
     }
-    
+
 }

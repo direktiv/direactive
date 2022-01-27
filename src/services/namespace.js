@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const fetch = require("isomorphic-fetch")
-const {EventSourcePolyfill} = require('event-source-polyfill')
+const { EventSourcePolyfill } = require('event-source-polyfill')
 
 /* 
     useNamespaceServiceRevision takes
@@ -17,24 +17,24 @@ export const useDirektivNamespaceServiceRevision = (url, namespace, service, rev
     const [pods, setPods] = React.useState([])
     const [err, setErr] = React.useState(null)
     const [revisionSource, setRevisionSource] = React.useState(null)
-    
+
     const podsRef = React.useRef(pods)
 
 
-    React.useEffect(()=>{
-        if(podSource === null) {
+    React.useEffect(() => {
+        if (podSource === null) {
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}/revisions/${revision}/pods`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
-                }  else {
+                } else {
                     try {
-                        let json  = JSON.parse(e.data)
+                        let json = JSON.parse(e.data)
                         setErr(json.Message)
                     } catch (e) {
                         // TODO
@@ -83,28 +83,28 @@ export const useDirektivNamespaceServiceRevision = (url, namespace, service, rev
                         }
                 }
                 setPods(JSON.parse(JSON.stringify(podsRef.current)))
-                
+
             }
             listener.onmessage = e => readData(e)
             setPodSource(listener)
         }
     })
 
-    React.useEffect(()=>{
-        if(revisionSource === null) {
+    React.useEffect(() => {
+        if (revisionSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}/revisions/${revision}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
-                }  else {
+                } else {
                     try {
-                        let json  = JSON.parse(e.data)
+                        let json = JSON.parse(e.data)
                         setErr(json.Message)
                     } catch (e) {
                         // TODO handle error/error handling
@@ -128,14 +128,14 @@ export const useDirektivNamespaceServiceRevision = (url, namespace, service, rev
             listener.onmessage = e => readData(e)
             setRevisionSource(listener)
         }
-    },[revisionSource])
+    }, [revisionSource])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => {
             CloseEventSource(revisionSource)
             CloseEventSource(podSource)
         }
-    },[revisionSource, podSource])
+    }, [revisionSource, podSource])
 
 
     return {
@@ -157,29 +157,29 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
     const [fn, setFn] = React.useState(null)
     const [traffic, setTraffic] = React.useState(null)
     const [config, setConfig] = React.useState(null)
-    const revisionsRef = React.useRef(revisions ? revisions: [])
-    
-    
+    const revisionsRef = React.useRef(revisions ? revisions : [])
+
+
     const [err, setErr] = React.useState(null)
-    
+
     const [trafficSource, setTrafficSource] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         if (trafficSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
                 } else {
                     try {
-                        let json  = JSON.parse(e.data)
+                        let json = JSON.parse(e.data)
                         setErr(json.Message)
                     } catch (e) {
                         // TODO
@@ -188,7 +188,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
             }
 
             async function readData(e) {
-                if(e.data === "") {
+                if (e.data === "") {
                     return
                 }
                 let json = JSON.parse(e.data)
@@ -202,23 +202,23 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
             listener.onmessage = e => readData(e)
             setTrafficSource(listener)
         }
-    },[fn])
+    }, [fn])
 
-    React.useEffect(()=>{
-        if (eventSource === null){
+    React.useEffect(() => {
+        if (eventSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}/revisions`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
-                }  else {
+                } else {
                     try {
-                        let json  = JSON.parse(e.data)
+                        let json = JSON.parse(e.data)
                         setErr(json.Message)
                     } catch (e) {
                         // TODO
@@ -228,7 +228,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
 
             async function readData(e) {
                 let revs = revisionsRef.current
-                if(e.data === "") {
+                if (e.data === "") {
                     return
                 }
                 let json = JSON.parse(e.data)
@@ -276,78 +276,78 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
             listener.onmessage = e => readData(e)
             setEventSource(listener)
         }
-    },[revisions])
+    }, [revisions])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => {
             CloseEventSource(eventSource)
             CloseEventSource(trafficSource)
         }
-    },[eventSource, trafficSource])
+    }, [eventSource, trafficSource])
 
     async function getNamespaceServiceConfig(...queryParameters) {
-            let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "GET"
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setConfig(json.config)
-                return json.config
-            } else {
-                throw new Error(await HandleError('get namespace service', resp, 'getService'))
-            }
+        let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "GET"
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setConfig(json.config)
+            return json.config
+        } else {
+            throw new Error(await HandleError('get namespace service', resp, 'getService'))
+        }
 
     }
 
-    async function createNamespaceServiceRevision(image, minScale, size, cmd, traffic,...queryParameters) {
-            let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "POST",
-                body: JSON.stringify({
-                    trafficPercent: traffic,
-                    cmd,
-                    image,
-                    minScale,
-                    size
-                })
+    async function createNamespaceServiceRevision(image, minScale, size, cmd, traffic, ...queryParameters) {
+        let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "POST",
+            body: JSON.stringify({
+                trafficPercent: traffic,
+                cmd,
+                image,
+                minScale,
+                size
             })
-            if (!resp.ok) {
-                throw new Error(await HandleError('create namespace service revision', resp, 'createRevision'))
-            }
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('create namespace service revision', resp, 'createRevision'))
+        }
     }
 
-    async function deleteNamespaceServiceRevision(rev,...queryParameters){
-            let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}/revisions/${rev}${ExtractQueryString(false, ...queryParameters)}`, {
-                method: "DELETE",
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-            })
-            if(!resp.ok){
-                throw new Error( await HandleError('delete namespace service revision', resp, 'deleteRevision'))
-            }
+    async function deleteNamespaceServiceRevision(rev, ...queryParameters) {
+        let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}/revisions/${rev}${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "DELETE",
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('delete namespace service revision', resp, 'deleteRevision'))
+        }
     }
 
-    async function setNamespaceServiceRevisionTraffic(rev1, rev1value, rev2, rev2value,...queryParameters) {
-            let trafficarr = []
-            if(rev1 !== "") {
-                trafficarr.push({
-                    revision: rev1,
-                    percent: rev1value
-                })
-            }
-            if (rev2 !== "") {
-                trafficarr.push({
-                    revision: rev2,
-                    percent: rev2value
-                })
-            }
-            let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}${ExtractQueryString(false, ...queryParameters)}`, {
-                method: "PATCH",
-                body: JSON.stringify({values:trafficarr})
+    async function setNamespaceServiceRevisionTraffic(rev1, rev1value, rev2, rev2value, ...queryParameters) {
+        let trafficarr = []
+        if (rev1 !== "") {
+            trafficarr.push({
+                revision: rev1,
+                percent: rev1value
             })
-            if(!resp.ok){
-                throw new Error( await HandleError('update traffic namespace service', resp, 'updateTraffic'))
-            }
+        }
+        if (rev2 !== "") {
+            trafficarr.push({
+                revision: rev2,
+                percent: rev2value
+            })
+        }
+        let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "PATCH",
+            body: JSON.stringify({ values: trafficarr })
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('update traffic namespace service', resp, 'updateTraffic'))
+        }
     }
 
     return {
@@ -361,7 +361,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
         getNamespaceServiceConfig,
         setNamespaceServiceRevisionTraffic
     }
-} 
+}
 /*
     useNamespaceServices is a react hook 
     takes:
@@ -374,27 +374,27 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
     const [data, setData] = React.useState(null)
     const [config, setConfig] = React.useState(null)
 
-    const functionsRef = React.useRef(data ? data: [])
+    const functionsRef = React.useRef(data ? data : [])
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
 
-    React.useEffect(()=>{
-        if(stream) {
-            if (eventSource === null){
+    React.useEffect(() => {
+        if (stream) {
+            if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}`, {
-                    headers: apikey === undefined ? {}:{"apikey": apikey}
+                    headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
 
                 listener.onerror = (e) => {
                     if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                        setErr(e.statusText)
+                    } else if (e.status === 403) {
                         setErr("permission denied")
-                    }  else {
+                    } else {
                         try {
-                            let json  = JSON.parse(e.data)
+                            let json = JSON.parse(e.data)
                             setErr(json.Message)
                         } catch (e) {
                             // TODO
@@ -404,41 +404,41 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
 
                 async function readData(e) {
                     let funcs = functionsRef.current
-                    if(e.data === "") {
+                    if (e.data === "") {
                         return
                     }
                     let json = JSON.parse(e.data)
                     switch (json.event) {
-                    case "DELETED":
-                        for (var i=0; i < funcs.length; i++) {
-                            if(funcs[i].serviceName === json.function.serviceName) {
-                                funcs.splice(i, 1)
+                        case "DELETED":
+                            for (var i = 0; i < funcs.length; i++) {
+                                if (funcs[i].serviceName === json.function.serviceName) {
+                                    funcs.splice(i, 1)
+                                    functionsRef.current = funcs
+                                    break
+                                }
+                            }
+                            break
+                        case "MODIFIED":
+                            for (i = 0; i < funcs.length; i++) {
+                                if (funcs[i].serviceName === json.function.serviceName) {
+                                    funcs[i] = json.function
+                                    functionsRef.current = funcs
+                                    break
+                                }
+                            }
+                            break
+                        default:
+                            let found = false
+                            for (i = 0; i < funcs.length; i++) {
+                                if (funcs[i].serviceName === json.function.serviceName) {
+                                    found = true
+                                    break
+                                }
+                            }
+                            if (!found) {
+                                funcs.push(json.function)
                                 functionsRef.current = funcs
-                                break
                             }
-                        }
-                        break
-                    case "MODIFIED":
-                        for(i=0; i < funcs.length; i++) {
-                            if (funcs[i].serviceName === json.function.serviceName) {
-                                funcs[i] = json.function
-                                functionsRef.current = funcs
-                                break
-                            }
-                        }
-                        break
-                    default:
-                        let found = false
-                        for(i=0; i < funcs.length; i++) {
-                            if(funcs[i].serviceName === json.function.serviceName) {
-                                found = true 
-                                break
-                            }
-                        }
-                        if (!found){
-                            funcs.push(json.function)
-                            functionsRef.current = funcs
-                        }
                     }
                     setData(JSON.parse(JSON.stringify(functionsRef.current)))
                 }
@@ -447,70 +447,70 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
                 setEventSource(listener)
             }
         } else {
-            if(data === null) {
+            if (data === null) {
                 getNamespaceServices()
             }
         }
-    },[data])
+    }, [data])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => CloseEventSource(eventSource)
-    },[eventSource])
+    }, [eventSource])
 
 
     async function getNamespaceServices(...queryParameters) {
-            let resp = await fetch(`${url}functions/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "GET"
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setData(json.functions)
-                return json.functions
-            } else {
-                throw new Error(await HandleError('get namespace service', resp, 'listServices'))
-            }
+        let resp = await fetch(`${url}functions/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "GET"
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setData(json.functions)
+            return json.functions
+        } else {
+            throw new Error(await HandleError('get namespace service', resp, 'listServices'))
+        }
     }
 
     async function getNamespaceConfig(...queryParameters) {
-            let resp = await fetch(`${url}functions/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "GET"
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setConfig(json.config)
-                return json.config
-            } else {
-                throw new Error(await HandleError('get namespace service', resp, 'listServices'))
-            }
+        let resp = await fetch(`${url}functions/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "GET"
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setConfig(json.config)
+            return json.config
+        } else {
+            throw new Error(await HandleError('get namespace service', resp, 'listServices'))
+        }
     }
 
-    async function createNamespaceService(name, image, minScale, size, cmd,...queryParameters) {
-            let resp = await fetch(`${url}functions/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "POST",
-                body: JSON.stringify({
-                    cmd,
-                    image,
-                    minScale,
-                    name,
-                    size
-                })
+    async function createNamespaceService(name, image, minScale, size, cmd, ...queryParameters) {
+        let resp = await fetch(`${url}functions/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "POST",
+            body: JSON.stringify({
+                cmd,
+                image,
+                minScale,
+                name,
+                size
             })
-            if (!resp.ok) {
-                throw new Error( await HandleError('create namespace service', resp, 'createService'))
-            }
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('create namespace service', resp, 'createService'))
+        }
     }
 
-    async function deleteNamespaceService(name,...queryParameters) {
-            let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${name}${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "DELETE"
-            })
-            if(!resp.ok) {
-                throw new Error( await HandleError('delete namespace service', resp, 'deleteService'))
-            }
+    async function deleteNamespaceService(name, ...queryParameters) {
+        let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "DELETE"
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('delete namespace service', resp, 'deleteService'))
+        }
     }
 
 

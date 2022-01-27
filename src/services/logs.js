@@ -1,7 +1,7 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
-const {EventSourcePolyfill} = require('event-source-polyfill')
+const { EventSourcePolyfill } = require('event-source-polyfill')
 
 /*
     usePodLogs
@@ -14,23 +14,23 @@ export const useDirektivPodLogs = (url, pod, apikey) => {
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
-    React.useEffect(()=>{
-        if (eventSource === null){
+    React.useEffect(() => {
+        if (eventSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/logs/pod/${pod}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
                 }
             }
 
             async function readData(e) {
-                if(e.data === "") {
+                if (e.data === "") {
                     return
                 }
                 let json = JSON.parse(e.data)
@@ -40,29 +40,29 @@ export const useDirektivPodLogs = (url, pod, apikey) => {
             listener.onmessage = e => readData(e)
             setEventSource(listener)
         }
-    },[])
+    }, [])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => CloseEventSource(eventSource)
-    },[eventSource])
+    }, [eventSource])
 
-    React.useEffect(()=>{
-        if(eventSource !== null) {
+    React.useEffect(() => {
+        if (eventSource !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/logs/pod/${pod}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
                 }
             }
 
             async function readData(e) {
-                if(e.data === "") {
+                if (e.data === "") {
                     return
                 }
                 let json = JSON.parse(e.data)
@@ -73,7 +73,7 @@ export const useDirektivPodLogs = (url, pod, apikey) => {
             setEventSource(listener)
         }
 
-    },[pod])
+    }, [pod])
 
     return {
         data,

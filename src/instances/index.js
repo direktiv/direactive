@@ -4,7 +4,7 @@ import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor } 
 // import fetch from "cross-fetch"
 // In Production
 const fetch = require('isomorphic-fetch')
-const {EventSourcePolyfill} = require('event-source-polyfill')
+const { EventSourcePolyfill } = require('event-source-polyfill')
 /*
     useInstances is a react hook which returns a list of instances
     takes:
@@ -23,24 +23,24 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
 
     // Stores PageInfo about instances list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount , setTotalCount ] = React.useState(null)
+    const [totalCount, setTotalCount] = React.useState(null)
 
-    React.useEffect(()=>{
-        if(stream) {
-            if (eventSource === null){
+    React.useEffect(() => {
+        if (stream) {
+            if (eventSource === null) {
                 // setup event listener
                 let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/instances${queryString}`, {
-                    headers: apikey === undefined ? {}:{"apikey": apikey}
+                    headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
                 listener.onerror = (e) => {
                     if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                        setErr(e.statusText)
+                    } else if (e.status === 403) {
                         setErr("permission denied")
                     }
                 }
                 async function readData(e) {
-                    if(e.data === "") {
+                    if (e.data === "") {
                         return
                     }
                     let json = JSON.parse(e.data)
@@ -57,15 +57,15 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
                 // setLoad(true)
             }
         } else {
-            if(data === null) {
+            if (data === null) {
                 getInstances()
             }
         }
-    },[data, eventSource, queryParameters, pageInfo])
+    }, [data, eventSource, queryParameters, pageInfo])
 
     // If queryParameters change and streaming: update queryString, and reset sse connection
-    React.useEffect(()=>{
-        if(stream){
+    React.useEffect(() => {
+        if (stream) {
             let newQueryString = ExtractQueryString(false, ...queryParameters)
             if (newQueryString !== queryString) {
                 setQueryString(newQueryString)
@@ -73,32 +73,32 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
                 setEventSource(null)
             }
         }
-    },[eventSource, queryParameters, queryString, stream])
+    }, [eventSource, queryParameters, queryString, stream])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => CloseEventSource(eventSource)
-    },[eventSource])
+    }, [eventSource])
 
     // getInstances returns a list of instances
     async function getInstances(...queryParameters) {
-            // fetch instance list by default
-            let resp = await fetch(`${url}namespaces/${namespace}/instances${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
-            })
-            if (!resp.ok){
-                throw new Error((await HandleError('list instances', resp, "listInstances")))
-            }
+        // fetch instance list by default
+        let resp = await fetch(`${url}namespaces/${namespace}/instances${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (!resp.ok) {
+            throw new Error((await HandleError('list instances', resp, "listInstances")))
+        }
 
-            let json = await resp.json()
-            let pInfo = PageInfoProcessor(pageInfo, json.instances.pageInfo, data, json.instances.edges, ...queryParameters)
-            setPageInfo(pInfo.pageInfo)
-            if (pInfo.shouldUpdate) {
-                setData(json.instances.edges)
-            }
-            setTotalCount(json.instances.totalCount)
-            return json
+        let json = await resp.json()
+        let pInfo = PageInfoProcessor(pageInfo, json.instances.pageInfo, data, json.instances.edges, ...queryParameters)
+        setPageInfo(pInfo.pageInfo)
+        if (pInfo.shouldUpdate) {
+            setData(json.instances.edges)
+        }
+        setTotalCount(json.instances.totalCount)
+        return json
     }
-    
+
     return {
         data,
         err,

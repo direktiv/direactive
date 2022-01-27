@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
-const {EventSourcePolyfill} = require('event-source-polyfill')
+const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
 /*
@@ -11,7 +11,7 @@ const fetch = require('isomorphic-fetch')
       - apikey to provide authentication of an apikey
 */
 export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) => {
-    
+
     const [data, setData] = React.useState(null)
     const [load, setLoad] = React.useState(true)
     const [err, setErr] = React.useState(null)
@@ -22,65 +22,65 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
 
     // Stores PageInfo about namespace list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount , setTotalCount] = React.useState(null)
+    const [totalCount, setTotalCount] = React.useState(null)
 
-    React.useEffect(()=>{
-        if(stream) {
-            if (eventSource === null){
-                    // setup event listener 
-                    let listener = new EventSourcePolyfill(`${url}namespaces${queryString}`, {
-                        headers: !apikey ? {}:{"apikey": apikey}
-                    })
+    React.useEffect(() => {
+        if (stream) {
+            if (eventSource === null) {
+                // setup event listener 
+                let listener = new EventSourcePolyfill(`${url}namespaces${queryString}`, {
+                    headers: !apikey ? {} : { "apikey": apikey }
+                })
 
-                    listener.onerror = (e) => {
-                        setErr(e)
-                        if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
-                            setErr("permission denied")
-                        }
+                listener.onerror = (e) => {
+                    setErr(e)
+                    if (e.status === 404) {
+                        setErr(e.statusText)
+                    } else if (e.status === 403) {
+                        setErr("permission denied")
                     }
+                }
 
-                    async function readData(e) {
-                        if(e.data === "") {
-                            return
-                        }
-                        let json = JSON.parse(e.data)
-                        setData(json.edges)
-                        setPageInfo(json.pageInfo)
-                        setTotalCount(json.totalCount)
+                async function readData(e) {
+                    if (e.data === "") {
+                        return
                     }
+                    let json = JSON.parse(e.data)
+                    setData(json.edges)
+                    setPageInfo(json.pageInfo)
+                    setTotalCount(json.totalCount)
+                }
 
-                    listener.onmessage = e => readData(e)
-                    setEventSource(listener)
-                    setLoad(false)
-                    setErr("")
+                listener.onmessage = e => readData(e)
+                setEventSource(listener)
+                setLoad(false)
+                setErr("")
             }
         } else {
-            if(data === null) {
+            if (data === null) {
                 getNamespaces()
             }
         }
-    },[data])
+    }, [data])
 
-    React.useEffect(()=>{
-        if(!load && eventSource !== null) {
+    React.useEffect(() => {
+        if (!load && eventSource !== null) {
             CloseEventSource(eventSource)
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}namespaces${queryString}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
                 }
             }
 
             async function readData(e) {
-                if(e.data === "") {
+                if (e.data === "") {
                     return
                 }
                 let json = JSON.parse(e.data)
@@ -93,11 +93,11 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
             setEventSource(listener)
             setErr("")
         }
-    },[apikey])
+    }, [apikey])
 
     // If queryParameters change and streaming: update queryString, and reset sse connection
-    React.useEffect(()=>{
-        if(stream){
+    React.useEffect(() => {
+        if (stream) {
             let newQueryString = ExtractQueryString(false, ...queryParameters)
             if (newQueryString !== queryString) {
                 setQueryString(newQueryString)
@@ -105,13 +105,13 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
                 setEventSource(null)
             }
         }
-    },[eventSource, queryParameters, queryString, stream])
+    }, [eventSource, queryParameters, queryString, stream])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => {
             CloseEventSource(eventSource)
         }
-    },[eventSource])
+    }, [eventSource])
 
     // getNamespaces returns a list of namespaces
     async function getNamespaces(...queryParameters) {

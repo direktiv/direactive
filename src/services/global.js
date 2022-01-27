@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 
-const {EventSourcePolyfill} = require('event-source-polyfill')
+const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
 
@@ -18,20 +18,20 @@ export const useDirektivGlobalServiceRevision = (url, service, revision, apikey)
     const [pods, setPods] = React.useState([])
     const [err, setErr] = React.useState(null)
     const [revisionSource, setRevisionSource] = React.useState(null)
-    
+
     const podsRef = React.useRef(pods)
 
 
-    React.useEffect(()=>{
-        if(podSource === null) {
+    React.useEffect(() => {
+        if (podSource === null) {
             let listener = new EventSourcePolyfill(`${url}functions/${service}/revisions/${revision}/pods`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
                 }
             }
@@ -77,24 +77,24 @@ export const useDirektivGlobalServiceRevision = (url, service, revision, apikey)
                         }
                 }
                 setPods(JSON.parse(JSON.stringify(podsRef.current)))
-                
+
             }
             listener.onmessage = e => readData(e)
             setPodSource(listener)
         }
     })
 
-    React.useEffect(()=>{
-        if(revisionSource === null) {
+    React.useEffect(() => {
+        if (revisionSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/${service}/revisions/${revision}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
                 }
             }
@@ -115,14 +115,14 @@ export const useDirektivGlobalServiceRevision = (url, service, revision, apikey)
             listener.onmessage = e => readData(e)
             setRevisionSource(listener)
         }
-    },[revisionSource])
+    }, [revisionSource])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => {
             CloseEventSource(revisionSource)
             CloseEventSource(podSource)
         }
-    },[revisionSource, podSource])
+    }, [revisionSource, podSource])
 
 
     return {
@@ -144,31 +144,31 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
     const [fn, setFn] = React.useState(null)
     const [traffic, setTraffic] = React.useState(null)
     const [config, setConfig] = React.useState(null)
-    const revisionsRef = React.useRef(revisions ? revisions: [])
-    
-    
+    const revisionsRef = React.useRef(revisions ? revisions : [])
+
+
     const [err, setErr] = React.useState(null)
-    
+
     const [trafficSource, setTrafficSource] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         if (trafficSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/${service}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
                 }
             }
 
             async function readData(e) {
-                if(e.data === "") {
+                if (e.data === "") {
                     return
                 }
                 let json = JSON.parse(e.data)
@@ -182,26 +182,26 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
             listener.onmessage = e => readData(e)
             setTrafficSource(listener)
         }
-    },[fn])
+    }, [fn])
 
-    React.useEffect(()=>{
-        if (eventSource === null){
+    React.useEffect(() => {
+        if (eventSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/${service}/revisions`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey}
+                headers: apikey === undefined ? {} : { "apikey": apikey }
             })
 
             listener.onerror = (e) => {
                 if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                    setErr(e.statusText)
+                } else if (e.status === 403) {
                     setErr("permission denied")
                 }
             }
 
             async function readData(e) {
                 let revs = revisionsRef.current
-                if(e.data === "") {
+                if (e.data === "") {
                     return
                 }
                 let json = JSON.parse(e.data)
@@ -247,71 +247,73 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
             listener.onmessage = e => readData(e)
             setEventSource(listener)
         }
-    },[revisions])
+    }, [revisions])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => {
             CloseEventSource(eventSource)
             CloseEventSource(trafficSource)
         }
-    },[eventSource, trafficSource])
+    }, [eventSource, trafficSource])
 
-    async function createGlobalServiceRevision(image, minScale, size, cmd, traffic,...queryParameters) {
-            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "POST",
-                body: JSON.stringify({
-                    trafficPercent: traffic,
-                    cmd,
-                    image,
-                    minScale,
-                    size
-                })
+    async function createGlobalServiceRevision(image, minScale, size, cmd, traffic, ...queryParameters) {
+        let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "POST",
+            body: JSON.stringify({
+                trafficPercent: traffic,
+                cmd,
+                image,
+                minScale,
+                size
             })
-            if (!resp.ok) {
-                throw new Error( await HandleError('create global service revision', resp, 'createRevision'))
-            }
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('create global service revision', resp, 'createRevision'))
+        }
     }
 
-    async function deleteGlobalServiceRevision(rev,...queryParameters){
-            let resp = await fetch(`${url}functions/${service}/revisions/${rev}${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "DELETE"
-            })
-            if(!resp.ok){
-                throw new Error( await HandleError('delete global service revision', resp, 'deleteRevision'))
-            }
+    async function deleteGlobalServiceRevision(rev, ...queryParameters) {
+        let resp = await fetch(`${url}functions/${service}/revisions/${rev}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "DELETE"
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('delete global service revision', resp, 'deleteRevision'))
+        }
     }
 
     async function getServiceConfig(...queryParameters) {
-            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "GET"
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setConfig(json.config)
-                return json.config
-            } else {
-                throw new Error(await HandleError('get global service', resp, 'getService'))
-            }
+        let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "GET"
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setConfig(json.config)
+            return json.config
+        } else {
+            throw new Error(await HandleError('get global service', resp, 'getService'))
+        }
     }
 
-    async function setGlobalServiceRevisionTraffic(rev1, rev1value, rev2, rev2value,...queryParameters) {
-            let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
-                method: "PATCH",
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                body: JSON.stringify({values:[{
+    async function setGlobalServiceRevisionTraffic(rev1, rev1value, rev2, rev2value, ...queryParameters) {
+        let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
+            method: "PATCH",
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            body: JSON.stringify({
+                values: [{
                     revision: rev1,
                     percent: rev1value
-                },{
+                }, {
                     revision: rev2,
                     percent: rev2value
-                }]})
+                }]
             })
-            if(!resp.ok){
-                throw new Error( await HandleError('update traffic global service', resp, 'updateTraffic'))
-            }
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('update traffic global service', resp, 'updateTraffic'))
+        }
     }
 
     return {
@@ -336,70 +338,70 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
       - apikey to provide authentication of an apikey
 */
 export const useDirektivGlobalServices = (url, stream, apikey) => {
-    
+
     const [data, setData] = React.useState(null)
     const [config, setConfig] = React.useState(null)
 
-    const functionsRef = React.useRef(data ? data: [])
+    const functionsRef = React.useRef(data ? data : [])
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
 
-    React.useEffect(()=>{
-        if(stream) {
-            if (eventSource === null){
+    React.useEffect(() => {
+        if (stream) {
+            if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}functions`, {
-                    headers: apikey === undefined ? {}:{"apikey": apikey}
+                    headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
 
                 listener.onerror = (e) => {
                     if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                        setErr(e.statusText)
+                    } else if (e.status === 403) {
                         setErr("permission denied")
                     }
                 }
 
                 async function readData(e) {
                     let funcs = functionsRef.current
-                    if(e.data === "") {
-                        if(funcs === null){
+                    if (e.data === "") {
+                        if (funcs === null) {
                             setData([])
                         }
                         return
                     }
                     let json = JSON.parse(e.data)
                     switch (json.event) {
-                    case "DELETED":
-                        for (var i=0; i < funcs.length; i++) {
-                            if(funcs[i].serviceName === json.function.serviceName) {
-                                funcs.splice(i, 1)
+                        case "DELETED":
+                            for (var i = 0; i < funcs.length; i++) {
+                                if (funcs[i].serviceName === json.function.serviceName) {
+                                    funcs.splice(i, 1)
+                                    functionsRef.current = funcs
+                                    break
+                                }
+                            }
+                            break
+                        case "MODIFIED":
+                            for (i = 0; i < funcs.length; i++) {
+                                if (funcs[i].serviceName === json.function.serviceName) {
+                                    funcs[i] = json.function
+                                    functionsRef.current = funcs
+                                    break
+                                }
+                            }
+                            break
+                        default:
+                            let found = false
+                            for (i = 0; i < funcs.length; i++) {
+                                if (funcs[i].serviceName === json.function.serviceName) {
+                                    found = true
+                                    break
+                                }
+                            }
+                            if (!found) {
+                                funcs.push(json.function)
                                 functionsRef.current = funcs
-                                break
                             }
-                        }
-                        break
-                    case "MODIFIED":
-                        for(i=0; i < funcs.length; i++) {
-                            if (funcs[i].serviceName === json.function.serviceName) {
-                                funcs[i] = json.function
-                                functionsRef.current = funcs
-                                break
-                            }
-                        }
-                        break
-                    default:
-                        let found = false
-                        for(i=0; i < funcs.length; i++) {
-                            if(funcs[i].serviceName === json.function.serviceName) {
-                                found = true 
-                                break
-                            }
-                        }
-                        if (!found){
-                            funcs.push(json.function)
-                            functionsRef.current = funcs
-                        }
                     }
                     setData(JSON.parse(JSON.stringify(functionsRef.current)))
                 }
@@ -408,70 +410,70 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
                 setEventSource(listener)
             }
         } else {
-            if(data === null) {
+            if (data === null) {
                 getGlobalServices()
             }
         }
-    },[data])
+    }, [data])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => CloseEventSource(eventSource)
-    },[eventSource])
+    }, [eventSource])
 
 
     async function getConfig(...queryParameters) {
-            let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "GET"
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setConfig(json.config)
-                return json.config
-            } else {
-                throw new Error(await HandleError('get namespace service', resp, 'listServices'))
-            }
+        let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "GET"
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setConfig(json.config)
+            return json.config
+        } else {
+            throw new Error(await HandleError('get namespace service', resp, 'listServices'))
+        }
     }
 
     async function getGlobalServices(...queryParameters) {
-            let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "GET"
-            })
-            if (resp.ok) {
-                let json = await resp.json()
-                setData(json.functions)
-                return json.functions
-            } else {
-                throw new Error(await HandleError('get global services', resp, 'listServices'))
-            }
+        let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "GET"
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setData(json.functions)
+            return json.functions
+        } else {
+            throw new Error(await HandleError('get global services', resp, 'listServices'))
+        }
     }
 
-    async function createGlobalService(name, image, minScale, size, cmd,...queryParameters) {
-            let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "POST",
-                body: JSON.stringify({
-                    cmd,
-                    image,
-                    minScale,
-                    name,
-                    size
-                })
+    async function createGlobalService(name, image, minScale, size, cmd, ...queryParameters) {
+        let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "POST",
+            body: JSON.stringify({
+                cmd,
+                image,
+                minScale,
+                name,
+                size
             })
-            if (!resp.ok) {
-                throw new Error( await HandleError('create global service', resp, 'createService'))
-            }
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('create global service', resp, 'createService'))
+        }
     }
 
-    async function deleteGlobalService(name,...queryParameters) {
-            let resp = await fetch(`${url}functions/${name}${ExtractQueryString(false, ...queryParameters)}`, {
-                headers: apikey === undefined ? {}:{"apikey": apikey},
-                method: "DELETE"
-            })
-            if(!resp.ok) {
-                throw new Error( await HandleError('delete global service', resp, 'deleteService'))
-            }
+    async function deleteGlobalService(name, ...queryParameters) {
+        let resp = await fetch(`${url}functions/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            method: "DELETE"
+        })
+        if (!resp.ok) {
+            throw new Error(await HandleError('delete global service', resp, 'deleteService'))
+        }
 
     }
 

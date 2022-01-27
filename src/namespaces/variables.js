@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
-const {EventSourcePolyfill} = require('event-source-polyfill')
+const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
 /*
@@ -22,26 +22,26 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
 
     // Stores PageInfo about namespace variable list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount , setTotalCount] = React.useState(null)
+    const [totalCount, setTotalCount] = React.useState(null)
 
-    React.useEffect(()=>{
-        if(stream) {
-            if (eventSource === null){
+    React.useEffect(() => {
+        if (stream) {
+            if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/vars${queryString}`, {
-                    headers: apikey === undefined ? {}:{"apikey": apikey}
+                    headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
 
                 listener.onerror = (e) => {
                     if (e.status === 404) {
-                  setErr(e.statusText)
-                } else if(e.status === 403) {
+                        setErr(e.statusText)
+                    } else if (e.status === 403) {
                         setErr("permission denied")
                     }
                 }
 
                 async function readData(e) {
-                    if(e.data === "") {
+                    if (e.data === "") {
                         return
                     }
                     let json = JSON.parse(e.data)
@@ -54,21 +54,21 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
                 setEventSource(listener)
             }
         } else {
-            if(data === null) {
+            if (data === null) {
                 getNamespaceVariables()
             }
         }
-    },[data])
+    }, [data])
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         return () => {
             CloseEventSource(eventSource)
         }
-    },[eventSource])
+    }, [eventSource])
 
     // If queryParameters change and streaming: update queryString, and reset sse connection
-    React.useEffect(()=>{
-        if(stream){
+    React.useEffect(() => {
+        if (stream) {
             let newQueryString = ExtractQueryString(false, ...queryParameters)
             if (newQueryString !== queryString) {
                 setQueryString(newQueryString)
@@ -76,7 +76,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
                 setEventSource(null)
             }
         }
-    },[eventSource, queryParameters, queryString, stream])
+    }, [eventSource, queryParameters, queryString, stream])
 
     // getNamespaces returns a list of namespaces
     async function getNamespaceVariables(...queryParameters) {
