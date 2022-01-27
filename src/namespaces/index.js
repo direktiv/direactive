@@ -34,7 +34,9 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
 
                     listener.onerror = (e) => {
                         setErr(e)
-                        if(e.status === 403) {
+                        if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                             setErr("permission denied")
                         }
                     }
@@ -70,7 +72,9 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
                 }
             }

@@ -44,6 +44,8 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                 listener.onerror = (e) => {
                     if (e.status === 403) {
                         setErrListeners("permission denied")
+                    } else if (e.status === 404) {
+                        setErrListeners(e.statusText)
                     }
                 }
 
@@ -81,7 +83,9 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                 listener.onerror = (e) => {
                     if (e.status === 403) {
                         setErrHistory("permission denied")
-                    }
+                    } else if (e.status === 404) {
+                        setErrHistory(e.statusText)
+                      }
                 }
 
                 async function readData(e) {

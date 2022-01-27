@@ -28,8 +28,17 @@ export const useDirektivNamespaceServiceRevision = (url, namespace, service, rev
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
+                }  else {
+                    try {
+                        let json  = JSON.parse(e.data)
+                        setErr(json.Message)
+                    } catch (e) {
+                        // TODO
+                    }
                 }
             }
 
@@ -89,8 +98,17 @@ export const useDirektivNamespaceServiceRevision = (url, namespace, service, rev
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
+                }  else {
+                    try {
+                        let json  = JSON.parse(e.data)
+                        setErr(json.Message)
+                    } catch (e) {
+                        // TODO handle error/error handling
+                    }
                 }
             }
 
@@ -155,8 +173,17 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
+                } else {
+                    try {
+                        let json  = JSON.parse(e.data)
+                        setErr(json.Message)
+                    } catch (e) {
+                        // TODO
+                    }
                 }
             }
 
@@ -185,8 +212,17 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
+                }  else {
+                    try {
+                        let json  = JSON.parse(e.data)
+                        setErr(json.Message)
+                    } catch (e) {
+                        // TODO
+                    }
                 }
             }
 
@@ -352,8 +388,17 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
                 })
 
                 listener.onerror = (e) => {
-                    if(e.status === 403) {
+                    if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                         setErr("permission denied")
+                    }  else {
+                        try {
+                            let json  = JSON.parse(e.data)
+                            setErr(json.Message)
+                        } catch (e) {
+                            // TODO
+                        }
                     }
                 }
 

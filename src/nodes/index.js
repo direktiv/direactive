@@ -343,9 +343,12 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
-                    setErr("permission denied")
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
+                  setErr("permission denied")
                 }
+               
             }
 
             async function readData(e) {
@@ -386,8 +389,10 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                 })
 
                 listener.onerror = (e) => {
-                    if(e.status === 403) {
-                        setErr("permission denied")
+                    if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
+                      setErr("permission denied")
                     }
                 }
 

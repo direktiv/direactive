@@ -38,7 +38,9 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
                 listener.onerror = (e) => {
                     if (e.status === 403) {
                         setErr("permission denied")
-                    }
+                    } else if (e.status === 404) {
+                        setErr(e.statusText)
+                      }
                 }
 
                 async function readData(e) {
@@ -134,6 +136,15 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
                 listener.onerror = (e) => {
                     if (e.status === 403) {
                         setErr("permission denied")
+                    } else if (e.status === 404) {
+                        setErr(e.statusText)
+                    } else {
+                        try {
+                            let json  = JSON.parse(e.data)
+                            setErr(json.Message)
+                        } catch (e) {
+                            // TODO
+                        }
                     }
                 }
 

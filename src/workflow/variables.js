@@ -34,7 +34,9 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                 })
 
                 listener.onerror = (e) => {
-                    if(e.status === 403) {
+                    if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                         setErr("permission denied")
                     }
                 }

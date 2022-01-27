@@ -33,7 +33,9 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
                     headers: apikey === undefined ? {}:{"apikey": apikey}
                 })
                 listener.onerror = (e) => {
-                    if(e.status === 403) {
+                    if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                         setErr("permission denied")
                     }
                 }

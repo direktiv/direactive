@@ -29,7 +29,9 @@ export const useDirektivWorkflowServiceRevision = (url, namespace, path, service
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
                 }
             }
@@ -90,7 +92,9 @@ export const useDirektivWorkflowServiceRevision = (url, namespace, path, service
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
                 }
             }
@@ -155,7 +159,9 @@ export const useDirektivWorkflowService = (url, namespace, path, service, versio
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
                 }
             }
@@ -248,7 +254,9 @@ export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey
                 })
 
                 listener.onerror = (e) => {
-                    if(e.status === 403) {
+                    if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                         setErr("permission denied")
                     }
                 }

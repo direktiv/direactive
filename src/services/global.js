@@ -29,7 +29,9 @@ export const useDirektivGlobalServiceRevision = (url, service, revision, apikey)
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
                 }
             }
@@ -90,7 +92,9 @@ export const useDirektivGlobalServiceRevision = (url, service, revision, apikey)
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
                 }
             }
@@ -156,7 +160,9 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
                 }
             }
@@ -186,7 +192,9 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
             })
 
             listener.onerror = (e) => {
-                if(e.status === 403) {
+                if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                     setErr("permission denied")
                 }
             }
@@ -285,7 +293,7 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
                 setConfig(json.config)
                 return json.config
             } else {
-                throw new Error(await HandleError('get namespace service', resp, 'getService'))
+                throw new Error(await HandleError('get global service', resp, 'getService'))
             }
     }
 
@@ -345,7 +353,9 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
                 })
 
                 listener.onerror = (e) => {
-                    if(e.status === 403) {
+                    if (e.status === 404) {
+                  setErr(e.statusText)
+                } else if(e.status === 403) {
                         setErr("permission denied")
                     }
                 }
