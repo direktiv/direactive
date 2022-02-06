@@ -15,6 +15,12 @@ export async function CloseEventSource(eventSource) {
     }
 }
 
+export function TrimPathSlashes(path) {
+    path.replace(/^\//,"");
+    path.replace(/\/^/,"");
+    return path
+}
+
 // HandleError returns a helpful message back based on the response
 export async function HandleError(summary, resp, perm) {
     const contentType = resp.headers.get('content-type')

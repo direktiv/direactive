@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString, TrimPathSlashes } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -121,6 +121,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
 */
 export const useDirektivInstance = (url, stream, namespace, instance, apikey) => {
     const [data, setData] = React.useState(null)
+    const [latestRevision, setLatestRevision] = React.useState(null)
     const [workflow, setWorkflow] = React.useState(null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
@@ -156,6 +157,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
                     json.instance["flow"] = json.flow
                     setData(json.instance)
                     setWorkflow(json.workflow)
+                    getLatestRevision(json.workflow.path)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -182,9 +184,29 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
             let json = await resp.json()
             setData(json.instance)
             setWorkflow(json.workflow)
+            getLatestRevision(json.workflow.path)
             return json.instance
         }
         throw new Error(await HandleError('get instance', resp, "getInstance"))
+
+    }
+
+    async function getLatestRevision(workflowPath, ...queryParameters) {
+        // workflow doesnt exist anymore
+        if (workflowPath === "") {
+            setLatestRevision("")
+        }
+
+        let path = TrimPathSlashes(workflowPath)
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=validate-ref&ref=latest${ExtractQueryString(true, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            setLatestRevision(json.revision.name)
+            return json.revision.name
+        }
+        throw new Error(await HandleError('get instance wf details', resp, "getInstance"))
 
     }
 
@@ -229,6 +251,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     return {
         data,
         workflow,
+        latestRevision,
         err,
         getInstance,
         cancelInstance,
