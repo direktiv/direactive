@@ -98,7 +98,7 @@ states:
   transition: solve
 - id: solve
   type: foreach
-  array: 'jq(.expressions[] | { expression: . })'
+  array: 'jq([.expressions[] | {expression: .}])'
   action:
     function: solve
     input:
