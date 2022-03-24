@@ -103,6 +103,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
             body: val,
             headers: {
                 "Content-type": mimeType,
+                apikey: apikey === undefined ? nil :apikey
             },
         })
         if (!resp.ok) {
@@ -113,7 +114,9 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
     }
 
     async function getWorkflowVariable(name, ...queryParameters) {
-        let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {})
+        let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
         if (resp.ok) {
             return { data: await resp.text(), contentType: resp.headers.get("Content-Type") }
         } else {
@@ -122,7 +125,9 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
     }
 
     async function getWorkflowVariableBuffer(name, ...queryParameters) {
-        let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {})
+        let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
         if (resp.ok) {
             return { data: await resp.arrayBuffer(), contentType: resp.headers.get("Content-Type") }
         } else {
@@ -130,9 +135,21 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         }
     }
 
+    async function getWorkflowVariableBlob(name, ...queryParameters) {
+        let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            return { data: await resp.blob(), contentType: resp.headers.get("Content-Type") }
+        } else {
+            throw new Error(await HandleError('get variable', resp, 'getWorkflowVariable'))
+        }
+    }
+
     async function deleteWorkflowVariable(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
-            method: "DELETE"
+            method: "DELETE",
+            headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete variable', resp, 'deleteWorkflowVariable'))
@@ -149,6 +166,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         setWorkflowVariable,
         deleteWorkflowVariable,
         getWorkflowVariable,
-        getWorkflowVariableBuffer
+        getWorkflowVariableBuffer,
+        getWorkflowVariableBlob
     }
 }

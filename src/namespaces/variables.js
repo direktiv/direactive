@@ -95,7 +95,9 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
     }
 
     async function getNamespaceVariable(name, ...queryParameters) {
-        let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {})
+        let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
         if (resp.ok) {
             return { data: await resp.text(), contentType: resp.headers.get("Content-Type") }
         } else {
@@ -104,7 +106,9 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
     }
 
     async function getNamespaceVariableBuffer(name, ...queryParameters) {
-        let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {})
+        let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
         if (resp.ok) {
             return { data: await resp.arrayBuffer(), contentType: resp.headers.get("Content-Type") }
         } else {
@@ -112,9 +116,21 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         }
     }
 
+    async function getNamespaceVariableBlob(name, ...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            return { data: await resp.blob(), contentType: resp.headers.get("Content-Type") }
+        } else {
+            throw new Error(await HandleError('get variable', resp, 'getNamespaceVariable'))
+        }
+    }
+
     async function deleteNamespaceVariable(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
-            method: "DELETE"
+            method: "DELETE",
+            headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete variable', resp, 'deleteNamespaceVariable'))
@@ -130,6 +146,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
             body: val,
             headers: {
                 "Content-type": mimeType,
+                apikey: apikey === undefined ? nil : apikey
             },
         })
         if (!resp.ok) {
@@ -145,6 +162,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         getNamespaceVariables,
         getNamespaceVariable,
         getNamespaceVariableBuffer,
+        getNamespaceVariableBlob,
         deleteNamespaceVariable,
         setNamespaceVariable
     }

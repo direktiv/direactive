@@ -426,7 +426,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
       }
     } else {
       if (data === null) {
-        getNode()
+        getNode(...queryParameters)
       }
     }
   }, [data, eventSource, queryString])
