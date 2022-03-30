@@ -114,7 +114,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
     }
 
     async function getWorkflowVariable(name, ...queryParameters) {
-        let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
             headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (resp.ok) {
@@ -125,7 +125,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
     }
 
     async function getWorkflowVariableBuffer(name, ...queryParameters) {
-        let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
             headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (resp.ok) {
@@ -136,7 +136,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
     }
 
     async function getWorkflowVariableBlob(name, ...queryParameters) {
-        let resp = await fetch(`${url}/namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
             headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (resp.ok) {
