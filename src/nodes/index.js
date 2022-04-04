@@ -332,55 +332,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
   const [totalCount, setTotalCount] = React.useState(null)
 
   React.useEffect(() => {
-    if (!load && eventSource !== null) {
-      CloseEventSource(eventSource)
-      setErr(null)
-      setData(null)
-
-      // setup event listener 
-      let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree${path}${queryString}`, {
-        headers: apikey === undefined ? {} : { "apikey": apikey }
-      })
-
-      listener.onerror = (e) => {
-        if (e.status === 404) {
-          setErr(e.statusText)
-        } else if (e.status === 403) {
-          setErr("permission denied")
-        }
-
-      }
-
-      async function readData(e) {
-        if (e.data === "") {
-          return
-        }
-        let json = JSON.parse(e.data)
-        if (json.children) {
-          let currentData = data
-
-          // Set currentData to null if paths have changed
-          if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
-            currentData = null
-          }
-
-          let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, currentData, json.children.edges, ...queryParameters)
-          setPageInfo(pInfo.pageInfo)
-          setTotalCount(json.children.totalCount)
-          if (pInfo.shouldUpdate) {
-            setData(json)
-          }
-        } else {
-          setData(json)
-        }
-      }
-
-      listener.onmessage = e => readData(e)
-      setEventSource(listener)
-    }
-  }, [path, namespace])
-
-  React.useEffect(() => {
     if (stream) {
       if (eventSource === null) {
         // setup event listener 
@@ -409,7 +360,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
               currentData = null
             }
 
-            let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
+            let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, currentData, json.children.edges, ...queryParameters)
             setPageInfo(pInfo.pageInfo)
             setTotalCount(json.children.totalCount)
             if (pInfo.shouldUpdate) {
@@ -442,6 +393,13 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
       }
     }
   }, [eventSource, queryParameters, queryString, stream])
+
+    // If namespace or path changes and streaming: reset sse connection
+    React.useEffect(() => {
+      if (stream) {
+        setEventSource(null)
+      }
+    }, [path, namespace])
 
   React.useEffect(() => {
     return () => CloseEventSource(eventSource)
