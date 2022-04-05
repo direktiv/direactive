@@ -124,13 +124,15 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     const [latestRevision, setLatestRevision] = React.useState(null)
     const [workflow, setWorkflow] = React.useState(null)
     const [err, setErr] = React.useState(null)
+    const [instanceID, setInstanceID] = React.useState(instance)
     const [eventSource, setEventSource] = React.useState(null)
+
 
     React.useEffect(() => {
         if (stream) {
             if (eventSource === null) {
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/instances/${instance}`, {
+                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/instances/${instanceID}`, {
                     headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
 
@@ -168,7 +170,19 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
                 getInstance()
             }
         }
-    }, [data])
+    }, [data, eventSource])
+
+    // If instance changes reset eventSource
+    React.useEffect(() => {
+        if (stream) {
+            if (instance !== instanceID) {
+                setInstanceID(instance)
+                CloseEventSource(eventSource)
+                setEventSource(null)
+                setData(null)
+            }
+        }
+    }, [eventSource, instanceID, instance, stream])
 
     React.useEffect(() => {
         return () => CloseEventSource(eventSource)
@@ -177,7 +191,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     // getInstance returns a list of instances
     async function getInstance(...queryParameters) {
         // fetch instance list by default
-        let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}${ExtractQueryString(false, ...queryParameters)}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/instances/${instanceID}${ExtractQueryString(false, ...queryParameters)}`, {
             headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (resp.ok) {
@@ -211,7 +225,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     }
 
     async function getInput(...queryParameters) {
-        let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/input${ExtractQueryString(false, ...queryParameters)}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/instances/${instanceID}/input${ExtractQueryString(false, ...queryParameters)}`, {
             method: "GET",
             headers: apikey === undefined ? {} : { "apikey": apikey }
 
@@ -224,7 +238,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     }
 
     async function getOutput(...queryParameters) {
-        let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/output${ExtractQueryString(false, ...queryParameters)}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/instances/${instanceID}/output${ExtractQueryString(false, ...queryParameters)}`, {
             method: "GET",
             headers: apikey === undefined ? {} : { "apikey": apikey }
 
@@ -238,7 +252,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     }
 
     async function cancelInstance(...queryParameters) {
-        let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/cancel${ExtractQueryString(false, ...queryParameters)}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/instances/${instanceID}/cancel${ExtractQueryString(false, ...queryParameters)}`, {
             method: "POST",
             headers: apikey === undefined ? {} : { "apikey": apikey }
 
