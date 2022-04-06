@@ -68,6 +68,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
         if (stream) {
             let newQueryString = ExtractQueryString(false, ...queryParameters)
             if (newQueryString !== queryString) {
+                setData(null)
                 setQueryString(newQueryString)
                 CloseEventSource(eventSource)
                 setEventSource(null)
