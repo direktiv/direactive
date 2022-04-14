@@ -394,12 +394,15 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
     }
   }, [eventSource, queryParameters, queryString, stream])
 
-    // If namespace or path changes and streaming: reset sse connection
-    React.useEffect(() => {
-      if (stream) {
-        setEventSource(null)
-      }
-    }, [path, namespace])
+  // If namespace or path changes and streaming: reset sse connection
+  React.useEffect(() => {
+    if (stream) {
+      CloseEventSource(eventSource)
+      setEventSource(null)
+      setPageInfo(null)
+      setTotalCount(null)
+    }
+  }, [path, namespace])
 
   React.useEffect(() => {
     return () => CloseEventSource(eventSource)
@@ -443,21 +446,152 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
     if (path !== "") {
       uriPath += `${sanitizePath(path)}`
     }
-    let body = {
-      type: type
+    let request = {
+      method: "PUT",
+      headers: apikey === undefined ? {} : { "apikey": apikey }
     }
+
     if (type === "workflow") {
-      body = yaml
+      request.body = yaml
       name += `?op=create-workflow`
     } else {
       name += `?op=create-directory`
-      body = JSON.stringify(body)
     }
-    let resp = await fetch(`${uriPath}/${name}${ExtractQueryString(true, ...queryParameters)}`, {
+    let resp = await fetch(`${uriPath}/${name}${ExtractQueryString(true, ...queryParameters)}`, request)
+    if (!resp.ok) {
+      throw new Error(await HandleError('create node', resp, 'createNode'))
+    }
+
+    return await resp.json()
+  }
+
+  // TODO: Migrate to another hook
+  async function createMirrorNode(name, mirrorSettings, ...queryParameters) {
+    let uriPath = `${url}namespaces/${namespace}/tree`
+    if (path !== "") {
+      uriPath += `${sanitizePath(path)}`
+    }
+    let request = {
       method: "PUT",
-      body: body,
+      body: JSON.stringify(mirrorSettings),
       headers: apikey === undefined ? {} : { "apikey": apikey }
-    })
+    }
+
+    let resp = await fetch(`${uriPath}/${name}?op=create-directory${ExtractQueryString(true, ...queryParameters)}`, request)
+    if (!resp.ok) {
+      throw new Error(await HandleError('create node', resp, 'createNode'))
+    }
+
+    return await resp.json()
+  }
+
+  // TODO: Migrate to another hook
+  async function getMirrorInfo(...queryParameters) {
+    let uriPath = `${url}namespaces/${namespace}/tree`
+    if (path !== "") {
+      uriPath += `${sanitizePath(path)}`
+    }
+    let request = {
+      method: "GET",
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    }
+
+    let resp = await fetch(`${uriPath}?op=mirror-info${ExtractQueryString(true, ...queryParameters)}`, request)
+    if (!resp.ok) {
+      throw new Error(await HandleError('create node', resp, 'createNode'))
+    }
+
+    return await resp.json()
+  }
+
+  // TODO: Migrate to another hook
+  async function updateMirrorSettings(mirrorSettings, ...queryParameters) {
+    let uriPath = `${url}namespaces/${namespace}/tree`
+    if (path !== "") {
+      uriPath += `${sanitizePath(path)}`
+    }
+
+    let request = {
+      method: "POST",
+      body: JSON.stringify(mirrorSettings),
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    }
+
+    let resp = await fetch(`${uriPath}?op=update-mirror${ExtractQueryString(true, ...queryParameters)}`, request)
+    if (!resp.ok) {
+      throw new Error(await HandleError('create node', resp, 'createNode'))
+    }
+
+    return
+  }
+
+  // TODO: Migrate to another hook
+  async function syncMirror(force, ...queryParameters) {
+    let uriPath = `${url}namespaces/${namespace}/tree`
+    if (path !== "") {
+      uriPath += `${sanitizePath(path)}`
+    }
+
+    let request = {
+      method: "POST",
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    }
+
+    let resp = await fetch(`${uriPath}?op=sync-mirror${force ? "&force=true" : ""}${ExtractQueryString(true, ...queryParameters)}`, request)
+    if (!resp.ok) {
+      throw new Error(await HandleError('create node', resp, 'createNode'))
+    }
+
+    return
+  }
+
+  // TODO: Migrate to another hook
+  async function setLockMirror(lock, ...queryParameters) {
+    let uriPath = `${url}namespaces/${namespace}/tree`
+    if (path !== "") {
+      uriPath += `${sanitizePath(path)}`
+    }
+
+    let request = {
+      method: "POST",
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    }
+
+    let resp = await fetch(`${uriPath}?op=${lock ? "lock-mirror" : "unlock-mirror"}${ExtractQueryString(true, ...queryParameters)}`, request)
+    if (!resp.ok) {
+      throw new Error(await HandleError('create node', resp, 'createNode'))
+    }
+
+    return
+  }
+
+  // TODO: Migrate to another hook
+  async function cancelMirrorActivity(activity, ...queryParameters) {
+    let uriPath = `${url}namespaces/${namespace}/activities/${activity}/cancel`
+
+    let request = {
+      method: "POST",
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    }
+
+    let resp = await fetch(`${uriPath}${ExtractQueryString(false, ...queryParameters)}`, request)
+    if (!resp.ok) {
+      throw new Error(await HandleError('create node', resp, 'createNode'))
+    }
+
+    return
+  }
+
+  // TODO: Migrate to another hook
+  async function getMirrorActivityLogs(activity, ...queryParameters) {
+    let uriPath = `${url}namespaces/${namespace}/activities/${activity}/logs`
+
+    let request = {
+      method: "GET",
+      headers: apikey === undefined ? {} : { "apikey": apikey }
+    }
+
+    let resp = await fetch(`${uriPath}${ExtractQueryString(false, ...queryParameters)}`, request)
     if (!resp.ok) {
       throw new Error(await HandleError('create node', resp, 'createNode'))
     }
@@ -548,5 +682,12 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
     renameNode,
     toggleWorkflow,
     getWorkflowRouter,
+    createMirrorNode,
+    getMirrorInfo,
+    updateMirrorSettings,
+    cancelMirrorActivity,
+    getMirrorActivityLogs,
+    setLockMirror,
+    syncMirror
   }
 }
