@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useEventSourceCleaner } from '../util'
 import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
@@ -243,6 +244,7 @@ export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey
     const functionsRef = React.useRef(data ? data : [])
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
+    const {} = useEventSourceCleaner(eventSource)
 
 
     React.useEffect(() => {
@@ -310,12 +312,7 @@ export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey
                 getWorkflowServices()
             }
         }
-    }, [data])
-
-    React.useEffect(() => {
-        return () => CloseEventSource(eventSource)
-    }, [eventSource])
-
+    }, [data, stream, eventSource])
 
     async function getWorkflowServices(...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=services${ExtractQueryString(true, ...queryParameters)}`, {
