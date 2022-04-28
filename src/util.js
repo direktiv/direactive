@@ -11,6 +11,10 @@ export const Config = {
 }
 
 export function SanitizePath(path) {
+    if (path === "") {
+        return path
+    }
+    
     if (path === "/") {
         return ""
     }

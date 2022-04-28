@@ -20,7 +20,8 @@ import { useDirektivNamespaceService, useDirektivNamespaceServiceRevision, useDi
 import { useDirektivWorkflowService, useDirektivWorkflowServiceRevision, useDirektivWorkflowServices } from './services/workflow'
 import {useDirektivPodLogs} from './services/logs'
 import { useDirektivNamespaceDependencies } from './namespaces/dependencies'
-
+import { useDirektivMirror } from './mirror'
+import { useDirektivMirrorLogs } from './mirror/logs'
 
 
 // Services
@@ -63,6 +64,10 @@ export const useInstances = useDirektivInstances
 // Explorer
 export const useWorkflow = useDirektivWorkflow
 export const useNodes = useDirektivNodes
+
+// Mirror
+export const useMirror = useDirektivMirror
+export const useMirrorLogs = useDirektivMirrorLogs
 
 // Misc
 export const useJQPlayground = useDirektivJQPlayground

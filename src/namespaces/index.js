@@ -141,6 +141,19 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
         }
     }
 
+    async function createMirrorNamespace(namespace, mirrorSettings, ...queryParameters) {
+        let request = {
+            method: "PUT",
+            body: JSON.stringify(mirrorSettings),
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        }
+
+        let resp = await fetch(`${url}namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, request)
+        if (!resp.ok) {
+            throw new Error(await HandleError('create a mirror namespace', resp, 'addNamespace'))
+        }
+    }
+
     // deleteNamespace deletes a namespace from direktiv
     async function deleteNamespace(namespace, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}?recursive=true${ExtractQueryString(true, ...queryParameters)}`, {
@@ -159,6 +172,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
         totalCount,
         createNamespace,
         deleteNamespace,
-        getNamespaces
+        getNamespaces,
+        createMirrorNamespace
     }
 }
