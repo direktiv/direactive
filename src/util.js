@@ -1,11 +1,25 @@
+import * as React from 'react'
+
 // Config default config to test with 
-export const  Config = {
+export const Config = {
     namespace: process.env.NAMESPACE,
     url: process.env.API_URL,
     registry: "https://docker.io",
     apikey: "testapikey",
     secret: "test-secret",
     secretdata: "test-secret-data"
+}
+
+export function SanitizePath(path) {
+    if (path === "/") {
+        return ""
+    }
+
+    if (path.startsWith("/")) {
+        return path
+    }
+
+    return "/" + path
 }
 
 // CloseEventSource closes the event source when the component unmounts
@@ -16,8 +30,8 @@ export async function CloseEventSource(eventSource) {
 }
 
 export function TrimPathSlashes(path) {
-    path.replace(/^\//,"");
-    path.replace(/\/^/,"");
+    path.replace(/^\//, "");
+    path.replace(/\/^/, "");
     return path
 }
 
@@ -34,12 +48,12 @@ export async function HandleError(summary, resp, perm) {
             let text = await resp.text()
             return `${summary}: ${text}`
         } else {
-          if(resp.headers.get('grpc-message')) {
-            return `${summary}: ${resp.headers.get('grpc-message')}`
-          } else {
-            let text = (await resp.json()).message
-            return `${summary}: ${text}`
-          }
+            if (resp.headers.get('grpc-message')) {
+                return `${summary}: ${resp.headers.get('grpc-message')}`
+            } else {
+                let text = (await resp.json()).message
+                return `${summary}: ${text}`
+            }
         }
     } else {
         return `You do not have permission to '${summary}', contact system admin to grant '${perm}'`
@@ -47,7 +61,7 @@ export async function HandleError(summary, resp, perm) {
 }
 
 export function ExtractQueryString(appendMode, ...queryParameters) {
-    if (queryParameters === undefined || queryParameters.length === 0){
+    if (queryParameters === undefined || queryParameters.length === 0) {
         return ""
     }
 
@@ -69,7 +83,7 @@ export function ExtractQueryString(appendMode, ...queryParameters) {
 }
 
 export function QueryStringsContainsQuery(containQuery, ...queryParameters) {
-    if (queryParameters === undefined || queryParameters.length === 0){
+    if (queryParameters === undefined || queryParameters.length === 0) {
         return false
     }
 
@@ -118,4 +132,94 @@ export function PageInfoProcessor(oldPageInfo, newPageInfo, oldData, newData, ..
     out.shouldUpdate = true
 
     return out
+}
+
+export const STATE = {
+    UPDATE: 'update',
+    UPDATELIST: "updateList",
+};
+
+export function StateReducer(state, action) {
+    console.log("mirrorY DISPATCH STARTED")
+    switch (action.type) {
+        case STATE.UPDATE:
+            return action.data;
+        case STATE.UPDATELIST:
+            const queryParams = action.queryString.split("&")
+            console.log("queryParams")
+            let pInfo = PageInfoProcessor(action.oldPageInfo, action.newPageInfo, state, action.edgeData, ...queryParams)
+            action.setPageInfo(pInfo.pageInfo)
+            if (pInfo.shouldUpdate) {
+                console.log("mirrorY Updating data to = ", action.data)
+                if (action.data) {
+                    return action.data
+                } else {
+                    return action.edgeData
+                }
+
+            }
+
+            return state
+        default:
+            return state
+    }
+}
+
+// Auto clean eventsource when changed or unmounted
+export const useEventSourceCleaner = (eventSource) => {
+    const eventSourceRef = React.useRef(eventSource);
+
+    // CLEANUP: close old eventsource and updates ref
+    React.useEffect(() => {
+        console.log("new event source updating ref: ", eventSource)
+        eventSourceRef.current = eventSource
+
+        return () => {
+            console.log("new event source was cleaned")
+            CloseEventSource(eventSource)
+        }
+    }, [eventSource])
+
+    // CLEANUP: close eventsource on umount
+    React.useEffect(() => {
+        return () => {
+            console.log("new event source was unmounted")
+            CloseEventSource(eventSourceRef.current)
+        }
+    }, [])
+
+    return {
+        eventSourceRef
+    }
+}
+
+// Handle changes to queryParameters and return new query string when changed
+// throttle can be used to control how frequently to update queryString in ms. Default = 50
+export const useQueryString = (appendMode, queryParameters, throttle) => {
+    const [queryString, setQueryString] = React.useState("")
+
+    React.useEffect(() => {
+        // const handler = setTimeout(() => {
+            let newQueryString = ExtractQueryString(appendMode, ...queryParameters)
+            if (newQueryString !== queryString) {
+                setQueryString(newQueryString)
+            }
+        // }, throttle ? throttle : 50);
+
+        // return () => {
+        //     clearTimeout(handler);
+        // };
+    }, [appendMode, queryParameters, queryString, throttle])
+
+    return {
+        queryString
+    }
+}
+
+export const genericEventSourceErrorHandler = (error, setError) => {
+    if (error.status === 404) {
+        setError(error.statusText)
+    } else if (error.status === 403) {
+        setError("permission denied")
+    }
 }
