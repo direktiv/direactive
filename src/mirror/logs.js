@@ -10,7 +10,7 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
     const [eventSource, setEventSource] = React.useState(null)
     const { } = useEventSourceCleaner(eventSource);
 
-    const { queryString } = useQueryString(true, queryParameters)
+    const { queryString } = useQueryString(false, queryParameters)
     const [pathString, setPathString] = React.useState(null)
 
     // Stores PageInfo about node list stream
