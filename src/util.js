@@ -141,21 +141,48 @@ export function PageInfoProcessor(oldPageInfo, newPageInfo, oldData, newData, ..
 export const STATE = {
     UPDATE: 'update',
     UPDATELIST: "updateList",
+    PUSHITEM: "pushItem",
+    APPENDLIST: "appendList",
 };
 
 export function StateReducer(state, action) {
-    console.log("mirrorY DISPATCH STARTED")
+    let pushAppentListData = null
     switch (action.type) {
         case STATE.UPDATE:
             return action.data;
+        case STATE.PUSHITEM:
+            if (!pushAppentListData) {
+                pushAppentListData = state ? state : []
+                pushAppentListData.push(action.data)
+            }
+        // fallthrough to UPDATELIST
+        case STATE.APPENDLIST:
+            if (!pushAppentListData) {
+                pushAppentListData = state ? JSON.parse(JSON.stringify(state)) : []
+                if (action.edgeData) {
+                    // append edgeData list to current state
+                    for (let i = 0; i < action.edgeData.length; i++) {
+                        pushAppentListData.push(action.edgeData[i])
+                    }
+                } else if (action.data) {
+                    // append data list to current state
+                    for (let i = 0; i < action.data.length; i++) {
+                        pushAppentListData.push(action.data[i])
+                    }
+                }
+            }
+
+        // fallthrough to UPDATELIST
         case STATE.UPDATELIST:
             const queryParams = action.queryString.split("&")
-            console.log("queryParams")
             let pInfo = PageInfoProcessor(action.oldPageInfo, action.newPageInfo, state, action.edgeData, ...queryParams)
             action.setPageInfo(pInfo.pageInfo)
             if (pInfo.shouldUpdate) {
-                console.log("mirrorY Updating data to = ", action.data)
-                if (action.data) {
+                if (pushAppentListData) {
+                    // STATE.APPENDLIST or STATE.PUSHITEM was used
+                    return pushAppentListData
+                }
+                else if (action.data) {
                     return action.data
                 } else {
                     return action.edgeData

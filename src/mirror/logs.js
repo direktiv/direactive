@@ -35,7 +35,7 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
                 let json = JSON.parse(e.data)
                 if (json) {
                     dataDispatch({
-                        type: STATE.UPDATELIST,
+                        type: STATE.APPENDLIST,
                         edgeData: json.edges,
                         queryString: queryString,
                         oldPageInfo: pageInfoRef.current,
@@ -76,6 +76,7 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
         if (stream) {
             setPageInfo(null)
             setTotalCount(null)
+            dataDispatch({ type: STATE.UPDATE, data: null })
             setPathString(url && namespace && activity ? `${url}namespaces/${namespace}/activities/${activity}/logs` : null)
         } else {
             dataDispatch({ type: STATE.UPDATE, data: null })
