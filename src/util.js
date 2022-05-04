@@ -14,7 +14,7 @@ export function SanitizePath(path) {
     if (path === "") {
         return path
     }
-    
+
     if (path === "/") {
         return ""
     }
@@ -143,6 +143,7 @@ export const STATE = {
     UPDATELIST: "updateList",
     PUSHITEM: "pushItem",
     APPENDLIST: "appendList",
+    UPDATEKEY: "updateKey"
 };
 
 export function StateReducer(state, action) {
@@ -191,6 +192,12 @@ export function StateReducer(state, action) {
             }
 
             return state
+        case STATE.UPDATEKEY:
+            if (state[action.key]) {
+                state[action.key] = JSON.parse(JSON.stringify(action.data))
+            }
+
+            return state
         default:
             return state
     }
@@ -202,11 +209,9 @@ export const useEventSourceCleaner = (eventSource) => {
 
     // CLEANUP: close old eventsource and updates ref
     React.useEffect(() => {
-        console.log("new event source updating ref: ", eventSource)
         eventSourceRef.current = eventSource
 
         return () => {
-            console.log("new event source was cleaned")
             CloseEventSource(eventSource)
         }
     }, [eventSource])
@@ -214,7 +219,6 @@ export const useEventSourceCleaner = (eventSource) => {
     // CLEANUP: close eventsource on umount
     React.useEffect(() => {
         return () => {
-            console.log("new event source was unmounted")
             CloseEventSource(eventSourceRef.current)
         }
     }, [])
@@ -231,10 +235,10 @@ export const useQueryString = (appendMode, queryParameters, throttle) => {
 
     React.useEffect(() => {
         // const handler = setTimeout(() => {
-            let newQueryString = ExtractQueryString(appendMode, ...queryParameters)
-            if (newQueryString !== queryString) {
-                setQueryString(newQueryString)
-            }
+        let newQueryString = ExtractQueryString(appendMode, ...queryParameters)
+        if (newQueryString !== queryString) {
+            setQueryString(newQueryString)
+        }
         // }, throttle ? throttle : 50);
 
         // return () => {

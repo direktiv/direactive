@@ -79,18 +79,17 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
     }, [stream, queryString, pathString])
 
     // Non Stream Data Dispatch Handler
-    React.useEffect(() => {
-        if (!stream && pathString !== null) {
+    React.useEffect(async () => {
+        if (!stream && pathString !== null && !err) {
             setEventSource(null)
-            getNode().then((data) => {
-                if (data?.children) {
-                    dispatchData({ type: STATE.UPDATE, data: data.children.edges })
-                } else {
-                    dispatchData({ type: STATE.UPDATE, data: data })
-                }
-            })
+            try{
+                const nodeData = await getNode()
+                dispatchData({ type: STATE.UPDATE, data: nodeData })
+            } catch(e) {
+                setErr(e)
+            }
         }
-    }, [stream, queryString, pathString])
+    }, [stream, queryString, pathString, err])
 
     // Update PageInfo Ref
     React.useEffect(() => {
@@ -163,7 +162,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         return await resp.json()
     }
 
-    // TODO: Migrate to another hook
     async function createMirrorNode(name, mirrorSettings, ...queryParameters) {
         let uriPath = `${url}namespaces/${namespace}/tree`
         if (path !== "") {

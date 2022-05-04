@@ -57,7 +57,6 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
     // Non Stream Data Dispatch Handler
     React.useEffect(() => {
         if (!stream && pathString !== null) {
-            console.log("logs updating non-stream")
             setEventSource(null)
             getActivityLogs().then((data) => {
                 dataDispatch({ type: STATE.UPDATE, data: data })

@@ -64,18 +64,18 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
     }, [stream, queryString, pathString])
 
     // Non Stream Data Dispatch Handler
-    React.useEffect(() => {
-        if (!stream && pathString !== null) {
-            console.log("logs updating non-stream")
+    React.useEffect(async () => {
+        if (!stream && pathString !== null && !err) {
             setEventSource(null)
-            getInfo().then((data) => {
+            try {
+                const data = await getInfo()
                 dispatchInfo({ type: STATE.UPDATE, data: data.info })
                 dispatchActivities({ type: STATE.UPDATE, data: data.activities.edges })
-            }).catch((e) => {
-                console.log("logs-error on non-stream e =", e)
-            })
+            } catch (e) {
+                setErr(e.onmessage)
+            }
         }
-    }, [stream, queryString, pathString])
+    }, [stream, queryString, pathString, err])
 
     // Update PageInfo Ref
     React.useEffect(() => {
@@ -186,23 +186,6 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
         }
 
         return
-    }
-
-    // TODO: Remove
-    async function getActivityLogs(activity, ...queryParameters) {
-        let uriPath = `${url}namespaces/${namespace}/activities/${activity}/logs`
-
-        let request = {
-            method: "GET",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
-        }
-
-        let resp = await fetch(`${uriPath}${ExtractQueryString(false, ...queryParameters)}`, request)
-        if (!resp.ok) {
-            throw new Error(await HandleError('mirror activity logs', resp, 'mirrorActivityLogs'))
-        }
-
-        return await resp.json()
     }
 
     return {
