@@ -197,7 +197,6 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
         getInfo,
         updateSettings,
         cancelActivity,
-        getActivityLogs,
         setLock,
         sync
     }
