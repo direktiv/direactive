@@ -175,7 +175,7 @@ export function StateReducer(state, action) {
 
         // fallthrough to UPDATELIST
         case STATE.UPDATELIST:
-            const queryParams = action.queryString.split("&")
+            const queryParams = action.queryString.replace(/^(\?)/, '').split("&")
             let pInfo = PageInfoProcessor(action.oldPageInfo, action.newPageInfo, state, action.edgeData, ...queryParams)
             action.setPageInfo(pInfo.pageInfo)
             if (pInfo.shouldUpdate) {
