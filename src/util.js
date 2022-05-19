@@ -175,8 +175,20 @@ export function StateReducer(state, action) {
 
         // fallthrough to UPDATELIST
         case STATE.UPDATELIST:
-            const queryParams = action.queryString.replace(/^(\?)/, '').split("&")
-            let pInfo = PageInfoProcessor(action.oldPageInfo, action.newPageInfo, state, action.edgeData, ...queryParams)
+            var pInfo
+            if (action?.totalCount === 0) {
+                // New list contents has no data so force an update
+                // This prevents list not getting updated when deleting list item on list
+                pInfo = { 
+                    shouldUpdate: true,
+                    pageInfo: action.newPageInfo
+                } 
+            } else {
+                // Calculate pageinfo and whether to update list based on query params and new data
+                const queryParams = action.queryString.replace(/^(\?)/, '').split("&")
+                pInfo = PageInfoProcessor(action.oldPageInfo, action.newPageInfo, state, action.edgeData, ...queryParams)
+            }
+            
             action.setPageInfo(pInfo.pageInfo)
             if (pInfo.shouldUpdate) {
                 if (pushAppentListData) {

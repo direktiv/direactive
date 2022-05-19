@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+import { useEventSourceCleaner, HandleError, ExtractQueryString, StateReducer, useQueryString, STATE, genericEventSourceErrorHandler } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -13,70 +13,98 @@ const fetch = require('isomorphic-fetch')
 
 export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ...queryParameters) => {
 
-    const [data, setData] = React.useState(null)
+    const [data, dispatchData] = React.useReducer(StateReducer, null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
+    const { eventSourceRef } = useEventSourceCleaner(eventSource);
 
     // Store Query parameters
-    const [queryString, setQueryString] = React.useState(ExtractQueryString(false, ...queryParameters))
+    const { queryString } = useQueryString(false, queryParameters)
+    const [pathString, setPathString] = React.useState(null)
 
-    // Stores PageInfo about namespace variable list stream
+    // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
+    const pageInfoRef = React.useRef(pageInfo)
     const [totalCount, setTotalCount] = React.useState(null)
 
-    React.useEffect(() => {
-        if (stream) {
-            if (eventSource === null) {
-                // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/vars${queryString}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
-                })
+     // Stream Event Source Data Dispatch Handler
+     React.useEffect(() => {
+        if (stream && pathString !== null) {
+            // setup event listener 
+            let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
+                headers: apikey === undefined ? {} : { "apikey": apikey }
+            })
 
-                listener.onerror = (e) => {
-                    if (e.status === 404) {
-                        setErr(e.statusText)
-                    } else if (e.status === 403) {
-                        setErr("permission denied")
-                    }
+            listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
+
+            async function readData(e) {
+                if (e.data === "") {
+                    return
                 }
+                let json = JSON.parse(e.data)
+                console.log("got messaage????!!!!  = ", json)
+                if (json) {
+                    dispatchData({
+                        type: STATE.UPDATELIST,
+                        edgeData: json.variables.edges,
+                        queryString: queryString,
+                        oldPageInfo: pageInfoRef.current,
+                        newPageInfo: json.variables.pageInfo,
+                        totalCount: json.variables.totalCount,
+                        setPageInfo: setPageInfo
+                    })
 
-                async function readData(e) {
-                    if (e.data === "") {
-                        return
-                    }
-                    let json = JSON.parse(e.data)
-                    setData(json.variables.edges)
-                    setPageInfo(json.variables.pageInfo)
                     setTotalCount(json.variables.totalCount)
                 }
-
-                listener.onmessage = e => readData(e)
-                setEventSource(listener)
             }
+
+            listener.onmessage = e => readData(e)
+            setEventSource(listener)
         } else {
-            if (data === null) {
-                getNamespaceVariables()
-            }
+            setEventSource(null)
         }
-    }, [data])
+    }, [stream, apikey, queryString, pathString])
 
+
+    // Non Stream Data Dispatch Handler
     React.useEffect(() => {
-        return () => {
-            CloseEventSource(eventSource)
-        }
-    }, [eventSource])
+        if (!stream && pathString !== null && !err) {
+            setEventSource(null)
 
-    // If queryParameters change and streaming: update queryString, and reset sse connection
+            fetch(`${pathString}${queryString}`, {
+                headers: apikey === undefined ? {} : { "apikey": apikey }
+            }).then((resp)=>{
+                resp.json().then((data) =>{
+                    dispatchData({ type: STATE.UPDATE, data: data })
+                })
+            }).catch((e) =>{
+                setErr(e.onmessage)
+            })
+        }
+    }, [stream, queryString, pathString, err, apikey])
+
+    // Update PageInfo Ref
+    React.useEffect(() => {
+        pageInfoRef.current = pageInfo
+    }, [pageInfo])
+
+
+    // Reset states when any prop that affects path is changed
     React.useEffect(() => {
         if (stream) {
-            let newQueryString = ExtractQueryString(false, ...queryParameters)
-            if (newQueryString !== queryString) {
-                setQueryString(newQueryString)
-                CloseEventSource(eventSource)
-                setEventSource(null)
-            }
+            setPageInfo(null)
+            setTotalCount(null)
+            dispatchData({ type: STATE.UPDATE, data: null })
+            setPathString(url && namespace ? `${url}namespaces/${namespace}/vars` : null)
+        } else {
+            dispatchData({ type: STATE.UPDATE, data: null })
+            setPathString(url && namespace ? `${url}namespaces/${namespace}/vars` : null)
         }
-    }, [eventSource, queryParameters, queryString, stream])
+    }, [stream, namespace, url])
+
+
+
+    // OLD
 
     // getNamespaces returns a list of namespaces
     async function getNamespaceVariables(...queryParameters) {
@@ -86,9 +114,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         })
         if (resp.ok) {
             let json = await resp.json()
-            setData(json.variables.edges)
-            setPageInfo(json.variables.pageInfo)
-            setTotalCount(json.variables.totalCount)
+            return json.variables.edges
         } else {
             throw new Error((await HandleError('list namespace variables', resp, 'namespaceVars')))
         }
@@ -146,7 +172,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
             body: val,
             headers: {
                 "Content-type": mimeType,
-                apikey: apikey === undefined ? nil : apikey
+                apikey: apikey === undefined ? null : apikey
             },
         })
         if (!resp.ok) {
