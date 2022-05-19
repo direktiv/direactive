@@ -54,6 +54,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                             queryString: queryString,
                             oldPageInfo: pageInfoRef.current,
                             newPageInfo: json.children.pageInfo,
+                            totalCount: json.children.totalCount,
                             setPageInfo: setPageInfo
                         })
 

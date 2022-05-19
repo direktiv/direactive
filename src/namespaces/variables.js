@@ -42,7 +42,6 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
                     return
                 }
                 let json = JSON.parse(e.data)
-                console.log("got messaage????!!!!  = ", json)
                 if (json) {
                     dispatchData({
                         type: STATE.UPDATELIST,
