@@ -363,9 +363,12 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         if (rev === undefined) {
             rev = "latest"
         }
-        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tag&ref=${ref}&tag=${tag}${ExtractQueryString(true, ...queryParameters)}`, {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tag&ref=${ref}${ExtractQueryString(true, ...queryParameters)}`, {
             method: "POST",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "apikey": apikey },
+            body: JSON.stringify({
+                tag: tag
+            })
         })
         if (!resp.ok) {
             throw new Error(await HandleError(`tag workflow`, resp, 'tag'))
