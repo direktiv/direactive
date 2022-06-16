@@ -264,7 +264,7 @@ export const eventAnd = {name: "eventAnd", data: `functions:
 description: A simple 'eventAnd' that waits for events to be received.
 states:
 - id: event-and
-  type: eventAnd
+  type: eventsAnd
   timeout: PT1H
   events:
   - type: greetingcloudevent
