@@ -213,6 +213,20 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         }
     }
 
+    async function executeWorkflowRouter(input, ...queryParameters) {
+        let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=execute${ExtractQueryString(true, ...queryParameters)}`, {
+            method: "POST",
+            body: input,
+            headers: apikey === undefined ? {} : { "apikey": apikey }
+        })
+        if (resp.ok) {
+            let json = await resp.json()
+            return json.instance
+        } else {
+            throw new Error(await HandleError('execute workflow', resp, 'executeWorkflow'))
+        }
+    }
+
     async function addAttributes(attributes, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=create-node-attributes${ExtractQueryString(true, ...queryParameters)}`, {
             method: "PUT",
@@ -386,6 +400,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
         toggleWorkflow,
         getWorkflowRouter,
         editWorkflowRouter,
+        executeWorkflowRouter,
         executeWorkflow,
         updateWorkflow,
         saveWorkflow,
