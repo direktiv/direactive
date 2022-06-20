@@ -9,8 +9,8 @@ states:
 export const action = {name: "action", data: `description: A simple 'action' state that sends a get request
 functions:
 - id: get
-  image: direktiv/request:v1
-  type: reusable
+  image: direktiv/request:v4
+  type: knative-workflow
 states:
 - id: getter 
   type: action
@@ -23,8 +23,8 @@ states:
 
 export const consumeEvent = {name: "consumeEvent", data: `functions:
 - id: greeter
-  image: direktiv/greeting:v1
-  type: reusable
+  image: direktiv/greeting:v3
+  type: knative-workflow
 description: A simple 'consumeEvent' state that listens for the greetingcloudevent generated from the template 'generate-event'.
 states:
 - id: ce
@@ -82,8 +82,8 @@ states:
 export const foreach = {name: "foreach", data: `description: A simple 'foreach' state that solves expressions
 functions: 
 - id: solve
-  image: direktiv/solve:v1
-  type: reusable
+  image: direktiv/solve:v3
+  type: knative-workflow
 states:
 - id: data
   type: noop
@@ -143,8 +143,8 @@ states:
 export const parallel = {name: "parallel", data: `description: A simple 'parallel' state workflow that runs solve container to solve expressions.
 functions: 
 - id: solve
-  image: direktiv/solve:v1
-  type: reusable
+  image: direktiv/solve:v3
+  type: knative-workflow
 states:
 - id: run
   type: parallel
@@ -221,11 +221,11 @@ states:
 
 export const eventXor = {name: "eventXor", data: `functions:
 - id: greeter
-  image: direktiv/greeting:v1
-  type: reusable
+  image: direktiv/greeting:v3
+  type: knative-workflow
 - id: solve2
-  image: direktiv/solve:v1
-  type: reusable
+  image: direktiv/solve:v3
+  type: knative-workflow
 description: A simple 'eventXor' that waits for events to be received.
 states:
 - id: event-xor
@@ -256,11 +256,11 @@ states:
 
 export const eventAnd = {name: "eventAnd", data: `functions:
 - id: greeter
-  image: direktiv/greeting:v1
-  type: reusable
+  image: direktiv/greeting:v3
+  type: knative-workflow
 - id: solve
-  image: direktiv/solve:v1
-  type: reusable
+  image: direktiv/solve:v3
+  type: knative-workflow
 description: A simple 'eventAnd' that waits for events to be received.
 states:
 - id: event-and
