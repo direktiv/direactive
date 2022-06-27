@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor } from '../util'
+import { HandleError, ExtractQueryString, PageInfoProcessor, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -12,54 +12,80 @@ const fetch = require('isomorphic-fetch')
       - path to the workflow you want to change
       - apikey to provide authentication of an apikey
 */
-export const useDirektivWorkflow = (url, stream, namespace, path, apikey) => {
+export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...queryParameters) => {
 
-    const [data, setData] = React.useState(null)
+    const [data, dispatchData] = React.useReducer(StateReducer, null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
+    const { eventSourceRef } = useEventSourceCleaner(eventSource, "useDirektivWorkflow");
+
+    // Store Query parameters
+    const { queryString } = useQueryString(false, queryParameters)
+    const [pathString, setPathString] = React.useState(null)
 
     // Internal pageInfo tracking for instances
     const [instanceData, setInstanceData] = React.useState(null)
     const [instancePageInfo, setInstancePageInfo] = React.useState(null)
 
+    // Stream Event Source Data Dispatch Handler
     React.useEffect(() => {
-        if (stream) {
-            if (eventSource === null) {
+        const handler = setTimeout(() => {
+            if (stream && pathString !== null) {
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree/${path}`, {
+                let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
                     headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
 
-                listener.onerror = (e) => {
-                    if (e.status === 404) {
-                        setErr(e.statusText)
-                    } else if (e.status === 403) {
-                        setErr("permission denied")
-                    }
-                }
+                listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
 
                 async function readData(e) {
                     if (e.data === "") {
                         return
                     }
+
                     let json = JSON.parse(e.data)
-                    setData(json)
+                    dispatchData({
+                        type: STATE.UPDATE,
+                        data: json,
+                    })
                 }
 
                 listener.onmessage = e => readData(e)
                 setEventSource(listener)
+            } else {
+                setEventSource(null)
             }
-        } else {
-            if (data === null) {
-                getWorkflow()
+        }, 50);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [stream, queryString, pathString])
+
+    // Non Stream Data Dispatch Handler
+    React.useEffect(async () => {
+        if (!stream && pathString !== null && !err) {
+            setEventSource(null)
+            try {
+                const nodeData = await getWorkflow()
+                dispatchData({ type: STATE.UPDATE, data: nodeData })
+            } catch (e) {
+                setErr(e)
             }
         }
-    }, [data])
+    }, [stream, queryString, pathString, err])
 
+    // Reset states when any prop that affects path is changed
     React.useEffect(() => {
-        return () => CloseEventSource(eventSource)
-    }, [eventSource])
-
+        setInstanceData(null)
+        setInstancePageInfo(null)
+        if (stream) {
+            setPathString(url && namespace && path ? `${url}namespaces/${namespace}/tree${SanitizePath(path)}` : null)
+        } else {
+            dispatchData({ type: STATE.UPDATE, data: null })
+            setPathString(url && namespace && path ? `${url}namespaces/${namespace}/tree${SanitizePath(path)}` : null)
+        }
+    }, [stream, path, namespace, url])
 
     async function getWorkflow(...queryParameters) {
         let uri = `${url}namespaces/${namespace}/tree/${path}`

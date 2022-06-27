@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { useEventSourceCleaner } from '../util'
-import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+import { EventStateReducer } from '../util'
+import { EVENTSTATE } from '../util'
+import { HandleError, ExtractQueryString, PageInfoProcessor, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler, CloseEventSource } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 /* 
@@ -239,80 +240,64 @@ export const useDirektivWorkflowService = (url, namespace, path, service, versio
       - path to use for the api of the workflow
       - apikey to provide authentication of an apikey
 */
-export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey) => {
-    const [data, setData] = React.useState(null)
-    const functionsRef = React.useRef(data ? data : [])
+export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey, ...queryParameters) => {
+    const [data, dispatchData] = React.useReducer(EventStateReducer, [])
     const [err, setErr] = React.useState(null)
+
     const [eventSource, setEventSource] = React.useState(null)
-    const {} = useEventSourceCleaner(eventSource)
+    const { eventSourceRef } = useEventSourceCleaner(eventSource, "useDirektivWorkflowServices");
 
+    // Store Query parameters
+    const { queryString } = useQueryString(true, queryParameters)
+    const [pathString, setPathString] = React.useState(null)
 
+    // Stream Event Source Data Dispatch Handler
     React.useEffect(() => {
-        if (stream) {
-            if (eventSource === null) {
+        const handler = setTimeout(() => {
+            if (stream && pathString !== null) {
                 // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/tree/${path}?op=services`, {
+                let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
                     headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
 
-                listener.onerror = (e) => {
-                    if (e.status === 404) {
-                        setErr(e.statusText)
-                    } else if (e.status === 403) {
-                        setErr("permission denied")
-                    }
-                }
+                listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
 
                 async function readData(e) {
-                    let funcs = functionsRef.current
                     if (e.data === "") {
                         return
                     }
+
                     let json = JSON.parse(e.data)
-                    switch (json.event) {
-                        case "DELETED":
-                            for (var i = 0; i < funcs.length; i++) {
-                                if (funcs[i].serviceName === json.function.serviceName) {
-                                    funcs.splice(i, 1)
-                                    functionsRef.current = funcs
-                                    break
-                                }
-                            }
-                            break
-                        case "MODIFIED":
-                            for (i = 0; i < funcs.length; i++) {
-                                if (funcs[i].serviceName === json.function.serviceName) {
-                                    funcs[i] = json.function
-                                    functionsRef.current = funcs
-                                    break
-                                }
-                            }
-                            break
-                        default:
-                            let found = false
-                            for (i = 0; i < funcs.length; i++) {
-                                if (funcs[i].serviceName === json.function.serviceName) {
-                                    found = true
-                                    break
-                                }
-                            }
-                            if (!found) {
-                                funcs.push(json.function)
-                                functionsRef.current = funcs
-                            }
-                    }
-                    setData(JSON.parse(JSON.stringify(functionsRef.current)))
+                    dispatchData({
+                        event: json.event,
+                        data: json,
+                        idKey: "serviceName",
+                        idNewItemKey: "function.serviceName",
+                        idData: "function",
+                    })
                 }
 
                 listener.onmessage = e => readData(e)
                 setEventSource(listener)
+            } else {
+                setEventSource(null)
             }
+        }, 50);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [stream, queryString, pathString])
+
+    // Reset states when any prop that affects path is changed
+    React.useEffect(() => {
+        if (stream) {
+            setPathString(url && namespace && path ? `${url}functions/namespaces/${namespace}/tree${SanitizePath(path)}?op=services` : null)
         } else {
-            if (data === null) {
-                getWorkflowServices()
-            }
+            dispatchData({ event: EVENTSTATE.CLEAR })
+            setPathString(url && namespace && path ? `${url}functions/namespaces/${namespace}/tree${SanitizePath(path)}?op=services` : null)
         }
-    }, [data, stream, eventSource])
+    }, [stream, path, namespace, url])
 
     async function getWorkflowServices(...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=services${ExtractQueryString(true, ...queryParameters)}`, {

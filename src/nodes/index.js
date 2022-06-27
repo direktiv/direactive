@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { HandleError, ExtractQueryString, PageInfoProcessor, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler, CloseEventSource } from '../util'
+import { HandleError, ExtractQueryString, PageInfoProcessor, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
 import { Templates } from './templates'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
@@ -16,7 +16,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
     const [data, dispatchData] = React.useReducer(StateReducer, null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
-    const { eventSourceRef } = useEventSourceCleaner(eventSource);
+    const { eventSourceRef } = useEventSourceCleaner(eventSource, "useNodes");
 
     // Store Query parameters
     const { queryString } = useQueryString(false, queryParameters)

@@ -1,3 +1,4 @@
+import _fetch from 'isomorphic-fetch'
 import * as React from 'react'
 
 // Config default config to test with 
@@ -146,6 +147,93 @@ export const STATE = {
     UPDATEKEY: "updateKey"
 };
 
+export const EVENTSTATE = {
+    ADDED: 'ADDED',
+    MODIFIED: "MODIFIED",
+    DELETED: "DELETED",
+
+    CLEAR: "CLEAR"
+};
+
+export function EventStateReducer(state, action) {
+
+    // Clear state
+    if (action.event === EVENTSTATE.CLEAR){
+        return []
+    }
+
+    // Get unique id of new item
+    const newItemID = getPropStr(action.data, action.idNewItemKey)
+    if (!newItemID) {
+        return state
+    }
+
+    // Check if unique id already exists and track its itemIndex if it does.
+    let itemIndex = -1
+    const newState = JSON.parse(JSON.stringify(state))
+    for (let i = 0; i < newState.length; i++) {
+        const stateItemID = getPropStr(newState[i], action.idKey)
+        if (stateItemID === newItemID) {
+            itemIndex = i
+            break;
+        }
+    }
+
+    switch (action.event) {
+        case EVENTSTATE.MODIFIED:
+            if (itemIndex >= 0) {
+                if (action.idData) {
+                    const newItem = getPropStr(action.data, action.idData)
+                    newState[itemIndex] = {...newItem}
+                } else {
+                    newState[itemIndex] = {...action.data}
+                }
+            }
+            break
+        case EVENTSTATE.DELETED:
+            if (itemIndex >= 0) {
+                newState.splice(itemIndex, 1)
+            }
+
+            break
+        case EVENTSTATE.ADDED:
+        default:
+            if (itemIndex === -1) {
+                if (action.idData) {
+                    const newItem = getPropStr(action.data, action.idData)
+                    newState.push(newItem)
+                } else {
+                    newState.push(action.data)
+                }
+            }
+
+    }
+
+    return newState
+}
+
+const getPropStr = (object, pathStr) => {
+    const path = pathStr.split(".")
+
+    try {
+        return getProp(object, path)
+    } catch (err) {
+        return null
+    }
+}
+
+const getProp = (object, path) => {
+    if (path.length === 1) return object[path[0]];
+    else if (path.length === 0) throw error;
+    else {
+        if (object[path[0]]) return getProp(object[path[0]], path.slice(1));
+        else {
+            object[path[0]] = {};
+            return getProp(object[path[0]], path.slice(1));
+        }
+    }
+};
+
 export function StateReducer(state, action) {
     let pushAppentListData = null
     switch (action.type) {
@@ -179,16 +267,16 @@ export function StateReducer(state, action) {
             if (action?.totalCount === 0) {
                 // New list contents has no data so force an update
                 // This prevents list not getting updated when deleting list item on list
-                pInfo = { 
+                pInfo = {
                     shouldUpdate: true,
                     pageInfo: action.newPageInfo
-                } 
+                }
             } else {
                 // Calculate pageinfo and whether to update list based on query params and new data
                 const queryParams = action.queryString.replace(/^(\?)/, '').split("&")
                 pInfo = PageInfoProcessor(action.oldPageInfo, action.newPageInfo, state, action.edgeData, ...queryParams)
             }
-            
+
             action.setPageInfo(pInfo.pageInfo)
             if (pInfo.shouldUpdate) {
                 if (pushAppentListData) {
@@ -216,7 +304,7 @@ export function StateReducer(state, action) {
 }
 
 // Auto clean eventsource when changed or unmounted
-export const useEventSourceCleaner = (eventSource) => {
+export const useEventSourceCleaner = (eventSource, extra) => {
     const eventSourceRef = React.useRef(eventSource);
 
     // CLEANUP: close old eventsource and updates ref
