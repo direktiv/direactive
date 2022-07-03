@@ -35,7 +35,8 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
     async function createSecret(name, value, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "PUT",
-            body: value
+            body: value,
+            headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('create secret', resp, 'createSecret'))
@@ -44,7 +45,8 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
 
     async function deleteSecret(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, ...queryParameters)}`, {
-            method: "DELETE"
+            method: "DELETE",
+            headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete secret', resp, 'deleteSecret'))

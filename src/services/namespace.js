@@ -343,7 +343,8 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
         }
         let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "PATCH",
-            body: JSON.stringify({ values: trafficarr })
+            body: JSON.stringify({ values: trafficarr }),
+            headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('update traffic namespace service', resp, 'updateTraffic'))

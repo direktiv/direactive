@@ -35,7 +35,8 @@ export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
     async function createRegistry(key, val, ...queryParameters) {
         let resp = await fetch(`${url}functions/registries/private${ExtractQueryString(false, ...queryParameters)}`, {
             method: "POST",
-            body: JSON.stringify({ data: val, reg: key })
+            body: JSON.stringify({ data: val, reg: key }),
+            headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('create registry', resp, 'createRegistry'))
@@ -48,7 +49,8 @@ export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
             method: "DELETE",
             body: JSON.stringify({
                 reg: key
-            })
+            }),
+            headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete registry', resp, 'deleteRegistry'))
