@@ -19,7 +19,6 @@ import { useDirektivGlobalService, useDirektivGlobalServiceRevision, useDirektiv
 import { useDirektivNamespaceService, useDirektivNamespaceServiceRevision, useDirektivNamespaceServices } from './services/namespace'
 import { useDirektivWorkflowService, useDirektivWorkflowServiceRevision, useDirektivWorkflowServices } from './services/workflow'
 import {useDirektivPodLogs} from './services/logs'
-import { useDirektivNamespaceDependencies } from './namespaces/dependencies'
 import { useDirektivMirror } from './mirror'
 import { useDirektivMirrorLogs } from './mirror/logs'
 
@@ -34,7 +33,6 @@ export const useWorkflowServiceRevision = useDirektivWorkflowServiceRevision
 export const useNamespaceServices = useDirektivNamespaceServices
 export const useNamespaceService = useDirektivNamespaceService
 export const useNamespaceServiceRevision = useDirektivNamespaceServiceRevision
-export const useNamespaceDependencies = useDirektivNamespaceDependencies
 // Global
 export const useGlobalServices = useDirektivGlobalServices
 export const useGlobalService = useDirektivGlobalService
