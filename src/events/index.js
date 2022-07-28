@@ -54,11 +54,11 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                         return
                     }
                     let json = JSON.parse(e.data)
-                    let pInfo = PageInfoProcessor(eventListenersPageInfo, json.pageInfo, eventListeners, json.edges, ...(queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : [])
+                    let pInfo = PageInfoProcessor(eventListenersPageInfo, json.pageInfo, eventListeners, json.results, ...(queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : [])
                     setEventListenersPageInfo(pInfo.pageInfo)
                     setEventListenersTotalCount(json.totalCount)
                     if (pInfo.shouldUpdate) {
-                        setEventListeners(json.edges)
+                        setEventListeners(json.results)
                     }
                 }
 
@@ -93,11 +93,11 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
                         return
                     }
                     let json = JSON.parse(e.data)
-                    let pInfo = PageInfoProcessor(eventHistoryPageInfo, json.events.pageInfo, eventHistory, json.events.edges, ...(queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : [])
+                    let pInfo = PageInfoProcessor(eventHistoryPageInfo, json.events.pageInfo, eventHistory, json.events.results, ...(queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : [])
                     setEventHistorysPageInfo(pInfo.pageInfo)
                     setEventHistorysTotalCount(json.events.totalCount)
                     if (pInfo.shouldUpdate) {
-                        setEventHistory(json.events.edges)
+                        setEventHistory(json.events.results)
                     }
                 }
 

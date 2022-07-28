@@ -263,33 +263,39 @@ export function StateReducer(state, action) {
 
         // fallthrough to UPDATELIST
         case STATE.UPDATELIST:
-            var pInfo
-            if (action?.totalCount === 0) {
-                // New list contents has no data so force an update
-                // This prevents list not getting updated when deleting list item on list
-                pInfo = {
-                    shouldUpdate: true,
-                    pageInfo: action.newPageInfo
-                }
+            console.log("UPDATING LIST")
+            if (action.data) {
+                return action.data
             } else {
-                // Calculate pageinfo and whether to update list based on query params and new data
-                const queryParams = action.queryString.replace(/^(\?)/, '').split("&")
-                pInfo = PageInfoProcessor(action.oldPageInfo, action.newPageInfo, state, action.edgeData, ...queryParams)
+                return action.edgeData
             }
+            // var pInfo
+            // if (action?.totalCount === 0) {
+            //     // New list contents has no data so force an update
+            //     // This prevents list not getting updated when deleting list item on list
+            //     pInfo = {
+            //         shouldUpdate: true,
+            //         pageInfo: action.newPageInfo
+            //     }
+            // } else {
+            //     // Calculate pageinfo and whether to update list based on query params and new data
+            //     const queryParams = action.queryString.replace(/^(\?)/, '').split("&")
+            //     pInfo = PageInfoProcessor(action.oldPageInfo, action.newPageInfo, state, action.edgeData, ...queryParams)
+            // }
 
-            action.setPageInfo(pInfo.pageInfo)
-            if (pInfo.shouldUpdate) {
-                if (pushAppentListData) {
-                    // STATE.APPENDLIST or STATE.PUSHITEM was used
-                    return pushAppentListData
-                }
-                else if (action.data) {
-                    return action.data
-                } else {
-                    return action.edgeData
-                }
+            // action.setPageInfo(pInfo.pageInfo)
+            // if (pInfo.shouldUpdate) {
+            //     if (pushAppentListData) {
+            //         // STATE.APPENDLIST or STATE.PUSHITEM was used
+            //         return pushAppentListData
+            //     }
+            //     else if (action.data) {
+            //         return action.data
+            //     } else {
+            //         return action.edgeData
+            //     }
 
-            }
+            // }
 
             return state
         case STATE.UPDATEKEY:

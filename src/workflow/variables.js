@@ -45,15 +45,11 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                 let json = JSON.parse(e.data)
                 if (json) {
                     dispatchData({
-                        type: STATE.UPDATELIST,
-                        edgeData: json.variables.edges,
-                        queryString: queryString,
-                        oldPageInfo: pageInfoRef.current,
-                        newPageInfo: json.variables.pageInfo,
-                        totalCount: json.variables.totalCount,
-                        setPageInfo: setPageInfo
+                        type: STATE.UPDATE,
+                        data: json.variables.results,
                     })
 
+                    setPageInfo(json.variables.pageInfo)
                     setTotalCount(json.variables.totalCount)
                 }
             }
@@ -110,7 +106,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         })
         if (resp.ok) {
             let json = await resp.json()
-            return json.variables.edges
+            return json.variables.results
         } else {
             throw new Error(await HandleError('get node', resp, 'listNodes'))
         }

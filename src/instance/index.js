@@ -48,8 +48,8 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
                         return
                     }
                     let json = JSON.parse(e.data)
-                    for (let i = 0; i < json.edges.length; i++) {
-                        log.push(json.edges[i])
+                    for (let i = 0; i < json.results.length; i++) {
+                        log.push(json.results[i])
                     }
                     logsRef.current = log
                     setData(JSON.parse(JSON.stringify(logsRef.current)))
@@ -92,10 +92,10 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
         })
         if (resp.ok) {
             let json = await resp.json()
-            setData(json.edges)
+            setData(json.results)
             setPageInfo(json.pageInfo)
             setTotalCount(json.totalCount)
-            return json.edges
+            return json.results
         }
 
         throw new Error(await HandleError('get instance logs', resp, "instanceLogs"))

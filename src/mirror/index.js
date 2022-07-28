@@ -37,14 +37,11 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
                 let json = JSON.parse(e.data)
                 if (json?.activities) {
                     dispatchActivities({
-                        type: STATE.UPDATELIST,
-                        edgeData: json.activities.edges,
-                        queryString: queryString,
-                        oldPageInfo: pageInfoRef.current,
-                        newPageInfo: json.activities.pageInfo,
-                        setPageInfo: setPageInfo
+                        type: STATE.UPDATE,
+                        data: json.activities.results,
                     })
 
+                    setPageInfo(json.activities.pageInfo)
                     setTotalCount(json.activities.totalCount)
                 }
 
@@ -70,7 +67,7 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
             try {
                 const data = await getInfo()
                 dispatchInfo({ type: STATE.UPDATE, data: data.info })
-                dispatchActivities({ type: STATE.UPDATE, data: data.activities.edges })
+                dispatchActivities({ type: STATE.UPDATE, data: data.activities.results })
             } catch (e) {
                 setErr(e.onmessage)
             }

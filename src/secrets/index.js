@@ -25,8 +25,8 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
         })
         if (resp.ok) {
             let json = await resp.json()
-            setData(json.secrets.edges)
-            return json.secrets.edges
+            setData(json.secrets.results)
+            return json.secrets.results
         } else {
             throw new Error(await HandleError('list secrets', resp, 'listSecrets'))
         }

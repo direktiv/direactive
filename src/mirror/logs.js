@@ -36,7 +36,7 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
                 if (json) {
                     dataDispatch({
                         type: STATE.APPENDLIST,
-                        edgeData: json.edges,
+                        edgeData: json.results,
                         queryString: queryString,
                         oldPageInfo: pageInfoRef.current,
                         newPageInfo: json.pageInfo,

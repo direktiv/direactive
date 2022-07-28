@@ -46,7 +46,7 @@ export const useDirektivNamespaceLogs = (url, stream, namespace, apikey, ...quer
                         return
                     }
                     let json = JSON.parse(e.data)
-                    setData(json.edges)
+                    setData(json.results)
                     setPageInfo(json.pageInfo)
                     setTotalCount(json.totalCount)
                 }
@@ -87,10 +87,10 @@ export const useDirektivNamespaceLogs = (url, stream, namespace, apikey, ...quer
         })
         if (resp.ok) {
             let json = await resp.json()
-            setData(json.edges)
+            setData(json.results)
             setPageInfo(json.pageInfo)
             setTotalCount(json.totalCount)
-            return json.edges
+            return json.results
         } else {
             throw new Error((await HandleError('list namespace logs', resp, 'namespaceLogs')))
         }
