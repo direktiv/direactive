@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { EventStateReducer } from '../util'
 import { EVENTSTATE } from '../util'
-import { HandleError, ExtractQueryString, PageInfoProcessor, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler, CloseEventSource } from '../util'
+import { HandleError, ExtractQueryString, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler, CloseEventSource } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 /* 

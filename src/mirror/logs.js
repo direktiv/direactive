@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { HandleError, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
+import { genericEventSourceErrorHandler, HandleError, STATE, StateReducer, useEventSourceCleaner, useQueryString } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -15,8 +15,6 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
 
     // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const pageInfoRef = React.useRef(pageInfo)
-    const [totalCount, setTotalCount] = React.useState(null)
 
     // Stream Event Source Data Dispatch Handler
     React.useEffect(() => {
@@ -36,14 +34,10 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
                 if (json) {
                     dataDispatch({
                         type: STATE.APPENDLIST,
-                        edgeData: json.edges,
-                        queryString: queryString,
-                        oldPageInfo: pageInfoRef.current,
-                        newPageInfo: json.pageInfo,
-                        setPageInfo: setPageInfo
+                        data: json.results,
                     })
 
-                    setTotalCount(json.totalCount)
+                    setPageInfo(json.pageInfo)
                 }
             }
 
@@ -64,17 +58,10 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
         }
     }, [stream, queryString, pathString])
 
-
-    // Update PageInfo Ref
-    React.useEffect(() => {
-        pageInfoRef.current = pageInfo
-    }, [pageInfo])
-
     // Reset states when any prop that affects path is changed
     React.useEffect(() => {
         if (stream) {
             setPageInfo(null)
-            setTotalCount(null)
             dataDispatch({ type: STATE.UPDATE, data: null })
             setPathString(url && namespace && activity ? `${url}namespaces/${namespace}/activities/${activity}/logs` : null)
         } else {
@@ -101,6 +88,7 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
     return {
         data,
         err,
+        pageInfo,
         getActivityLogs,
     }
 }

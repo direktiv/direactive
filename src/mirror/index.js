@@ -18,7 +18,6 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
     // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
     const pageInfoRef = React.useRef(pageInfo)
-    const [totalCount, setTotalCount] = React.useState(null)
 
     // Stream Event Source Data Dispatch Handler
     React.useEffect(() => {
@@ -37,15 +36,11 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
                 let json = JSON.parse(e.data)
                 if (json?.activities) {
                     dispatchActivities({
-                        type: STATE.UPDATELIST,
-                        edgeData: json.activities.edges,
-                        queryString: queryString,
-                        oldPageInfo: pageInfoRef.current,
-                        newPageInfo: json.activities.pageInfo,
-                        setPageInfo: setPageInfo
+                        type: STATE.UPDATE,
+                        data: json.activities.results,
                     })
 
-                    setTotalCount(json.activities.totalCount)
+                    setPageInfo(json.activities.pageInfo)
                 }
 
                 if (json?.info) {
@@ -70,7 +65,7 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
             try {
                 const data = await getInfo()
                 dispatchInfo({ type: STATE.UPDATE, data: data.info })
-                dispatchActivities({ type: STATE.UPDATE, data: data.activities.edges })
+                dispatchActivities({ type: STATE.UPDATE, data: data.activities.results })
             } catch (e) {
                 setErr(e.onmessage)
             }
@@ -86,7 +81,6 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
     React.useEffect(() => {
         if (stream) {
             setPageInfo(null)
-            setTotalCount(null)
             setPathString(url && namespace && path ? `${url}namespaces/${namespace}/tree${SanitizePath(path)}?op=mirror-info` : null)
         } else {
             dispatchInfo({ type: STATE.UPDATE, data: null })
@@ -193,7 +187,6 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
         activities,
         err,
         pageInfo,
-        totalCount,
         getInfo,
         updateSettings,
         cancelActivity,

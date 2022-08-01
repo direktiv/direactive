@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor } from '../util'
+import { HandleError, ExtractQueryString, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -13,130 +13,130 @@ const fetch = require('isomorphic-fetch')
       - apikey to provide authentication of an apikey
 */
 export const useDirektivEvents = (url, stream, namespace, apikey, queryParameters) => {
-    const [eventHistory, setEventHistory] = React.useState(null)
-    const [eventListeners, setEventListeners] = React.useState(null)
+    // DATA
+    const [eventHistory, dispatchEventHistory] = React.useReducer(StateReducer, null)
+    const [eventListeners, dispatchEventListeners] = React.useReducer(StateReducer, null)
 
+    // ERRORS
     const [errHistory, setErrHistory] = React.useState(null)
     const [errListeners, setErrListeners] = React.useState(null)
-    const [eventSource, setEventSource] = React.useState(null)
-    const [eventListenerSource, setEventListenerSource] = React.useState(null)
+
+    // Event history SSE
+    const [eventHistorySource, setEventHistorySource] = React.useState(null)
+    const { eventHistorySourceRef } = useEventSourceCleaner(eventHistorySource);
+
+    // Event Listener SSE
+    const [eventListenersSource, setEventListenersSource] = React.useState(null)
+    const { eventListenersSourceRef } = useEventSourceCleaner(eventListenersSource);
+    const [pathString, setPathString] = React.useState(null)
 
     // Store Query parameters
-    const [eventListenersQueryString, setEventListenersQueryString] = React.useState(ExtractQueryString(false, ...(queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : []))
-    const [eventHistoryQueryString, setEventHistoryQueryString] = React.useState(ExtractQueryString(false, ...(queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : []))
-
+    const { queryString: eventHistoryQueryString } = useQueryString(false, queryParameters.history)
+    const { queryString: eventListenersQueryString } = useQueryString(false, queryParameters.listeners)
 
     // Stores PageInfo about event list streams
+    const [eventHistoryPageInfo, setEventHistoryPageInfo] = React.useState(null)
     const [eventListenersPageInfo, setEventListenersPageInfo] = React.useState(null)
-    const [eventHistoryPageInfo, setEventHistorysPageInfo] = React.useState(null)
 
-    const [eventListenersTotalCount, setEventListenersTotalCount] = React.useState(null)
-    const [eventHistoryTotalCount, setEventHistorysTotalCount] = React.useState(null)
-
+    // Reset states when any prop that affects path is changed
     React.useEffect(() => {
-        if (stream) {
-            if (eventListenerSource === null) {
-                // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/event-listeners${eventListenersQueryString}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
-                })
+        setEventHistoryPageInfo(null)
+        setEventListenersPageInfo(null)
+        dispatchEventHistory({ type: STATE.UPDATE, data: null })
+        dispatchEventListeners({ type: STATE.UPDATE, data: null })
+        setPathString(url && namespace ? `${url}namespaces/${namespace}` : null)
+    }, [stream, namespace, url])
 
-                listener.onerror = (e) => {
-                    if (e.status === 403) {
-                        setErrListeners("permission denied")
-                    } else if (e.status === 404) {
-                        setErrListeners(e.statusText)
-                    }
+    // Stream Event Source History Data Dispatch Handler
+    React.useEffect(() => {
+        if (stream && pathString !== null) {
+            // setup event listener 
+            let listener = new EventSourcePolyfill(`${pathString}/events${eventHistoryQueryString}`, {
+                headers: apikey === undefined ? {} : { "apikey": apikey }
+            })
+
+            listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErrHistory) }
+
+            async function readData(e) {
+                if (e.data === "") {
+                    return
                 }
+                let json = JSON.parse(e.data)
+                if (json) {
+                    dispatchEventHistory({
+                        type: STATE.UPDATE,
+                        data: json.events.results,
+                    })
 
-                async function readData(e) {
-                    if (e.data === "") {
-                        return
-                    }
-                    let json = JSON.parse(e.data)
-                    let pInfo = PageInfoProcessor(eventListenersPageInfo, json.pageInfo, eventListeners, json.edges, ...(queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : [])
-                    setEventListenersPageInfo(pInfo.pageInfo)
-                    setEventListenersTotalCount(json.totalCount)
-                    if (pInfo.shouldUpdate) {
-                        setEventListeners(json.edges)
-                    }
+                    setEventHistoryPageInfo(json.events.pageInfo)
                 }
-
-                listener.onmessage = e => readData(e)
-                setEventListenerSource(listener)
             }
+
+            listener.onmessage = e => readData(e)
+            setEventHistorySource(listener)
         } else {
-            if (eventListeners === null) {
-                getEventListeners()
-            }
+            setEventHistorySource(null)
         }
-    }, [stream, eventListenerSource, eventListeners])
+    }, [stream, apikey, eventHistoryQueryString, pathString])
 
+    // Stream Event Source Listeners Data Dispatch Handler
     React.useEffect(() => {
-        if (stream) {
-            if (eventSource === null) {
-                // setup event listener 
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/events${eventHistoryQueryString}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
-                })
+        if (stream && pathString !== null) {
+            // setup event listener 
+            let listener = new EventSourcePolyfill(`${pathString}/event-listeners${eventListenersQueryString}`, {
+                headers: apikey === undefined ? {} : { "apikey": apikey }
+            })
 
-                listener.onerror = (e) => {
-                    if (e.status === 403) {
-                        setErrHistory("permission denied")
-                    } else if (e.status === 404) {
-                        setErrHistory(e.statusText)
-                    }
+            listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErrListeners) }
+
+            async function readData(e) {
+                if (e.data === "") {
+                    return
                 }
+                let json = JSON.parse(e.data)
+                if (json) {
+                    dispatchEventListeners({
+                        type: STATE.UPDATE,
+                        data: json.results,
+                    })
 
-                async function readData(e) {
-                    if (e.data === "") {
-                        return
-                    }
-                    let json = JSON.parse(e.data)
-                    let pInfo = PageInfoProcessor(eventHistoryPageInfo, json.events.pageInfo, eventHistory, json.events.edges, ...(queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : [])
-                    setEventHistorysPageInfo(pInfo.pageInfo)
-                    setEventHistorysTotalCount(json.events.totalCount)
-                    if (pInfo.shouldUpdate) {
-                        setEventHistory(json.events.edges)
-                    }
+                    setEventListenersPageInfo(json.pageInfo)
                 }
-
-                listener.onmessage = e => readData(e)
-                setEventSource(listener)
             }
+
+            listener.onmessage = e => readData(e)
+            setEventListenersSource(listener)
         } else {
-            if (eventHistory === null) {
-                getEventHistory()
-            }
+            setEventListenersSource(null)
         }
-    }, [stream, eventHistory, eventSource])
+    }, [stream, apikey, eventListenersQueryString, pathString])
 
-    React.useEffect(() => {
-        return () => CloseEventSource(eventListenerSource)
-    }, [eventListenerSource])
+    // Non Stream Data Dispatch Handler
+    React.useEffect(async () => {
+        if (!stream && pathString !== null && !errHistory && !errListeners) {
+            setEventHistorySource(null)
+            setEventListenersSource(null)
 
-    React.useEffect(() => {
-        return () => CloseEventSource(eventSource)
-    }, [eventSource])
+            const history = await getEventHistory()
 
-    React.useEffect(() => {
-        if (stream) {
-            let newListenerQueryString = ExtractQueryString(false, ...(queryParameters && queryParameters.listeners && Array.isArray(queryParameters.listeners)) ? queryParameters.listeners : [])
-            let newHistoryQueryString = ExtractQueryString(false, ...(queryParameters && queryParameters.history && Array.isArray(queryParameters.history)) ? queryParameters.history : [])
+            dispatchEventHistory({
+                type: STATE.UPDATE,
+                data: history.events.results,
+            })
 
-            if (newHistoryQueryString !== eventHistoryQueryString) {
-                setEventHistoryQueryString(newHistoryQueryString)
-                CloseEventSource(eventSource)
-                setEventSource(null)
-            }
+            setEventHistoryPageInfo(history.events.pageInfo)
 
-            if (newListenerQueryString !== eventListenersQueryString) {
-                setEventListenersQueryString(newListenerQueryString)
-                CloseEventSource(eventListenerSource)
-                setEventListenerSource(null)
-            }
+
+            const listeners = await getEventListeners()
+
+            dispatchEventListeners({
+                type: STATE.UPDATE,
+                data: listeners.results,
+            })
+
+            setEventListenersPageInfo(listeners.pageInfo)
         }
-    }, [eventSource, eventListenerSource, queryParameters, eventHistoryQueryString, eventListenersQueryString, stream])
+    }, [stream, pathString, errHistory, errListeners, apikey])
 
     async function getEventListeners(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/event-listeners${ExtractQueryString(false, ...queryParameters)}`, {
@@ -201,8 +201,6 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
         errListeners,
         eventListenersPageInfo,
         eventHistoryPageInfo,
-        eventListenersTotalCount,
-        eventHistoryTotalCount,
         getEventHistory,
         getEventListeners,
         sendEvent,

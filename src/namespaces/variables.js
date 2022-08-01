@@ -24,8 +24,6 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
 
     // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const pageInfoRef = React.useRef(pageInfo)
-    const [totalCount, setTotalCount] = React.useState(null)
 
      // Stream Event Source Data Dispatch Handler
      React.useEffect(() => {
@@ -44,16 +42,11 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
                 let json = JSON.parse(e.data)
                 if (json) {
                     dispatchData({
-                        type: STATE.UPDATELIST,
-                        edgeData: json.variables.edges,
-                        queryString: queryString,
-                        oldPageInfo: pageInfoRef.current,
-                        newPageInfo: json.variables.pageInfo,
-                        totalCount: json.variables.totalCount,
-                        setPageInfo: setPageInfo
+                        type: STATE.UPDATE,
+                        data: json.variables.results,
                     })
 
-                    setTotalCount(json.variables.totalCount)
+                    setPageInfo(json.variables.pageInfo)
                 }
             }
 
@@ -82,17 +75,10 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         }
     }, [stream, queryString, pathString, err, apikey])
 
-    // Update PageInfo Ref
-    React.useEffect(() => {
-        pageInfoRef.current = pageInfo
-    }, [pageInfo])
-
-
     // Reset states when any prop that affects path is changed
     React.useEffect(() => {
         if (stream) {
             setPageInfo(null)
-            setTotalCount(null)
             dispatchData({ type: STATE.UPDATE, data: null })
             setPathString(url && namespace ? `${url}namespaces/${namespace}/vars` : null)
         } else {
@@ -113,7 +99,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         })
         if (resp.ok) {
             let json = await resp.json()
-            return json.variables.edges
+            return json.variables.results
         } else {
             throw new Error((await HandleError('list namespace variables', resp, 'namespaceVars')))
         }
@@ -183,7 +169,6 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         data,
         err,
         pageInfo,
-        totalCount,
         getNamespaceVariables,
         getNamespaceVariable,
         getNamespaceVariableBuffer,

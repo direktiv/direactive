@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { HandleError, ExtractQueryString, PageInfoProcessor, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
+import { ExtractQueryString, genericEventSourceErrorHandler, HandleError, SanitizePath, STATE, StateReducer, useEventSourceCleaner, useQueryString } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -22,10 +22,6 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
     // Store Query parameters
     const { queryString } = useQueryString(false, queryParameters)
     const [pathString, setPathString] = React.useState(null)
-
-    // Internal pageInfo tracking for instances
-    const [instanceData, setInstanceData] = React.useState(null)
-    const [instancePageInfo, setInstancePageInfo] = React.useState(null)
 
     // Stream Event Source Data Dispatch Handler
     React.useEffect(() => {
@@ -77,8 +73,6 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
 
     // Reset states when any prop that affects path is changed
     React.useEffect(() => {
-        setInstanceData(null)
-        setInstancePageInfo(null)
         if (stream) {
             setPathString(url && namespace && path ? `${url}namespaces/${namespace}/tree${SanitizePath(path)}` : null)
         } else {
@@ -285,15 +279,6 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
         })
         if (resp.ok) {
             let json = await resp.json()
-            let pInfo = PageInfoProcessor(instancePageInfo, json.instances.pageInfo, instanceData, json.instances.edges, ...queryParameters)
-            setInstancePageInfo(pInfo.pageInfo)
-            json.instances.pageInfo = pInfo.pageInfo
-            if (pInfo.shouldUpdate) {
-                setInstanceData(json.instances.edges)
-            } else {
-                json.instances.edges = instanceData
-            }
-
             return json
         } else {
             throw new Error(await HandleError('list instances', resp, 'listInstances'))

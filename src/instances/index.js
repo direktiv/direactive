@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString, PageInfoProcessor } from '../util'
+import { HandleError, ExtractQueryString, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
+
 // For testing
 // import fetch from "cross-fetch"
 // In Production
@@ -14,71 +15,78 @@ const { EventSourcePolyfill } = require('event-source-polyfill')
       - apikey to provide authentication of an apikey
 */
 export const useDirektivInstances = (url, stream, namespace, apikey, ...queryParameters) => {
-    const [data, setData] = React.useState(null)
+    const [data, dispatchData] = React.useReducer(StateReducer, null)
     const [err, setErr] = React.useState(null)
     const [eventSource, setEventSource] = React.useState(null)
+    const { eventSourceRef } = useEventSourceCleaner(eventSource, "useInstances");
 
     // Store Query parameters
-    const [queryString, setQueryString] = React.useState(ExtractQueryString(false, ...queryParameters))
+    const { queryString } = useQueryString(false, queryParameters)
+    const [pathString, setPathString] = React.useState(null)
 
     // Stores PageInfo about instances list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount, setTotalCount] = React.useState(null)
 
+    // Stream Event Source Data Dispatch Handler
     React.useEffect(() => {
-        if (stream) {
-            if (eventSource === null) {
-                // setup event listener
-                let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/instances${queryString}`, {
+        const handler = setTimeout(() => {
+            if (stream && pathString !== null) {
+                // setup event listener 
+                let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
                     headers: apikey === undefined ? {} : { "apikey": apikey }
                 })
-                listener.onerror = (e) => {
-                    if (e.status === 404) {
-                        setErr(e.statusText)
-                    } else if (e.status === 403) {
-                        setErr("permission denied")
-                    }
-                }
+
+                listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
+
                 async function readData(e) {
                     if (e.data === "") {
                         return
                     }
-                    let json = JSON.parse(e.data)
-                    let pInfo = PageInfoProcessor(pageInfo, json.instances.pageInfo, data, json.instances.edges, ...queryParameters)
-                    setPageInfo(pInfo.pageInfo)
-                    if (pInfo.shouldUpdate) {
-                        setData(json.instances.edges)
-                    }
 
-                    setTotalCount(json.instances.totalCount)
+                    let json = JSON.parse(e.data)
+                    dispatchData({
+                        type: STATE.UPDATE,
+                        data: json.instances.results,
+                    })
+
+                    setPageInfo(json.instances.pageInfo)
                 }
+
                 listener.onmessage = e => readData(e)
                 setEventSource(listener)
-                // setLoad(true)
-            }
-        } else {
-            if (data === null) {
-                getInstances()
-            }
-        }
-    }, [data, eventSource, queryParameters, pageInfo])
-
-    // If queryParameters change and streaming: update queryString, and reset sse connection
-    React.useEffect(() => {
-        if (stream) {
-            let newQueryString = ExtractQueryString(false, ...queryParameters)
-            if (newQueryString !== queryString) {
-                setData(null)
-                setQueryString(newQueryString)
-                CloseEventSource(eventSource)
+            } else {
                 setEventSource(null)
             }
-        }
-    }, [eventSource, queryParameters, queryString, stream])
+        }, 50);
 
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [stream, queryString, pathString])
+
+    // Non Stream Data Dispatch Handler
+    React.useEffect(async () => {
+        if (!stream && pathString !== null && !err) {
+            setEventSource(null)
+            try {
+                const instancesData = await getInstances()
+                dispatchData({ type: STATE.UPDATE, data: instancesData })
+            } catch (e) {
+                setErr(e)
+            }
+        }
+    }, [stream, queryString, pathString, err])
+
+    // Reset states when any prop that affects path is changed
     React.useEffect(() => {
-        return () => CloseEventSource(eventSource)
-    }, [eventSource])
+        if (stream) {
+            setPageInfo(null)
+            setPathString(url && namespace ? `${url}namespaces/${namespace}/instances` : null)
+        } else {
+            dispatchData({ type: STATE.UPDATE, data: null })
+            setPathString(url && namespace ? `${url}namespaces/${namespace}/instances` : null)
+        }
+    }, [stream, namespace, url])
 
     // getInstances returns a list of instances
     async function getInstances(...queryParameters) {
@@ -91,20 +99,14 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
         }
 
         let json = await resp.json()
-        let pInfo = PageInfoProcessor(pageInfo, json.instances.pageInfo, data, json.instances.edges, ...queryParameters)
-        setPageInfo(pInfo.pageInfo)
-        if (pInfo.shouldUpdate) {
-            setData(json.instances.edges)
-        }
-        setTotalCount(json.instances.totalCount)
-        return json
+        setPageInfo(json.instances.pageInfo)
+        return json.instances.results
     }
 
     return {
         data,
         err,
         pageInfo,
-        totalCount,
         getInstances
     }
 }

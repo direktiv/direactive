@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { HandleError, ExtractQueryString, PageInfoProcessor, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
+import { HandleError, ExtractQueryString, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
 import { Templates } from './templates'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
@@ -24,8 +24,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
 
     // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const pageInfoRef = React.useRef(pageInfo)
-    const [totalCount, setTotalCount] = React.useState(null)
 
     const templates = Templates
 
@@ -48,17 +46,11 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                     let json = JSON.parse(e.data)
                     if (json?.children) {
                         dispatchData({
-                            type: STATE.UPDATELIST,
+                            type: STATE.UPDATE,
                             data: json,
-                            edgeData: json.children.edges,
-                            queryString: queryString,
-                            oldPageInfo: pageInfoRef.current,
-                            newPageInfo: json.children.pageInfo,
-                            totalCount: json.children.totalCount,
-                            setPageInfo: setPageInfo
                         })
 
-                        setTotalCount(json.children.totalCount)
+                        setPageInfo(json.children.pageInfo)
                     } else {
                         dispatchData({
                             type: STATE.UPDATE,
@@ -92,16 +84,10 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         }
     }, [stream, queryString, pathString, err])
 
-    // Update PageInfo Ref
-    React.useEffect(() => {
-        pageInfoRef.current = pageInfo
-    }, [pageInfo])
-
     // Reset states when any prop that affects path is changed
     React.useEffect(() => {
         if (stream) {
             setPageInfo(null)
-            setTotalCount(null)
             setPathString(url && namespace && path ? `${url}namespaces/${namespace}/tree${SanitizePath(path)}` : null)
         } else {
             dispatchData({ type: STATE.UPDATE, data: null })
@@ -121,16 +107,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         if (resp.ok) {
             let json = await resp.json()
             if (json.children) {
-                let currentData = data
-
-                // Set currentData to null if paths have changed
-                if (currentData != null && (!currentData.node || json.node.path !== data.node.path)) {
-                    currentData = null
-                }
-
-                let pInfo = PageInfoProcessor(pageInfo, json.children.pageInfo, data, json.children.edges, ...queryParameters)
-                setPageInfo(pInfo.pageInfo)
-                setTotalCount(json.children.totalCount)
+                setPageInfo(json.children.pageInfo)
             }
 
             return json
@@ -246,7 +223,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         err,
         templates,
         pageInfo,
-        totalCount,
         getNode,
         createNode,
         deleteNode,
