@@ -24,7 +24,6 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
 
     // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount, setTotalCount] = React.useState(null)
 
      // Stream Event Source Data Dispatch Handler
      React.useEffect(() => {
@@ -48,7 +47,6 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
                     })
 
                     setPageInfo(json.variables.pageInfo)
-                    setTotalCount(json.variables.totalCount)
                 }
             }
 
@@ -81,7 +79,6 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
     React.useEffect(() => {
         if (stream) {
             setPageInfo(null)
-            setTotalCount(null)
             dispatchData({ type: STATE.UPDATE, data: null })
             setPathString(url && namespace ? `${url}namespaces/${namespace}/vars` : null)
         } else {
@@ -172,7 +169,6 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         data,
         err,
         pageInfo,
-        totalCount,
         getNamespaceVariables,
         getNamespaceVariable,
         getNamespaceVariableBuffer,

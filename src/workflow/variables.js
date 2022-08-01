@@ -25,8 +25,6 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
 
     // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const pageInfoRef = React.useRef(pageInfo)
-    const [totalCount, setTotalCount] = React.useState(null)
 
     // Stream Event Source Data Dispatch Handler
     React.useEffect(() => {
@@ -50,7 +48,6 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
                     })
 
                     setPageInfo(json.variables.pageInfo)
-                    setTotalCount(json.variables.totalCount)
                 }
             }
 
@@ -79,17 +76,10 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         }
     }, [stream, queryString, pathString, err, apikey])
 
-    // Update PageInfo Ref
-    React.useEffect(() => {
-        pageInfoRef.current = pageInfo
-    }, [pageInfo])
-
-
     // Reset states when any prop that affects path is changed
     React.useEffect(() => {
         if (stream) {
             setPageInfo(null)
-            setTotalCount(null)
             dispatchData({ type: STATE.UPDATE, data: null })
             setPathString(url && namespace ? `${url}namespaces/${namespace}/tree/${path}/?op=vars` : null)
         } else {
@@ -179,7 +169,6 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         data,
         err,
         pageInfo,
-        totalCount,
         getWorkflowVariables,
         setWorkflowVariable,
         deleteWorkflowVariable,

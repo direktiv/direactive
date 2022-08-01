@@ -23,7 +23,6 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
 
     // Stores PageInfo about workflow log stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount, setTotalCount] = React.useState(null)
 
     React.useEffect(() => {
         if (stream) {
@@ -48,7 +47,6 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
                     let json = JSON.parse(e.data)
                     setData(json.results)
                     setPageInfo(json.pageInfo)
-                    setTotalCount(json.totalCount)
                 }
 
                 listener.onmessage = e => readData(e)
@@ -89,7 +87,6 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
             let json = await resp.json()
             setData(json.results)
             setPageInfo(json.pageInfo)
-            setTotalCount(json.totalCount)
             return json.results
         } else {
             throw new Error(await HandleError('list namespace logs', resp, 'namespaceLogs'))
@@ -101,7 +98,6 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
         data,
         err,
         pageInfo,
-        totalCount,
         getWorkflowLogs
     }
 }

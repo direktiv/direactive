@@ -18,7 +18,6 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
     // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
     const pageInfoRef = React.useRef(pageInfo)
-    const [totalCount, setTotalCount] = React.useState(null)
 
     // Stream Event Source Data Dispatch Handler
     React.useEffect(() => {
@@ -42,7 +41,6 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
                     })
 
                     setPageInfo(json.activities.pageInfo)
-                    setTotalCount(json.activities.totalCount)
                 }
 
                 if (json?.info) {
@@ -83,7 +81,6 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
     React.useEffect(() => {
         if (stream) {
             setPageInfo(null)
-            setTotalCount(null)
             setPathString(url && namespace && path ? `${url}namespaces/${namespace}/tree${SanitizePath(path)}?op=mirror-info` : null)
         } else {
             dispatchInfo({ type: STATE.UPDATE, data: null })
@@ -190,7 +187,6 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
         activities,
         err,
         pageInfo,
-        totalCount,
         getInfo,
         updateSettings,
         cancelActivity,

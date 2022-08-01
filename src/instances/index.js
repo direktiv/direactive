@@ -26,7 +26,6 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
 
     // Stores PageInfo about instances list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount, setTotalCount] = React.useState(null)
 
     // Stream Event Source Data Dispatch Handler
     React.useEffect(() => {
@@ -67,13 +66,10 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
 
     // Non Stream Data Dispatch Handler
     React.useEffect(async () => {
-        console.log(" INSTANCES NON STREAM")
         if (!stream && pathString !== null && !err) {
-            console.log(" INSTANCES NON STREAM 2")
             setEventSource(null)
             try {
                 const instancesData = await getInstances()
-                console.log("instancesData =", instancesData)
                 dispatchData({ type: STATE.UPDATE, data: instancesData })
             } catch (e) {
                 setErr(e)
@@ -85,7 +81,6 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
     React.useEffect(() => {
         if (stream) {
             setPageInfo(null)
-            setTotalCount(null)
             setPathString(url && namespace ? `${url}namespaces/${namespace}/instances` : null)
         } else {
             dispatchData({ type: STATE.UPDATE, data: null })
@@ -112,7 +107,6 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
         data,
         err,
         pageInfo,
-        totalCount,
         getInstances
     }
 }

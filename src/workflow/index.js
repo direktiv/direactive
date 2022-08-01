@@ -119,7 +119,6 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
             headers: apikey === undefined ? {} : { "apikey": apikey }
         })
         if (resp.ok) {
-            console.log("setting data")
             return resp.json()
         } else {
             throw new Error(await HandleError('get workflow data', resp, 'getWorkflow'))

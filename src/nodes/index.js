@@ -24,7 +24,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
 
     // Stores PageInfo about node list stream
     const [pageInfo, setPageInfo] = React.useState(null)
-    const [totalCount, setTotalCount] = React.useState(null)
 
     const templates = Templates
 
@@ -52,7 +51,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
                         })
 
                         setPageInfo(json.children.pageInfo)
-                        setTotalCount(json.children.totalCount)
                     } else {
                         dispatchData({
                             type: STATE.UPDATE,
@@ -90,7 +88,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
     React.useEffect(() => {
         if (stream) {
             setPageInfo(null)
-            setTotalCount(null)
             setPathString(url && namespace && path ? `${url}namespaces/${namespace}/tree${SanitizePath(path)}` : null)
         } else {
             dispatchData({ type: STATE.UPDATE, data: null })
@@ -110,8 +107,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         if (resp.ok) {
             let json = await resp.json()
             if (json.children) {
-                setPageInfo(pInfo.pageInfo)
-                setTotalCount(json.children.totalCount)
+                setPageInfo(json.children.pageInfo)
             }
 
             return json
@@ -227,7 +223,6 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         err,
         templates,
         pageInfo,
-        totalCount,
         getNode,
         createNode,
         deleteNode,
