@@ -25,7 +25,7 @@ export const useDirektivGlobalServiceRevision = (url, service, revision, apikey)
     React.useEffect(() => {
         if (podSource === null) {
             let listener = new EventSourcePolyfill(`${url}functions/${service}/revisions/${revision}/pods`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -88,7 +88,7 @@ export const useDirektivGlobalServiceRevision = (url, service, revision, apikey)
         if (revisionSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/${service}/revisions/${revision}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -156,7 +156,7 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
         if (trafficSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/${service}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -188,7 +188,7 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
         if (eventSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/${service}/revisions`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -258,7 +258,7 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
 
     async function createGlobalServiceRevision(image, minScale, size, cmd, traffic, ...queryParameters) {
         let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "POST",
             body: JSON.stringify({
                 trafficPercent: traffic,
@@ -275,7 +275,7 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
 
     async function deleteGlobalServiceRevision(rev, ...queryParameters) {
         let resp = await fetch(`${url}functions/${service}/revisions/${rev}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "DELETE"
         })
         if (!resp.ok) {
@@ -285,7 +285,7 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
 
     async function getServiceConfig(...queryParameters) {
         let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "GET"
         })
         if (resp.ok) {
@@ -300,7 +300,7 @@ export const useDirektivGlobalService = (url, service, navigate, apikey) => {
     async function setGlobalServiceRevisionTraffic(rev1, rev1value, rev2, rev2value, ...queryParameters) {
         let resp = await fetch(`${url}functions/${service}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "PATCH",
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             body: JSON.stringify({
                 values: [{
                     revision: rev1,
@@ -351,7 +351,7 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
             if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}functions`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
+                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
                 })
 
                 listener.onerror = (e) => {
@@ -423,7 +423,7 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
 
     async function getConfig(...queryParameters) {
         let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "GET"
         })
         if (resp.ok) {
@@ -437,7 +437,7 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
 
     async function getGlobalServices(...queryParameters) {
         let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "GET"
         })
         if (resp.ok) {
@@ -451,7 +451,7 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
 
     async function createGlobalService(name, image, minScale, size, cmd, ...queryParameters) {
         let resp = await fetch(`${url}functions${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "POST",
             body: JSON.stringify({
                 cmd,
@@ -468,7 +468,7 @@ export const useDirektivGlobalServices = (url, stream, apikey) => {
 
     async function deleteGlobalService(name, ...queryParameters) {
         let resp = await fetch(`${url}functions/${name}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "DELETE"
         })
         if (!resp.ok) {

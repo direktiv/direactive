@@ -21,7 +21,7 @@ export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
     // getGlobalPrivateRegistries returns a list of registries
     async function getRegistries(...queryParameters) {
         let resp = await fetch(`${url}functions/registries/private${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -36,7 +36,7 @@ export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
         let resp = await fetch(`${url}functions/registries/private${ExtractQueryString(false, ...queryParameters)}`, {
             method: "POST",
             body: JSON.stringify({ data: val, reg: key }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('create registry', resp, 'createRegistry'))
@@ -50,7 +50,7 @@ export const useDirektivGlobalPrivateRegistries = (url, apikey) => {
             body: JSON.stringify({
                 reg: key
             }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete registry', resp, 'deleteRegistry'))

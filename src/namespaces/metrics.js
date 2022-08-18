@@ -13,7 +13,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getInvoked(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/metrics/invoked${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return await resp.json()
@@ -24,7 +24,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getSuccessful(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/metrics/successful${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return await resp.json()
@@ -35,7 +35,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getFailed(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/metrics/failed${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return await resp.json()
@@ -46,7 +46,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getMilliseconds(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/metrics/milliseconds${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return await resp.json()

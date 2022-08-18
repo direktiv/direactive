@@ -29,7 +29,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
             if (stream && pathString !== null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
+                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
                 })
 
                 listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
@@ -85,7 +85,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
         let uri = `${url}namespaces/${namespace}/tree/${path}`
 
         let resp = await fetch(`${uri}/${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -104,7 +104,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
 
         let uri = `${url}namespaces/${namespace}/tree/${path}?ref=${rev}&op=metrics-sankey`
         let resp = await fetch(`${uri}${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return resp.json()
@@ -116,7 +116,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
     async function getWorkflowRevisionData(rev, ...queryParameters) {
         let uri = `${url}namespaces/${namespace}/tree/${path}?ref=${rev}`
         let resp = await fetch(`${uri}${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return resp.json()
@@ -127,7 +127,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
 
     async function getRevisions(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=refs${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return await resp.json()
@@ -138,7 +138,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
 
     async function getTags(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tags${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return await resp.json()
@@ -150,11 +150,11 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
     async function updateWorkflow(newwf, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=update-workflow${ExtractQueryString(true, ...queryParameters)}`, {
             method: "post",
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             headers: {
                 "Content-type": "text/yaml",
                 "Content-Length": newwf.length,
-                "apikey": apikey === undefined ? "" : apikey
+                "direktiv-token": apikey === undefined ? "" : apikey
             },
             body: newwf
         })
@@ -169,7 +169,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
             body: JSON.stringify({
                 live: active
             }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('toggle workflow', resp, 'toggleWorkflow'))
@@ -179,7 +179,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
     async function getWorkflowRouter(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=router${ExtractQueryString(true, ...queryParameters)}`, {
             method: "get",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return resp.json()
@@ -195,7 +195,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
                 route: routes,
                 live: live,
             }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('edit workflow router', resp, 'editRouter'))
@@ -208,7 +208,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
             body: JSON.stringify({
                 logger: val
             }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('set log to event', resp, 'getWorkflow'))
@@ -223,7 +223,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=execute&ref=${ref}${ExtractQueryString(true, ...queryParameters)}`, {
             method: "POST",
             body: input,
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -237,7 +237,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=execute${ExtractQueryString(true, ...queryParameters)}`, {
             method: "POST",
             body: input,
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -253,7 +253,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
             body: JSON.stringify({
                 attributes: attributes
             }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('add workflow attributes', resp, 'createAttribute'))
@@ -266,7 +266,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
             body: JSON.stringify({
                 attributes: attributes
             }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete workflow attributes', resp, 'deleteAttribute'))
@@ -275,7 +275,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
 
     async function getInstancesForWorkflow(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/instances?filter.field=AS&filter.type=WORKFLOW&filter.val=${path}${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -287,10 +287,10 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
 
     async function getSuccessFailedMetrics(...queryParameters) {
         let respFailed = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-failed${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         let respSuccess = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-successful${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
 
         let x = {
@@ -317,7 +317,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
 
     async function getStateMillisecondMetrics(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=metrics-state-milliseconds${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -334,7 +334,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
         }
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=save-workflow&ref=${rev}${ExtractQueryString(true, ...queryParameters)}`, {
             method: "POST",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('save workflow', resp, 'saveWorkflow'))
@@ -351,7 +351,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
 
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-revision&ref=${ref}${ExtractQueryString(true, ...queryParameters)}`, {
             method: "POST",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError(`delete revision`, resp, 'deleteRevision'))
@@ -361,7 +361,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
     async function removeTag(tag, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=untag&ref=${tag}${ExtractQueryString(true, ...queryParameters)}`, {
             method: "POST",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError(`untag`, resp, 'untag'))
@@ -376,7 +376,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
 
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=discard-workflow&ref=${rev}${ExtractQueryString(true, ...queryParameters)}`, {
             method: "POST",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('discard workflow', resp, 'discardWorkflow'))
@@ -390,7 +390,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
         }
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=tag&ref=${ref}${ExtractQueryString(true, ...queryParameters)}`, {
             method: "POST",
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             body: JSON.stringify({
                 tag: tag
             })

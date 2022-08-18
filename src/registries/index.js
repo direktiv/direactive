@@ -25,7 +25,7 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
     // getRegistries returns a list of registries
     async function getRegistries(...queryParameters) {
         let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -40,7 +40,7 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
         let resp = await fetch(`${url}functions/registries/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "POST",
             body: JSON.stringify({ data: val, reg: key }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('create registry', resp, 'createRegistry'))
@@ -53,7 +53,7 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
             body: JSON.stringify({
                 reg: key
             }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete registry', resp, 'deleteRegistry'))

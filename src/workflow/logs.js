@@ -29,7 +29,7 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
             if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree/${path}?op=logs${queryString}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
+                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
                 })
 
                 listener.onerror = (e) => {
@@ -81,7 +81,7 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
     async function getWorkflowLogs(...queryParameters) {
         // fetch namespace list by default
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=logs${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()

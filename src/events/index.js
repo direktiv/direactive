@@ -52,7 +52,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
         if (stream && pathString !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${pathString}/events${eventHistoryQueryString}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErrHistory) }
@@ -84,7 +84,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
         if (stream && pathString !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${pathString}/event-listeners${eventListenersQueryString}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErrListeners) }
@@ -141,7 +141,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
     async function getEventListeners(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/event-listeners${ExtractQueryString(false, ...queryParameters)}`, {
             method: "GET",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('get event listeners', resp, 'listEventHistory'))
@@ -152,7 +152,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
     async function getEventHistory(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/events${ExtractQueryString(false, ...queryParameters)}`, {
             method: "GET",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('get event history', resp, 'listEventHistory'))

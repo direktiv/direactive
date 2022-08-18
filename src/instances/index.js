@@ -33,7 +33,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
             if (stream && pathString !== null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
+                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
                 })
 
                 listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
@@ -92,7 +92,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
     async function getInstances(...queryParameters) {
         // fetch instance list by default
         let resp = await fetch(`${url}namespaces/${namespace}/instances${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error((await HandleError('list instances', resp, "listInstances")))

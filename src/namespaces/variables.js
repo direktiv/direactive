@@ -30,7 +30,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
         if (stream && pathString !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
@@ -64,7 +64,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
             setEventSource(null)
 
             fetch(`${pathString}${queryString}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             }).then((resp)=>{
                 resp.json().then((data) =>{
                     dispatchData({ type: STATE.UPDATE, data: data })
@@ -95,7 +95,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
     async function getNamespaceVariables(...queryParameters) {
         // fetch namespace list by default
         let resp = await fetch(`${url}namespaces/${namespace}/vars${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -107,7 +107,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
 
     async function getNamespaceVariable(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return { data: await resp.text(), contentType: resp.headers.get("Content-Type") }
@@ -118,7 +118,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
 
     async function getNamespaceVariableBuffer(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return { data: await resp.arrayBuffer(), contentType: resp.headers.get("Content-Type") }
@@ -129,7 +129,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
 
     async function getNamespaceVariableBlob(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             return { data: await resp.blob(), contentType: resp.headers.get("Content-Type") }
@@ -141,7 +141,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
     async function deleteNamespaceVariable(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/vars/${name}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "DELETE",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete variable', resp, 'deleteNamespaceVariable'))
@@ -157,7 +157,7 @@ export const useDirektivNamespaceVariables = (url, stream, namespace, apikey, ..
             body: val,
             headers: {
                 "Content-type": mimeType,
-                apikey: apikey === undefined ? null : apikey
+                "direktiv-token": apikey === undefined ? null : apikey
             },
         })
         if (!resp.ok) {

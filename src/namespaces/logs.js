@@ -29,7 +29,7 @@ export const useDirektivNamespaceLogs = (url, stream, namespace, apikey, ...quer
             if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/logs${queryString}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
+                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
                 })
 
                 listener.onerror = (e) => {
@@ -81,7 +81,7 @@ export const useDirektivNamespaceLogs = (url, stream, namespace, apikey, ...quer
     async function getNamespaceLogs(...queryParameters) {
         // fetch namespace list by default
         let resp = await fetch(`${url}namespaces/${namespace}/logs${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()

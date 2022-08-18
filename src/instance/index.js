@@ -31,7 +31,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
             if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/instances/${instance}/logs${queryString}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
+                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
                 })
 
                 listener.onerror = (e) => {
@@ -86,7 +86,7 @@ export const useDirektivInstanceLogs = (url, stream, namespace, instance, apikey
     async function getInstanceLogs(...queryParameters) {
         // fetch instance list by default
         let resp = await fetch(`${url}namespaces/${namespace}/instances/${instance}/logs${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -129,7 +129,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
             if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/instances/${instanceID}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
+                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
                 })
 
                 listener.onerror = (e) => {
@@ -188,7 +188,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     async function getInstance(...queryParameters) {
         // fetch instance list by default
         let resp = await fetch(`${url}namespaces/${namespace}/instances/${instanceID}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -209,7 +209,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
 
         let path = TrimPathSlashes(workflowPath)
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=validate-ref&ref=latest${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -223,7 +223,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     async function getInput(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/instances/${instanceID}/input${ExtractQueryString(false, ...queryParameters)}`, {
             method: "GET",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
 
         })
         if (resp.ok) {
@@ -236,7 +236,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     async function getOutput(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/instances/${instanceID}/output${ExtractQueryString(false, ...queryParameters)}`, {
             method: "GET",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
 
         })
         if (resp.ok) {
@@ -250,7 +250,7 @@ export const useDirektivInstance = (url, stream, namespace, instance, apikey) =>
     async function cancelInstance(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/instances/${instanceID}/cancel${ExtractQueryString(false, ...queryParameters)}`, {
             method: "POST",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
 
         })
         if (!resp.ok) {

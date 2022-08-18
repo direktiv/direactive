@@ -21,7 +21,7 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
         if (stream && pathString !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
@@ -74,7 +74,7 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
     async function getActivityLogs() {
         let request = {
             method: "GET",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         }
 
         let resp = await fetch(`${pathString}${queryString}`, request)

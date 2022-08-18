@@ -33,7 +33,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
             if (stream && pathString !== null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
+                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
                 })
 
                 listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
@@ -102,7 +102,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
             uri += `${SanitizePath(path)}`
         }
         let resp = await fetch(`${uri}/${queryString}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -123,7 +123,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         }
         let request = {
             method: "PUT",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         }
 
         if (type === "workflow") {
@@ -148,7 +148,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         let request = {
             method: "PUT",
             body: JSON.stringify(mirrorSettings),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         }
 
         let resp = await fetch(`${uriPath}/${name}?op=create-directory${ExtractQueryString(true, ...queryParameters)}`, request)
@@ -166,7 +166,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         }
         let resp = await fetch(`${uriPath}/${name}?op=delete-node&recursive=${recursive ? "true" : "false"}${ExtractQueryString(true, ...queryParameters)}`, {
             method: "DELETE",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete node', resp, 'deleteNode'))
@@ -181,7 +181,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
         let resp = await fetch(`${uriPath}${oldname}?op=rename-node${ExtractQueryString(true, ...queryParameters)}`, {
             method: "POST",
             body: JSON.stringify({ new: newname }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('rename node', resp, 'renameNode'))
@@ -193,7 +193,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
     async function getWorkflowRouter(workflow, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${workflow}?op=router${ExtractQueryString(true, ...queryParameters)}`, {
             method: "get",
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -209,7 +209,7 @@ export const useDirektivNodes = (url, stream, namespace, path, apikey, ...queryP
             body: JSON.stringify({
                 live: active
             }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('toggle workflow', resp, 'toggleWorkflow'))
