@@ -18,7 +18,7 @@ export const useDirektivPodLogs = (url, pod, apikey) => {
         if (eventSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/logs/pod/${pod}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -50,7 +50,7 @@ export const useDirektivPodLogs = (url, pod, apikey) => {
         if (eventSource !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/logs/pod/${pod}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {

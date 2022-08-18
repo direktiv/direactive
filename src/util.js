@@ -6,7 +6,7 @@ export const Config = {
     namespace: process.env.NAMESPACE,
     url: process.env.API_URL,
     registry: "https://docker.io",
-    apikey: "testapikey",
+    "direktiv-token": "testapikey",
     secret: "test-secret",
     secretdata: "test-secret-data"
 }

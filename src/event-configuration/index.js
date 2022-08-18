@@ -20,7 +20,7 @@ export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
 
     async function getBroadcastConfiguration(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('fetch config', resp, 'getNamespaceConfiguration'))
@@ -34,7 +34,7 @@ export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
         let resp = await fetch(`${url}namespaces/${namespace}/config${ExtractQueryString(false, ...queryParameters)}`, {
             method: "PATCH",
             body: newconfig,
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('set config', resp, 'setNamespaceConfiguration'))

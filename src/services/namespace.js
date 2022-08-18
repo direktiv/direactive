@@ -24,7 +24,7 @@ export const useDirektivNamespaceServiceRevision = (url, namespace, service, rev
     React.useEffect(() => {
         if (podSource === null) {
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}/revisions/${revision}/pods`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -94,7 +94,7 @@ export const useDirektivNamespaceServiceRevision = (url, namespace, service, rev
         if (revisionSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}/revisions/${revision}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -169,7 +169,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
         if (trafficSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -208,7 +208,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
         if (eventSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/function/${service}/revisions`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -287,7 +287,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
 
     async function getNamespaceServiceConfig(...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "GET"
         })
         if (resp.ok) {
@@ -302,7 +302,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
 
     async function createNamespaceServiceRevision(image, minScale, size, cmd, traffic, ...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "POST",
             body: JSON.stringify({
                 trafficPercent: traffic,
@@ -320,7 +320,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
     async function deleteNamespaceServiceRevision(rev, ...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}/revisions/${rev}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "DELETE",
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete namespace service revision', resp, 'deleteRevision'))
@@ -344,7 +344,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
         let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${service}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "PATCH",
             body: JSON.stringify({ values: trafficarr }),
-            headers: apikey === undefined ? {} : { "apikey": apikey }
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
         })
         if (!resp.ok) {
             throw new Error(await HandleError('update traffic namespace service', resp, 'updateTraffic'))
@@ -385,7 +385,7 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
             if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
+                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
                 })
 
                 listener.onerror = (e) => {
@@ -461,7 +461,7 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
 
     async function getNamespaceServices(...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "GET"
         })
         if (resp.ok) {
@@ -475,7 +475,7 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
 
     async function getNamespaceConfig(...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "GET"
         })
         if (resp.ok) {
@@ -489,7 +489,7 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
 
     async function createNamespaceService(name, image, minScale, size, cmd, ...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "POST",
             body: JSON.stringify({
                 cmd,
@@ -506,7 +506,7 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
 
     async function deleteNamespaceService(name, ...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}/function/${name}${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "DELETE"
         })
         if (!resp.ok) {

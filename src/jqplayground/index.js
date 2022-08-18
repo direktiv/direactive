@@ -94,7 +94,7 @@ export const useDirektivJQPlayground = (url, apikey) => {
     async function executeJQ(query, data, ...queryParameters) {
         // fetch namespace list by default
         let resp = await fetch(`${url}jq${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "POST",
             body: JSON.stringify({
                 query: query,

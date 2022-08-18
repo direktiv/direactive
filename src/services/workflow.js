@@ -27,7 +27,7 @@ export const useDirektivWorkflowServiceRevision = (url, namespace, path, service
     React.useEffect(() => {
         if (podSource === null) {
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/tree/${path}?op=pods&svn=${service}&rev=${revision}&version=${version}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -90,7 +90,7 @@ export const useDirektivWorkflowServiceRevision = (url, namespace, path, service
         if (revisionSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/tree/${path}?op=function-revision&svn=${service}&rev=${revision}&version=${version}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -157,7 +157,7 @@ export const useDirektivWorkflowService = (url, namespace, path, service, versio
         if (eventSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/namespaces/${namespace}/tree${path}?op=function-revisions&svn=${service}&version=${version}`, {
-                headers: apikey === undefined ? {} : { "apikey": apikey }
+                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
             })
 
             listener.onerror = (e) => {
@@ -257,7 +257,7 @@ export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey
             if (stream && pathString !== null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
-                    headers: apikey === undefined ? {} : { "apikey": apikey }
+                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
                 })
 
                 listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
@@ -301,7 +301,7 @@ export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey
 
     async function getWorkflowServices(...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=services${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "GET"
         })
         if (resp.ok) {
@@ -315,7 +315,7 @@ export const useDirektivWorkflowServices = (url, stream, namespace, path, apikey
 
     async function deleteWorkflowService(service, version, ...queryParameters) {
         let resp = await fetch(`${url}functions/namespaces/${namespace}/tree/${path}?op=delete-service&svn=${service}&version=${version}${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "apikey": apikey },
+            headers: apikey === undefined ? {} : { "direktiv-token": apikey },
             method: "DELETE"
         })
         if (!resp.ok) {
