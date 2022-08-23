@@ -23,7 +23,7 @@
     "start": "yalc publish && nodemon -e js,ts --ignore dist --exec \"yalc publish --push --changed\""
   },
   "peerDependencies": {
-    "react": "^16.9.0"
+    "react": "^16.0.0 || ^17.0.0 || ^18.0.0 "
   },
   "jest": {
     "globalSetup": "./setup.js",
