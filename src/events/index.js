@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { HandleError, ExtractQueryString, SanitizePath, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
+import { HandleError, ExtractQueryString, apiKeyHeaders, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -52,7 +52,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
         if (stream && pathString !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${pathString}/events${eventHistoryQueryString}`, {
-                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                headers: apiKeyHeaders(apikey)
             })
 
             listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErrHistory) }
@@ -84,7 +84,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
         if (stream && pathString !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${pathString}/event-listeners${eventListenersQueryString}`, {
-                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                headers: apiKeyHeaders(apikey)
             })
 
             listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErrListeners) }
@@ -141,7 +141,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
     async function getEventListeners(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/event-listeners${ExtractQueryString(false, ...queryParameters)}`, {
             method: "GET",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (!resp.ok) {
             throw new Error(await HandleError('get event listeners', resp, 'listEventHistory'))
@@ -152,7 +152,7 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
     async function getEventHistory(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/events${ExtractQueryString(false, ...queryParameters)}`, {
             method: "GET",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (!resp.ok) {
             throw new Error(await HandleError('get event history', resp, 'listEventHistory'))

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
-import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString, apiKeyHeaders } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 
 /*
@@ -29,7 +29,7 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
             if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}namespaces/${namespace}/tree/${path}?op=logs${queryString}`, {
-                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                    headers: apiKeyHeaders(apikey)
                 })
 
                 listener.onerror = (e) => {
@@ -81,7 +81,7 @@ export const useDirektivWorkflowLogs = (url, stream, namespace, path, apikey, ..
     async function getWorkflowLogs(...queryParameters) {
         // fetch namespace list by default
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=logs${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             let json = await resp.json()

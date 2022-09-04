@@ -1,6 +1,6 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
-import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+import { CloseEventSource, apiKeyHeaders} from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 
 /*
@@ -18,7 +18,7 @@ export const useDirektivPodLogs = (url, pod, apikey) => {
         if (eventSource === null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/logs/pod/${pod}`, {
-                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                headers: apiKeyHeaders(apikey)
             })
 
             listener.onerror = (e) => {
@@ -50,7 +50,7 @@ export const useDirektivPodLogs = (url, pod, apikey) => {
         if (eventSource !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}functions/logs/pod/${pod}`, {
-                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                headers: apiKeyHeaders(apikey)
             })
 
             listener.onerror = (e) => {

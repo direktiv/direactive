@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { genericEventSourceErrorHandler, HandleError, STATE, StateReducer, useEventSourceCleaner, useQueryString } from '../util'
+import { genericEventSourceErrorHandler, HandleError, STATE, StateReducer, useEventSourceCleaner, useQueryString, apiKeyHeaders } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -21,7 +21,7 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
         if (stream && pathString !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
-                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                headers: apiKeyHeaders(apikey)
             })
 
             listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
@@ -74,7 +74,7 @@ export const useDirektivMirrorLogs = (url, stream, namespace, activity, apikey, 
     async function getActivityLogs() {
         let request = {
             method: "GET",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         }
 
         let resp = await fetch(`${pathString}${queryString}`, request)

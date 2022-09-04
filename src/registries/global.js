@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { HandleError, ExtractQueryString } from '../util'
+import { HandleError, ExtractQueryString, apiKeyHeaders } from '../util'
 const fetch = require('isomorphic-fetch')
 
 /*
@@ -21,7 +21,7 @@ export const useDirektivGlobalRegistries = (url, apikey) => {
     // getGlobalRegistries returns a list of registries
     async function getRegistries(...queryParameters) {
         let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -36,7 +36,7 @@ export const useDirektivGlobalRegistries = (url, apikey) => {
         let resp = await fetch(`${url}functions/registries/global${ExtractQueryString(false, ...queryParameters)}`, {
             method: "POST",
             body: JSON.stringify({ data: val, reg: key }),
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (!resp.ok) {
             throw new Error(await HandleError('create registry', resp, 'createRegistry'))
@@ -50,7 +50,7 @@ export const useDirektivGlobalRegistries = (url, apikey) => {
             body: JSON.stringify({
                 reg: key
             }),
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete registry', resp, 'deleteRegistry'))

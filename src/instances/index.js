@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { HandleError, ExtractQueryString, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler } from '../util'
+import { HandleError, ExtractQueryString, StateReducer, STATE, useEventSourceCleaner, useQueryString, genericEventSourceErrorHandler, apiKeyHeaders } from '../util'
 
 // For testing
 // import fetch from "cross-fetch"
@@ -33,7 +33,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
             if (stream && pathString !== null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
-                    headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                    headers: apiKeyHeaders(apikey)
                 })
 
                 listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
@@ -92,7 +92,7 @@ export const useDirektivInstances = (url, stream, namespace, apikey, ...queryPar
     async function getInstances(...queryParameters) {
         // fetch instance list by default
         let resp = await fetch(`${url}namespaces/${namespace}/instances${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (!resp.ok) {
             throw new Error((await HandleError('list instances', resp, "listInstances")))

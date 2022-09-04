@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CloseEventSource, HandleError, ExtractQueryString } from '../util'
+import { CloseEventSource, HandleError, ExtractQueryString, apiKeyHeaders } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -28,7 +28,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
             if (eventSource === null) {
                 // setup event listener 
                 let listener = new EventSourcePolyfill(`${url}namespaces${queryString}`, {
-                    headers: !apikey ? {} : { "direktiv-token": apikey }
+                    headers: apiKeyHeaders(apikey)
                 })
 
                 listener.onerror = (e) => {
@@ -66,7 +66,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
             CloseEventSource(eventSource)
             // setup event listener 
             let listener = new EventSourcePolyfill(`${url}namespaces${queryString}`, {
-                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                headers: apiKeyHeaders(apikey)
             })
 
             listener.onerror = (e) => {
@@ -114,7 +114,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
     async function getNamespaces(...queryParameters) {
         // fetch namespace list by default
         let resp = await fetch(`${url}namespaces${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -130,7 +130,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
     async function createNamespace(namespace, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "PUT",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (!resp.ok) {
             throw new Error(await HandleError('create a namespace', resp, 'addNamespace'))
@@ -141,7 +141,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
         let request = {
             method: "PUT",
             body: JSON.stringify(mirrorSettings),
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         }
 
         let resp = await fetch(`${url}namespaces/${namespace}${ExtractQueryString(false, ...queryParameters)}`, request)
@@ -154,7 +154,7 @@ export const useDirektivNamespaces = (url, stream, apikey, ...queryParameters) =
     async function deleteNamespace(namespace, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}?recursive=true${ExtractQueryString(true, ...queryParameters)}`, {
             method: "DELETE",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete a namespace', resp, 'deleteNamespace'))

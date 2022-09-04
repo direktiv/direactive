@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { HandleError, ExtractQueryString } from '../util'
+import { HandleError, ExtractQueryString, apiKeyHeaders } from '../util'
 const fetch = require('isomorphic-fetch')
 
 /*
@@ -21,7 +21,7 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
     // getSecrets returns a list of registries
     async function getSecrets(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/secrets${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -36,7 +36,7 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
         let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "PUT",
             body: value,
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (!resp.ok) {
             throw new Error(await HandleError('create secret', resp, 'createSecret'))
@@ -46,7 +46,7 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
     async function deleteSecret(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/secrets/${name}${ExtractQueryString(false, ...queryParameters)}`, {
             method: "DELETE",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete secret', resp, 'deleteSecret'))

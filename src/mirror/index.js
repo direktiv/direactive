@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { HandleError, ExtractQueryString, useEventSourceCleaner, StateReducer, STATE, useQueryString, genericEventSourceErrorHandler, SanitizePath } from '../util'
+import { HandleError, ExtractQueryString, useEventSourceCleaner, StateReducer, STATE, useQueryString, genericEventSourceErrorHandler, SanitizePath, apiKeyHeaders } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
@@ -24,7 +24,7 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
         if (stream && pathString !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
-                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                headers: apiKeyHeaders(apikey)
             })
 
             listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
@@ -96,7 +96,7 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
         }
         let request = {
             method: "GET",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         }
 
         let resp = await fetch(`${uriPath}?op=mirror-info${ExtractQueryString(true, ...queryParameters)}`, request)
@@ -117,7 +117,7 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
         let request = {
             method: "POST",
             body: JSON.stringify(mirrorSettings),
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         }
 
         let resp = await fetch(`${uriPath}?op=update-mirror${ExtractQueryString(true, ...queryParameters)}`, request)
@@ -136,7 +136,7 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
 
         let request = {
             method: "POST",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         }
 
         let resp = await fetch(`${uriPath}?op=sync-mirror${force ? "&force=true" : ""}${ExtractQueryString(true, ...queryParameters)}`, request)
@@ -155,7 +155,7 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
 
         let request = {
             method: "POST",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         }
 
         let resp = await fetch(`${uriPath}?op=${lock ? "lock-mirror" : "unlock-mirror"}${ExtractQueryString(true, ...queryParameters)}`, request)
@@ -171,7 +171,7 @@ export const useDirektivMirror = (url, stream, namespace, path, apikey, ...query
 
         let request = {
             method: "POST",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         }
 
         let resp = await fetch(`${uriPath}${ExtractQueryString(false, ...queryParameters)}`, request)

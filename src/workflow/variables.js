@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useEventSourceCleaner, HandleError, ExtractQueryString, StateReducer, useQueryString, STATE, genericEventSourceErrorHandler } from '../util'
+import { useEventSourceCleaner, HandleError, ExtractQueryString, StateReducer, useQueryString, STATE, genericEventSourceErrorHandler, apiKeyHeaders } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require("isomorphic-fetch")
 
@@ -31,7 +31,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
         if (stream && pathString !== null) {
             // setup event listener 
             let listener = new EventSourcePolyfill(`${pathString}${queryString}`, {
-                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                headers: apiKeyHeaders(apikey)
             })
 
             listener.onerror = (e) => { genericEventSourceErrorHandler(e, setErr) }
@@ -65,7 +65,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
             setEventSource(null)
 
             fetch(`${pathString}${queryString}`, {
-                headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+                headers: apiKeyHeaders(apikey)
             }).then((resp)=>{
                 resp.json().then((data) =>{
                     dispatchData({ type: STATE.UPDATE, data: data })
@@ -92,7 +92,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
     async function getWorkflowVariables(...queryParameters) {
         let uri = `${url}namespaces/${namespace}/tree/${path}?op=vars${ExtractQueryString(true, ...queryParameters)}`
         let resp = await fetch(`${uri}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             let json = await resp.json()
@@ -111,7 +111,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
             body: val,
             headers: {
                 "Content-type": mimeType,
-                "direktiv-token": apikey === undefined ? null  :apikey
+                ...apiKeyHeaders(apikey)
             },
         })
         if (!resp.ok) {
@@ -123,7 +123,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
 
     async function getWorkflowVariable(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             return { data: await resp.text(), contentType: resp.headers.get("Content-Type") }
@@ -134,7 +134,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
 
     async function getWorkflowVariableBuffer(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             return { data: await resp.arrayBuffer(), contentType: resp.headers.get("Content-Type") }
@@ -145,7 +145,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
 
     async function getWorkflowVariableBlob(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             return { data: await resp.blob(), contentType: resp.headers.get("Content-Type") }
@@ -157,7 +157,7 @@ export const useDirektivWorkflowVariables = (url, stream, namespace, path, apike
     async function deleteWorkflowVariable(name, ...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/tree/${path}?op=delete-var&var=${name}${ExtractQueryString(true, ...queryParameters)}`, {
             method: "DELETE",
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (!resp.ok) {
             throw new Error(await HandleError('delete variable', resp, 'deleteWorkflowVariable'))

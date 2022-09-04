@@ -1,6 +1,6 @@
 import * as React from 'react'
 import fetch from "cross-fetch"
-import { HandleError, ExtractQueryString } from '../util'
+import { HandleError, ExtractQueryString, apiKeyHeaders } from '../util'
 
 /*
     useNamespaceMetrics is a react hook which metric details
@@ -13,7 +13,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getInvoked(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/metrics/invoked${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             return await resp.json()
@@ -24,7 +24,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getSuccessful(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/metrics/successful${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             return await resp.json()
@@ -35,7 +35,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getFailed(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/metrics/failed${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             return await resp.json()
@@ -46,7 +46,7 @@ export const useDirektivNamespaceMetrics = (url, namespace, apikey) => {
 
     async function getMilliseconds(...queryParameters) {
         let resp = await fetch(`${url}namespaces/${namespace}/metrics/milliseconds${ExtractQueryString(false, ...queryParameters)}`, {
-            headers: apikey === undefined ? {} : { "direktiv-token": apikey }
+            headers: apiKeyHeaders(apikey)
         })
         if (resp.ok) {
             return await resp.json()

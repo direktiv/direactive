@@ -271,3 +271,18 @@ export const genericEventSourceErrorHandler = (error, setError) => {
         setError("permission denied")
     }
 }
+
+export const isValueValid = (value) => {
+    if (typeof value !== undefined && value !== null) {
+        return true
+    } else {
+        return false
+    }
+}
+
+export const apiKeyHeaders = (apiKey) => {
+    if (isValueValid(apiKey)) {
+        return { "direktiv-token": apiKey }
+    }
+    return {}
+}
