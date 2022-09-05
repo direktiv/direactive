@@ -273,7 +273,7 @@ export const genericEventSourceErrorHandler = (error, setError) => {
 }
 
 export const isValueValid = (value) => {
-    console.log("type of value = ", value)
+    console.log("type of value = ", typeof value)
     console.log("value of value = ", value)
     if (typeof value !== undefined && value !== null) {
         console.log("value is valid")
