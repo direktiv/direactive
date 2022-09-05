@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { apiKeyHeaders } from '../util'
-import { useEventSourceCleaner, HandleError, ExtractQueryString, StateReducer, useQueryString, STATE, genericEventSourceErrorHandler, apiKeyHeaders } from '../util'
+import { apiKeyHeaders, ExtractQueryString, genericEventSourceErrorHandler, HandleError, STATE, StateReducer, useEventSourceCleaner, useQueryString } from '../util'
 const { EventSourcePolyfill } = require('event-source-polyfill')
 const fetch = require('isomorphic-fetch')
 
