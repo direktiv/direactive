@@ -272,24 +272,20 @@ export const genericEventSourceErrorHandler = (error, setError) => {
     }
 }
 
+//  isValueValid : Checks if value is not undefined and not null
 export const isValueValid = (value) => {
-    console.log("type of value = ", typeof value)
-    console.log("value of value = ", value)
-    if (typeof value !== undefined && value !== null) {
-        console.log("value is valid")
+    if (typeof value !== "undefined" && value !== null) {
         return true
     } else {
-        console.log("value is invalid")
         return false
     }
 }
 
+//  apiKeyHeaders : Returns header object with "direktiv-token" set to apiKey if key has a valid value.
+//  An empty object is returned otherwise
 export const apiKeyHeaders = (apiKey) => {
-    console.log("apiKey = ", apiKey)
     if (isValueValid(apiKey)) {
-        console.log("apikey is a valid header", apiKey)
         return { "direktiv-token": apiKey }
     }
-    console.log("apikey is not a valid header")
     return {}
 }
