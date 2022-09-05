@@ -21,6 +21,7 @@ import { useDirektivWorkflowService, useDirektivWorkflowServiceRevision, useDire
 import {useDirektivPodLogs} from './services/logs'
 import { useDirektivMirror } from './mirror'
 import { useDirektivMirrorLogs } from './mirror/logs'
+import {HandleError as UtilHandleError} from "./util"
 
 
 // Services
@@ -80,3 +81,5 @@ export const useGlobalPrivateRegistries = useDirektivGlobalPrivateRegistries
 
 // Secrets
 export const useSecrets = useDirektivSecrets
+
+export const HandleError = UtilHandleError
