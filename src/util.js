@@ -273,16 +273,23 @@ export const genericEventSourceErrorHandler = (error, setError) => {
 }
 
 export const isValueValid = (value) => {
+    console.log("type of value = ", value)
+    console.log("value of value = ", value)
     if (typeof value !== undefined && value !== null) {
+        console.log("value is valid")
         return true
     } else {
+        console.log("value is invalid")
         return false
     }
 }
 
 export const apiKeyHeaders = (apiKey) => {
+    console.log("apiKey = ", apiKey)
     if (isValueValid(apiKey)) {
+        console.log("apikey is a valid header", apiKey)
         return { "direktiv-token": apiKey }
     }
+    console.log("apikey is not a valid header")
     return {}
 }
