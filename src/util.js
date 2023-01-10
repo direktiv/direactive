@@ -285,7 +285,15 @@ export const isValueValid = (value) => {
 //  An empty object is returned otherwise
 export const apiKeyHeaders = (apiKey) => {
     if (isValueValid(apiKey)) {
-        return { "direktiv-token": apiKey }
+        const isBearer = apiKey.length > 200;
+        if (isBearer) {
+          return {
+            Authorization: `Bearer ${apiKey}`,
+          };
+        }
+        return {
+          "direktiv-token": apiKey,
+        };
     }
     return {}
 }
