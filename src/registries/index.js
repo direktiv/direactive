@@ -17,8 +17,10 @@ export const useDirektivRegistries = (url, namespace, apikey) => {
     const [data, setData] = React.useState(null)
 
     React.useEffect(() => {
+        const getData = async () => getRegistries();
         if (data === null) {
-            getRegistries()
+          getData().catch(() => {
+          });
         }
     }, [data])
 

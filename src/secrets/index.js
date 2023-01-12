@@ -13,8 +13,10 @@ export const useDirektivSecrets = (url, namespace, apikey) => {
     const [data, setData] = React.useState(null)
 
     React.useEffect(() => {
+        const getData = async () => getSecrets();
         if (data === null) {
-            getSecrets()
+          getData().catch(() => {
+          });
         }
     }, [data])
 

@@ -13,8 +13,10 @@ export const useDirektivBroadcastConfiguration = (url, namespace, apikey) => {
     const [data, setData] = React.useState(null)
 
     React.useEffect(() => {
+        const getData = async () => getBroadcastConfiguration();
         if (data === null) {
-            getBroadcastConfiguration()
+          getData().catch(() => {
+          });
         }
     }, [data])
 
