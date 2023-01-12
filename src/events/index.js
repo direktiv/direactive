@@ -161,37 +161,47 @@ export const useDirektivEvents = (url, stream, namespace, apikey, queryParameter
     }
 
     async function replayEvent(event, ...queryParameters) {
-        let headers = {
-            "content-type": "application/cloudevents+json; charset=UTF-8"
+      const resp = await fetch(
+        `${url}namespaces/${namespace}/events/${event}/replay${ExtractQueryString(
+          false,
+          ...queryParameters
+        )}`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/cloudevents+json; charset=UTF-8",
+            ...apiKeyHeaders(apikey),
+          },
         }
-        if (apikey !== undefined) {
-            headers["apikey"] = apikey
-        }
-        let resp = await fetch(`${url}namespaces/${namespace}/events/${event}/replay${ExtractQueryString(false, ...queryParameters)}`, {
-            method: "POST",
-            headers: headers
-        })
-        if (!resp.ok) {
-            throw new Error(await HandleError('send namespace event', resp, "sendNamespaceEvent"))
-        }
-        return
+      );
+      if (!resp.ok) {
+        throw new Error(
+          await HandleError("send namespace event", resp, "sendNamespaceEvent")
+        );
+      }
+      return;
     }
 
     async function sendEvent(event, ...queryParameters) {
-        let headers = {
-            "content-type": "application/cloudevents+json; charset=UTF-8"
+      const resp = await fetch(
+        `${url}namespaces/${namespace}/broadcast${ExtractQueryString(
+          false,
+          ...queryParameters
+        )}`,
+        {
+          method: "POST",
+          body: event,
+          headers: {
+            "content-type": "application/cloudevents+json; charset=UTF-8",
+            ...apiKeyHeaders(apikey),
+          },
         }
-        if (apikey !== undefined) {
-            headers["apikey"] = apikey
-        }
-        let resp = await fetch(`${url}namespaces/${namespace}/broadcast${ExtractQueryString(false, ...queryParameters)}`, {
-            method: "POST",
-            body: event,
-            headers: headers
-        })
-        if (!resp.ok) {
-            throw new Error(await HandleError('send namespace event', resp, "sendNamespaceEvent"))
-        }
+      );
+      if (!resp.ok) {
+        throw new Error(
+          await HandleError("send namespace event", resp, "sendNamespaceEvent")
+        );
+      }
     }
 
     return {
