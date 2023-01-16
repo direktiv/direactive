@@ -163,7 +163,7 @@ export const useDirektivNodes = (
       request
     );
     if (!resp.ok) {
-      throw new Error(await HandleError("create node", resp, "createNode"));
+      throw new Error(await HandleError("create node", resp));
     }
 
     return await resp.json();
@@ -188,7 +188,7 @@ export const useDirektivNodes = (
       request
     );
     if (!resp.ok) {
-      throw new Error(await HandleError("create node", resp, "createNode"));
+      throw new Error(await HandleError("create node", resp));
     }
 
     return await resp.json();
