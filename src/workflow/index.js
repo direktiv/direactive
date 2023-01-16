@@ -159,7 +159,7 @@ export const useDirektivWorkflow = (url, stream, namespace, path, apikey, ...que
             body: newwf
         })
         if (!resp.ok) {
-            throw new Error(await HandleError('update workflow', resp, 'updateWorkflow'))
+            throw new Error(await HandleError('update workflow', resp))
         }
     }
 
