@@ -61,6 +61,14 @@ export async function HandleError(summary, resp, perm) {
             }
         }
     } else {
+        // if no permission is provided, return the error message from the reponse
+        if (!perm) {
+          try {
+            return await resp.text();
+          } catch (error) {
+            return `You do not have permission to '${summary}'`
+          }
+        }
         return `You do not have permission to '${summary}', contact system admin to grant '${perm}'`
     }
 }
