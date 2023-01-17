@@ -313,7 +313,7 @@ export const useDirektivNamespaceService = (url, namespace, service, navigate, a
             })
         })
         if (!resp.ok) {
-            throw new Error(await HandleError('create namespace service revision', resp, 'createRevision'))
+            throw new Error(await HandleError('create namespace service revision', resp))
         }
     }
 
@@ -500,7 +500,7 @@ export const useDirektivNamespaceServices = (url, stream, namespace, apikey) => 
             })
         })
         if (!resp.ok) {
-            throw new Error(await HandleError('create namespace service', resp, 'createService'))
+            throw new Error(await HandleError('create namespace service', resp))
         }
     }
 
